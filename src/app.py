@@ -9,9 +9,9 @@ from datetime import datetime, time, date, timedelta
 import calendar
 from flask import Flask, request
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String
+from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
-
+import os
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
@@ -28,94 +28,113 @@ db = SQLAlchemy(app)
 ###################################### MODELOS #####################################
 class Clinica(db.Model):
     __tablename__ = "clinica"
-    id_clinica = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(255), nullable=False)
     tipo = Column(String(255))
     fone_contato = Column(String(20), nullable=False)
     endereco = Column(String(255), nullable=False)
-    long = Column(String(45), nullable=False)
-    lat = Column(String(45), nullable=False)
+    longitude = Column(String(45), nullable=False)
+    latitude = Column(String(45), nullable=False)
 
     consultas = relationship("Consulta", back_populates="clinica")
+    horarios = relationship("Horario", back_populates="clinica")
 
-    def __init__(self, nome, tipo, fone_contato, endereco, long, lat):
+    def __init__(self, nome, tipo, fone_contato, endereco, longitude, latitude):
         self.nome = nome
         self.tipo = tipo
         self.fone_contato = fone_contato
         self.endereco = endereco
-        self.long = long
-        self.lat = lat
+        self.long = longitude
+        self.latitude = latitude
 
     def to_json(self):
         return {"id": self.id_clinica, "nome": self.nome, "tipo": self.tipo,
                 "fone_contato": self.fone_contato, "endereco": {
                     "text": self.endereco,
                     "coord": {
-                        "lat": self.lat,
-                        "long": self.long
+                        "latitude": self.latitude,
+                        "longitude": self.longitude
                     }
                 }
                 }
 
 
-class Agenda(db.Model):
-    __tablename__ = "agenda"
-
-    id_data = Column(Integer, primary_key=True, autoincrement=True)
-    data = Column(Date, nullable=False)
-    hora = Column(Time, nullable=False)
-
-    consultas = relationship("Consulta", back_populates="agenda")
-
-    def __init__(self, data: date, hora: time):
-        self.data = data
-        self.hora = hora
-
-    def to_json(self):
-        consultas = [{"nome": consulta.to_json().nome, "telefone": consulta.to_json(
-        ).telefone} for consulta in self.consultas]
-        return {"data": self.data, "hora": self.hora, "consultas": consultas}
-
-
 class Cliente(db.Model):
     __tablename__ = "cliente"
-    id_cliente = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     nome = Column(String(255), nullable=False)
-    cpf = Column(String(15), nullable=False)
+    cpf = Column(String(14), nullable=False)
     telefone = Column(String(20), nullable=False)
+    endereco = Column(String(255), default=None)
+    nascimento = Column(Date, default=None)
 
     consultas = relationship("Consulta", back_populates="cliente")
-
-    def __init__(self,  nome, cpf, telefone):
+    horarios = relationship("Horario", back_populates="horario")
+    def __init__(self,  nome, cpf, telefone, endereco, nascimento):
         self.nome = nome
         self.cpf = cpf
         self.telefone = telefone
+        self.endereco = endereco
+        self.nascimento = nascimento
 
     def to_json(self):
-        return {"id": self.id_cliente, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone}
+        return {"id": self.id_cliente, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone, "endereco": self.endereco, "nascimento":self.nascimento}
 
 
 class Consulta(db.Model):
     __tablename__ = "consulta"
 
-    id_consulta = Column(Integer, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    marcada = (DateTime)
+    descricao = Column(String(255))
+    realizada = Column(Boolean)
     id_cliente = Column(Integer, ForeignKey(
-        'cliente.id_cliente'), nullable=True)
+        'cliente.id'), nullable=False)
     id_clinica = Column(Integer, ForeignKey(
-        'clinica.id_clinica'), nullable=True)
-    id_data = Column(Integer, ForeignKey('agenda.id_data'), nullable=True)
+        'clinica.id'), nullable=False)
 
     cliente: Cliente = relationship("Cliente", back_populates="consultas")
     clinica: Clinica = relationship("Clinica", back_populates="consultas")
-    agenda: Agenda = relationship("Agenda", back_populates="consultas")
 
-    def __init__(self, id_cliente, id_clinica, id_data):
+    def __init__(self, id_cliente, id_clinica, descricao, marcada, realizada=False):
         self.id_cliente = id_cliente
         self.id_clinica = id_clinica
-        self.id_data = id_data
+        self.descricao = descircao
+        self.marcada = marcada
+        self.realizada = realizada
 
     def to_json(self):
-        return {"id": self.id_consulta, "nome": self.cliente.nome, "cpf": self.cliente.cpf, "telefone": self.cliente.telefone, "data": self.agenda.data, "hora": self.agenda.hora, "clinica": self.clinica.nome}
+        return {"id": self.id_consulta, "nome": self.cliente.nome,"marcada":self.marcada, "descricao":self.descricao, "realizada":self.realizada , "clinica": self.clinica.nome}
+
+class Horario(db.Model):
+    __tablename__ = "horario"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+
+    am_inicio = Column(Time, nullable=False)
+    am_fim = Column(Time)
+    pm_inicio = Column(Time)
+    pm_fim = Column(Time, nullable=False)
+    intervalo = Column(Time, nullable=False)
+    almoco = Column(Boolean)
+    dia_semana = Column(Integer)
+
+    id_clinica = Column(Integer, ForeignKey('clinica.id'), nullable=False)
+
+    clinica = relationship('Clinica', back_populates='horarios')
+
+    def __init__(self, am_inicio, am_fim, pm_inicio, pm_fim, intervalo, almoco, dia_semana):
+        self.am_inicio = am_inicio
+        self.am_fim = am_fim
+        self.pm_inicio = pm_inicio
+        self.pm_fim = pm_fim
+        self.intervalo = intervalo
+        self.almoco = almoco
+        self.dia_semana = dia_semana
+
+    def to_json(self):
+        return {"id":self.id, "am_inicio":self.am_inicio, "am_fim":self.am_fim, "pm_inicio":self.pm_incio, "pm_fim":self.pm_fim, "intervalo":self.intervalo, "almoco":self.almoco, "dia_semana":self.dia_semana}
+
 ######################################################################################
 
 
