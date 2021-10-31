@@ -16,10 +16,12 @@ class DevelopmentConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class TestingConfig(Config):
-    pass
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
+    DEBUG = True
 
 class ProductionConfig(Config):
-    pass
+    DEBUG = False
 
 
-config = {"dev": DevelopmentConfig, "test": TestingConfig, "prod":ProductionConfig}
+app_config = {"development": DevelopmentConfig, "test": TestingConfig, "production":ProductionConfig}
