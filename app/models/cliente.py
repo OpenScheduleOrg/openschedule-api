@@ -22,6 +22,6 @@ class Cliente(db.Model):
         self.nascimento = nascimento
 
     def to_json(self):
-        return {"id": self.id_cliente, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone, "endereco": self.endereco, "nascimento":self.nascimento}
+        return {"id": self.id, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone, "endereco": self.endereco, "nascimento":self.nascimento}
 
 
