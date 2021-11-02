@@ -1,4 +1,4 @@
-from app import db
+from app.models import db
 from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
@@ -25,7 +25,7 @@ class Clinica(db.Model):
         self.latitude = latitude
 
     def to_json(self):
-        return {"id": self.id_clinica, "nome": self.nome, "tipo": self.tipo,
+        return {"id": self.id, "nome": self.nome, "tipo": self.tipo,
                 "fone_contato": self.fone_contato, "endereco": {
                     "text": self.endereco,
                     "coord": {

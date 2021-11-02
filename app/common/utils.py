@@ -12,7 +12,7 @@ def CPFormat(cpf: str):
     return None
 
 def gen_response(status, **body):
-    return Response(json.dumps(body,  indent=4, sort_keys=True, default=str), status=status, mimetype="application/json")
+    return Response(json.dumps(body, indent=4, sort_keys=True, default=str), status=status, mimetype="application/json")
 
 
 def insertSort(ls):

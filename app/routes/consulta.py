@@ -1,4 +1,4 @@
-from app import app
+from app.routes import api
 
 from datetime import datetime, time, date, timedelta
 import calendar
@@ -7,7 +7,7 @@ from flask import request
 from app.models import Consulta
 
 # POST cosulta #
-@app.route("/consulta", methods=["POST"])
+@api.route("/consulta", methods=["POST"])
 def post_consulta():
     body = request.get_json()
 
@@ -34,7 +34,7 @@ def post_consulta():
 
 
 # GET consultas #
-@app.route("/consultas", methods=["GET"])
+@api.route("/consultas", methods=["GET"])
 def get_consultas():
     consultas = Consulta.query.all()
     consultas_json = [consulta.to_json() for consulta in consultas]
@@ -44,7 +44,7 @@ def get_consultas():
 
 
 # GET consulta by ID#
-@app.route("/consulta/<id>", methods=["GET"])
+@api.route("/consulta/<id>", methods=["GET"])
 def get_consulta(id):
     consulta_json = {}
     consulta = Consulta.query.get(id)
@@ -55,7 +55,7 @@ def get_consulta(id):
 # END GET consulta by ID#
 
 # DELETE consulta by ID#
-@app.route("/consulta/<id>", methods=["DELETE"])
+@api.route("/consulta/<id>", methods=["DELETE"])
 def delete_consulta(id):
     consulta_json = {}
     consulta = Consulta.query.get(id)

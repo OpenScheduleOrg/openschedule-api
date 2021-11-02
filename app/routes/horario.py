@@ -1,4 +1,4 @@
-from app import app
+from app.routes import api
 
 from datetime import datetime, time, date, timedelta
 import calendar

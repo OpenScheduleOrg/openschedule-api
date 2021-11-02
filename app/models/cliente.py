@@ -1,5 +1,7 @@
-from app import db
+from datetime import date
+
 from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
+from app.models import db
 from sqlalchemy.orm import relationship
 
 
@@ -14,14 +16,14 @@ class Cliente(db.Model):
     nascimento = Column(Date, default=None)
 
     consultas = relationship("Consulta", back_populates="cliente")
-    def __init__(self,  nome, cpf, telefone, endereco, nascimento):
+    def __init__(self,  nome=None, cpf=None, telefone=None, endereco=None, nascimento=None):
         self.nome = nome
         self.cpf = cpf
         self.telefone = telefone
         self.endereco = endereco
-        self.nascimento = nascimento
+        self.nascimento = date.fromisoformat(nascimento)
 
     def to_json(self):
-        return {"id": self.id_cliente, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone, "endereco": self.endereco, "nascimento":self.nascimento}
+        return {"id": self.id, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone, "endereco": self.endereco, "nascimento":f"{self.nascimento:%Y-%m-%d}"}
 
 

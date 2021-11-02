@@ -1,4 +1,4 @@
-from app import db
+from app.models import db
 from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
@@ -25,6 +25,6 @@ class Consulta(db.Model):
         self.realizada = realizada
 
     def to_json(self):
-        return {"id": self.id_consulta, "nome": self.cliente.nome,"marcada":self.marcada, "descricao":self.descricao, "realizada":self.realizada , "clinica": self.clinica.nome}
+        return {"id": self.id, "nome": self.cliente.nome,"marcada":self.marcada, "descricao":self.descricao, "realizada":self.realizada , "clinica": self.clinica.nome}
 
 

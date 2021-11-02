@@ -1,14 +1,16 @@
-from app import app
+from app.routes import api
 
 from datetime import datetime, time, date, timedelta
 import calendar
-from app.common.utils import gen_response, insertSort, CPFormat
+
 from flask import request
+
+from app.common.utils import gen_response, insertSort, CPFormat
 from app.models import Cliente
 
 
 
-@app.route("/cliente", methods=["POST"])
+@api.route("/cliente", methods=["POST"])
 def post_cliente():
     body = request.get_json()
 
@@ -29,7 +31,7 @@ def post_cliente():
 
 
 # GET clientes #
-@app.route("/clientes", methods=["GET"])
+@api.route("/clientes", methods=["GET"])
 def get_clientes():
     clientes: list[Cliente] = Cliente.query.all()
     clientes_json = [cliente.to_json() for cliente in clientes]
@@ -39,7 +41,7 @@ def get_clientes():
 
 
 # GET cliente by ID #
-@app.route("/cliente/<id>", methods=["GET"])
+@api.route("/cliente/<id>", methods=["GET"])
 def get_cliente(id):
     cliente_json = {}
     cliente: Cliente or None = Cliente.query.get(id)
@@ -70,7 +72,7 @@ def get_cliente(id):
 
 
 # GET cliente by telefone #
-@app.route("/telefone/<telefone>", methods=["GET"])
+@api.route("/telefone/<telefone>", methods=["GET"])
 def get_cliente_telefone(telefone):
     cliente_json = {}
     cliente: Cliente = Cliente.query.filter_by(telefone=telefone).first()

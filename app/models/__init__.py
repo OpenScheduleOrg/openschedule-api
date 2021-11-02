@@ -1,3 +1,7 @@
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy()
+
 from app.models.cliente import Cliente
 from app.models.clinica import Clinica
 from app.models.horario import Horario
