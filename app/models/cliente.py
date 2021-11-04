@@ -1,29 +1,19 @@
 from datetime import date
 
 from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
-from app.models import db
 from sqlalchemy.orm import relationship
 
+from app.models import db, TimestampMixin
 
-
-class Cliente(db.Model):
+class Cliente(TimestampMixin, db.Model):
     __tablename__ = "cliente"
-    id = Column(Integer, primary_key=True, autoincrement=True)
+
     nome = Column(String(255), nullable=False)
-    cpf = Column(String(14), nullable=False)
-    telefone = Column(String(20), nullable=False)
+    cpf = Column(String(11), nullable=False)
+    telefone = Column(String(11), nullable=False)
     endereco = Column(String(255), default=None)
     nascimento = Column(Date, default=None)
 
     consultas = relationship("Consulta", back_populates="cliente")
-    def __init__(self,  nome=None, cpf=None, telefone=None, endereco=None, nascimento=None):
-        self.nome = nome
-        self.cpf = cpf
-        self.telefone = telefone
-        self.endereco = endereco
-        self.nascimento = date.fromisoformat(nascimento)
-
-    def to_json(self):
-        return {"id": self.id, "nome": self.nome, "cpf": self.cpf, "telefone": self.telefone, "endereco": self.endereco, "nascimento":f"{self.nascimento:%Y-%m-%d}"}
 
 

@@ -1,30 +1,24 @@
-from app.routes import api
-
 from datetime import datetime, time, date, timedelta
 import calendar
 
 from flask import request
 
+from app.routes import api
+from app.models import db, Cliente
 from app.common.utils import gen_response, insertSort, CPFormat
-from app.models import Cliente
-
 
 
 @api.route("/cliente", methods=["POST"])
 def post_cliente():
     body = request.get_json()
 
-    nome = body["nome"]
-    cpf = CPFormat(body["cpf"])
-    telefone = body["telefone"]
-    if cpf:
-        try:
-            cliente = Cliente(nome, cpf, telefone)
-            db.session.add(cliente)
-            db.session.commit()
-            return gen_response(200, cliente=cliente.to_json(), msg="Cliente cadastrado com sucesso")
-        except Exception as e:
-            print('Erro', e)
+    try:
+        cliente = Cliente(**body)
+        db.session.add(cliente)
+        db.session.commit()
+        return gen_response(200, cliente=cliente._asdict(), msg="Cliente cadastrado com sucesso")
+    except Exception as e:
+        print('Error: ', e)
 
     return gen_response(400, msg="Erro ao cadastrar cliente")
 # END POST cliente #
@@ -34,7 +28,7 @@ def post_cliente():
 @api.route("/clientes", methods=["GET"])
 def get_clientes():
     clientes: list[Cliente] = Cliente.query.all()
-    clientes_json = [cliente.to_json() for cliente in clientes]
+    clientes_json = [cliente._asdict() for cliente in clientes]
 
     return gen_response(200, clientes=clientes_json)
 # END GET clientes #
@@ -47,7 +41,7 @@ def get_cliente(id):
     cliente: Cliente or None = Cliente.query.get(id)
 
     if(cliente):
-        cliente_json = cliente.to_json()
+        cliente_json = cliente._asdict()
         consultas: list[Consulta] = insertSort(cliente.consultas)
         cliente_json["consultas"] = {}
         for consulta in consultas:
@@ -77,7 +71,7 @@ def get_cliente_telefone(telefone):
     cliente_json = {}
     cliente: Cliente = Cliente.query.filter_by(telefone=telefone).first()
     if(cliente):
-        cliente_json = cliente.to_json()
+        cliente_json = cliente._asdict()
         consulta: Consulta
         cliente_json["consultas"] = [{"data": consulta.agenda.data, "hora": consulta.agenda.hora,
                                       "clinica": consulta.clinica.nome} for consulta in cliente.consultas]

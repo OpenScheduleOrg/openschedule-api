@@ -1,10 +1,12 @@
-from app.routes import api
-
 from datetime import datetime, time, date, timedelta
 import calendar
-from app.common.utils import gen_response, insertSort, CPFormat
+
 from flask import request
+
+from app.routes import api
 from app.models import Consulta
+from app.common.utils import gen_response, insertSort, CPFormat
+
 
 # POST cosulta #
 @api.route("/consulta", methods=["POST"])
@@ -25,7 +27,7 @@ def post_consulta():
             db.session.add(consulta)
             db.session.commit()
 
-            return gen_response(200, consulta=consulta.to_json(), msg="Consulta marcada com sucesso")
+            return gen_response(200, consulta=consulta._asdict(), msg="Consulta marcada com sucesso")
     except Exception as e:
         print('Error:', e)
 
@@ -37,7 +39,7 @@ def post_consulta():
 @api.route("/consultas", methods=["GET"])
 def get_consultas():
     consultas = Consulta.query.all()
-    consultas_json = [consulta.to_json() for consulta in consultas]
+    consultas_json = [consulta._asdict() for consulta in consultas]
 
     return gen_response(200, consultas=consultas_json)
 # END GET consultas #
@@ -49,7 +51,7 @@ def get_consulta(id):
     consulta_json = {}
     consulta = Consulta.query.get(id)
     if(consulta):
-        consulta_json = consulta.to_json()
+        consulta_json = consulta._asdict()
 
     return gen_response(200, consulta=consulta_json)
 # END GET consulta by ID#
@@ -61,7 +63,7 @@ def delete_consulta(id):
     consulta = Consulta.query.get(id)
     if(consulta):
         db.session.delete(consulta)
-        consulta_json = consulta.to_json()
+        consulta_json = consulta._asdict()
         db.session.commit()
         return gen_response(200, consulta=consulta_json)
 
