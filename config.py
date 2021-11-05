@@ -6,9 +6,10 @@ except:
 
 import os
 
-
 class Config(object):
     SECRET_KEY = os.environ.get("SECRET_KEY")
+    DEBUG = False
+    TESTING = False
 
 class DevelopmentConfig(Config):
     DEBUG = True
@@ -17,11 +18,11 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:////tmp/test.db'
-    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = "sqlite:///"+"/tmp/test.db"
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
-    DEBUG = False
+    pass
 
 
 app_config = {"development": DevelopmentConfig, "test": TestingConfig, "production":ProductionConfig}
