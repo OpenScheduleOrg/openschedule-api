@@ -1,11 +1,10 @@
 from datetime import datetime, time, date, timedelta
 import calendar
 
-from flask import request
+from flask import request, jsonify
 
 from app.routes import api
-from app.models import Clinica
-from app.common.utils import gen_response, insertSort, CPFormat
+from app.models import db, Clinica
 
 # GET clinicas #
 @api.route("/clinicas", methods=["GET"])
@@ -13,7 +12,7 @@ def get_clinicas():
     clinicas = Clinica.query.all()
     clinicas_json = [clinica._asdict() for clinica in clinicas]
 
-    return gen_response(200, clinicas=clinicas_json)
+    return jsonify(clinicas=clinicas_json), 200
 # END GET clinicas #
 
 
@@ -23,7 +22,7 @@ def get_clinica(id):
     clinica_objeto = Clinica.query.get(id)
     clinica_json = clinica_objeto._asdict()
 
-    return gen_response(200, clinica=clinica_json)
+    return jsonify(clinica=clinica_json), 200
 # END GET clinica by ID #
 
 

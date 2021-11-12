@@ -1,26 +1,27 @@
 from datetime import datetime, time, date, timedelta
 import calendar
 
-from flask import request
+from flask import request, jsonify
 
 from app.routes import api
 from app.models import db, Cliente
-from app.common.utils import gen_response, insertSort, CPFormat
-
 
 @api.route("/cliente", methods=["POST"])
 def post_cliente():
     body = request.get_json()
 
+    if ("nascimento" in body):
+        body["nascimento"] = date.fromisoformat(body["nascimento"])
     try:
         cliente = Cliente(**body)
         db.session.add(cliente)
         db.session.commit()
-        return gen_response(200, cliente=cliente._asdict(), msg="Cliente cadastrado com sucesso")
+        db.session.refresh(cliente)
+        return jsonify(cliente=cliente._asdict(), msg="cliente "+ cliente.nome +" cadastrado com sucesso", success=True), 201
     except Exception as e:
         print('Error: ', e)
 
-    return gen_response(400, msg="Erro ao cadastrar cliente")
+    return jsonify(msg="Erro ao cadastrar cliente"), 400
 # END POST cliente #
 
 
@@ -30,12 +31,12 @@ def get_clientes():
     clientes: list[Cliente] = Cliente.query.all()
     clientes_json = [cliente._asdict() for cliente in clientes]
 
-    return gen_response(200, clientes=clientes_json)
+    return jsonify(clientes=clientes_json, qtd=len(clientes)), 200
 # END GET clientes #
 
 
 # GET cliente by ID #
-@api.route("/cliente/<id>", methods=["GET"])
+@api.route("/cliente/<int:id>", methods=["GET"])
 def get_cliente(id):
     cliente_json = {}
     cliente: Cliente or None = Cliente.query.get(id)
@@ -59,9 +60,9 @@ def get_cliente(id):
                         cliente_json["consultas"][data_str] += [
                             {"id": consulta.id_consulta, "hora": consulta.agenda.hora, "clinica": consulta.clinica.nome}]
 
-        return gen_response(200, cliente=cliente_json)
+        return jsonify(cliente=cliente_json), 200
 
-    return gen_response(400, msg="Cliente não existe")
+    return jsonify(msg="Cliente não existe"), 400
 # END GET cliente by ID #
 
 
@@ -76,7 +77,7 @@ def get_cliente_telefone(telefone):
         cliente_json["consultas"] = [{"data": consulta.agenda.data, "hora": consulta.agenda.hora,
                                       "clinica": consulta.clinica.nome} for consulta in cliente.consultas]
 
-    return gen_response(200, cliente=cliente_json)
+    return jsonify(cliente=cliente_json), 200
 # END GET cliente by telefone #
 
 
