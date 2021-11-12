@@ -1,4 +1,4 @@
-from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
+from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean, Interval
 from sqlalchemy.orm import relationship
 
 from app.models import db
@@ -10,12 +10,11 @@ class Horario(db.Model):
     am_fim = Column(Time)
     pm_inicio = Column(Time)
     pm_fim = Column(Time, nullable=False)
-    intervalo = Column(Time, nullable=False)
-    almoco = Column(Boolean)
+    intervalo = Column(Interval, nullable=False)
+    almoco = Column(Boolean, default=False)
     dia_semana = Column(Integer, nullable=False)
 
     id_clinica = Column(Integer, ForeignKey('clinica.id'), nullable=False)
 
     clinica = relationship('Clinica', back_populates='horarios')
-
 
