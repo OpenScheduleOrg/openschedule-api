@@ -1,20 +1,56 @@
-from conftest import client
-from db import clientes_data
+import json
+from datetime import date, datetime
 
-def test_all_clientes(client):
+from conftest import app, client
+
+from db import db, Cliente
+
+def test_all_clientes(app, client):
     rs = client.get("/clientes")
 
     assert rs.status_code == 200
 
-    clientes_rs = rs.get_json()["clientes"]
-    assert len(clientes_rs) == len(clientes_data)
+    rs_json = rs.get_json()
 
-    for ce in clientes_data:
-        for key in ce.keys():
+    with app.app_context():
+        clientes = Cliente.query.all()
 
-            for cr in clientes_rs:
-                if cr[key] == ce[key]:
-                    break
+    expected_rs = {"status":"success", "data": {"clientes": [c._asjson() for c in clientes]}}
 
-            assert cr[key] == ce[key]
-            del cr[key];
+    assert expected_rs == rs_json
+
+def test_add_cliente(app, client):
+
+    new_cliente = {"nome": "Bob Test", "cpf":"67863478678", "telefone":"89987436743", "endereco":"bairro da flores, rua verde 123", "nascimento":date(2000, 10, 10).isoformat()}
+
+    rs = client.post("/cliente", json=new_cliente)
+
+    assert rs.status_code == 201
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        cliente = Cliente.query.filter_by(**new_cliente).first()
+        cliente_dict = cliente._asjson()
+
+    expected_rs = {"status": "success", "data":{"cliente": cliente_dict}}
+
+    assert expected_rs == rs_json
+
+def test_add_invalid_cliente(app, client):
+    pass
+
+def test_get_cliente(app, client):
+    pass
+
+def test_get_not_exist_cliente(app, client):
+    pass
+
+def test_update_cliente(app, client):
+    pass
+
+def test_update_invalid_cliente(app, client):
+    pass
+
+
+

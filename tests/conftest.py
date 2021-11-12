@@ -33,3 +33,5 @@ def client(app):
     """
     return app.test_client()
 
+if __name__ == "__main__":
+    app()
