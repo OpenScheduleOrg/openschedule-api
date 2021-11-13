@@ -1,14 +1,18 @@
+import random
 from datetime import date, time, datetime, timezone, timedelta
 
 from app.models import db, Cliente, Clinica, Consulta, Horario
 
-clientes_data = [{"nome":"Ryan Ray", "cpf":"23323432134", "telefone":"88473838934", "endereco":"Bairro foo, rua bar", "nascimento":date(2000, 10, 10)}]
+NUMBERS_CLIENTES = 30
+NUMBERS_CLINICAS = 3
 
-clinicas_data = [{"nome":"Doutor Foo Bar", "tipo":"Odontologica", "telefone":"78673426732", "endereco":"Cidade c, 52323-2312, bairro Bar, rua Foo", "longitude": "93713413", "latitude":"23432432"}, {"nome":"Clinica Doutor Gelol", "tipo":"Fisioterapia", "telefone":"88673426732", "endereco":"Cidade b, 98232-2312, bairro sao fulano, rua das clinicas", "longitude": "33713413", "latitude":"23212432"} ]
+cliente_template = {"nome":"cliente {}", "cpf":"{}{}{}{}{}{}{}{}{}{}{}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"Bairro do cliente {}, rua do cliente {}", "nascimento":date(2000, 10, 10)}
 
-horarios_data = [{"am_inicio": time(hour=10), "am_fim": time(hour=14), "pm_inicio": time(hour=17), "pm_fim": time(hour=20), "intervalo": timedelta(minutes=30), "almoco": True, "dia_semana": 0}, {"am_inicio": time(hour=10), "pm_fim": time(hour=20), "intervalo": timedelta(minutes=30), "dia_semana": 0}]
+clinica_template = {"nome":"Clinia {}", "tipo":"Tipo de clinica {}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"bairro da clinica {}, rua da clinica {}", "longitude": "893713413", "latitude":"23432432"}
 
-consultas_data = [{"realizada": False}]
+horario_templates = [
+    {"am_inicio": time(hour=10), "am_fim": time(hour=14), "pm_inicio": time(hour=17), "pm_fim": time(hour=20), "intervalo": timedelta(minutes=30), "almoco": True, "dia_semana": 0},
+    {"am_inicio": time(hour=10), "pm_fim": time(hour=20), "intervalo": timedelta(minutes=30), "dia_semana": 0}]
 
 def _fk_pragma_on_connect(dbapi_con, con_record):
     dbapi_con.execute("PRAGMA foreign_keys = ON")
@@ -17,13 +21,23 @@ def set_up_db():
     from sqlalchemy import event
     event.listen(db.engine, 'connect', _fk_pragma_on_connect)
     db.create_all()
-    create_clientes(clientes_data)
-    create_clinicas(clinicas_data)
-    create_horarios(horarios_data)
-    create_consultas(consultas_data)
+    create_clientes()
+    create_clinicas()
+    create_horarios()
+    create_consultas()
 
 
-def create_clientes(clientes: list):
+def create_clientes():
+
+    clientes = []
+    for i in range(1, NUMBERS_CLIENTES):
+        cliente = cliente_template.copy()
+        cliente["nome"] = cliente["nome"].format(i)
+        cliente["cpf"] = cliente["cpf"].format(random.randint(1, 9), *[random.randint(0, 9) for _ in range (10)])
+        cliente["telefone"] = cliente["telefone"].format(random.randint(1, 9), random.randint(1, 9), 9, *[random.randint(0, 9) for _ in range (8)])
+        cliente["endereco"] = cliente["endereco"].format(i, i)
+        cliente["nascimento"] = cliente["nascimento"] + timedelta(days=i)
+        clientes.append(cliente)
 
     with db.session() as session:
         for c in clientes:
@@ -31,13 +45,24 @@ def create_clientes(clientes: list):
             db.session.add(Cliente(**c_copy))
         session.commit()
 
-def create_clinicas(clinicas: list):
+def create_clinicas():
+
+    clinicas = []
+    for i in range(1, NUMBERS_CLINICAS):
+        clinica = clinica_template.copy()
+        clinica["nome"] = clinica["nome"].format(i)
+        clinica["tipo"] = clinica["tipo"].format(i)
+        clinica["telefone"] = clinica["telefone"].format(random.randint(1, 9), random.randint(1, 9), 9, *[random.randint(0, 9) for _ in range (8)])
+        clinica["endereco"] = clinica["endereco"].format(i, i)
+        clinicas.append(clinica)
+
     with db.session() as session:
         for c in clinicas:
             session.add(Clinica(**c))
         session.commit()
 
-def create_horarios(horarios: list):
+def create_horarios():
+    horarios = horario_templates
 
     clinicas = Clinica.query.all()
 
@@ -47,7 +72,7 @@ def create_horarios(horarios: list):
 
             for c in clinicas:
 
-                horario = horarios[i].copy()
+                horario = horarios[i%2].copy()
                 horario["id_clinica"] = c.id
                 for wd in range(0, 5):
                     horario["dia_semana"] = wd
@@ -59,7 +84,7 @@ def create_horarios(horarios: list):
 
             session.commit()
 
-def generate_marcada(id_clinica, hora=None):
+def generate_marcada(id_clinica):
 
     data = datetime.now(timezone.utc) + timedelta(days=1)
     week_day = data.weekday()
@@ -72,32 +97,36 @@ def generate_marcada(id_clinica, hora=None):
         data =  data + timedelta(days=1)
         week_day = 0
 
-
     horario = Horario.query.filter_by(id_clinica=id_clinica, dia_semana=week_day).first()
 
-    marcada = datetime.combine(data.date(), hora or horario.am_inicio, tzinfo=timezone.utc)
-    one_day = timedelta(days=1)
+    marcada = datetime.combine(data.date(), horario.am_inicio, tzinfo=timezone.utc)
 
-    while Consulta.query.filter(Consulta.id_clinica == id_clinica).filter(Consulta.marcada >= datetime.combine(marcada.date(), horario.am_inicio, tzinfo=timezone.utc)).filter(Consulta.marcada < datetime.combine(marcada.date(), horario.pm_fim, tzinfo=timezone.utc)).first() is not None:
-        if marcada.weekday() == 5:
-            marcada += timedelta(days=2)
+    while Consulta.query.filter_by(id_clinica=id_clinica, marcada=marcada).first() is not None:
+        if (marcada+timedelta(days=1)).weekday() == 5:
+            marcada += timedelta(days=3)
+        elif horario.almoco and ((marcada+horario.intervalo).time() >= horario.am_fim and marcada.time() < horario.pm_inicio):
+            marcada = datetime.combine(marcada.date(), horario.pm_inicio, tzinfo=timezone.utc)
+        elif (marcada+horario.intervalo).time() >= horario.pm_fim:
+            marcada = datetime.combine(marcada.date() + timedelta(days=1), horario.am_inicio, tzinfo=timezone.utc)
         else:
-            marcada += one_day
+            marcada += horario.intervalo
 
     return marcada
 
 
-def create_consultas(consultas: list):
+def create_consultas():
 
-    id_clinica = Clinica.query.first().id
-    id_cliente = Cliente.query.first().id
+    clinicas = Clinica.query.all()
+    clientes = Cliente.query.all()
 
-    marcada = generate_marcada(id_clinica)
-    c = {}
     with db.session() as session:
-        c["id_cliente"] = id_cliente
-        c["id_clinica"] = id_clinica
-        c["marcada"] = marcada
-        session.add(Consulta(**c))
+        for cliente in clientes:
+                for clinica in clinicas:
+                    c = {}
+                    marcada = generate_marcada(clinica.id)
+                    c["id_cliente"] = cliente.id
+                    c["id_clinica"] = clinica.id
+                    c["marcada"] = marcada
+                    session.add(Consulta(**c))
         session.commit()
 

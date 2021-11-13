@@ -7,24 +7,11 @@ from conftest import app, client
 from db import db, Consulta, Cliente, Clinica, generate_marcada
 
 
-def test_all_consultas(app, client):
-    rs = client.get("/consultas")
-
-    assert rs.status_code == 200
-
-    rs_json = rs.get_json()
-
-    with app.app_context():
-        consultas = Consulta.query.all()
-
-    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
-
-    assert expected_rs == rs.get_json()
-
 def test_api_add_consulta(app, client):
     with app.app_context():
         clientes = Cliente.query.all()
         clinicas = Clinica.query.all()
+
     i = 0
     for cliente in clientes:
 
@@ -37,6 +24,8 @@ def test_api_add_consulta(app, client):
                 new_consulta["marcada"] = str(generate_marcada(new_consulta["id_clinica"]))
 
             rs = client.post("/consulta", json=new_consulta)
+
+            print(rs.get_json())
 
             assert rs.status_code == 201
 
@@ -52,7 +41,6 @@ def test_api_add_consulta(app, client):
 def test_invalid_parameters_add_consulta(app, client):
 
 #   Tentando adicionar sem nenhum dado
-
     new_consulta = {}
 
     rs = client.post("/consulta", json=new_consulta)
@@ -74,7 +62,7 @@ def test_invalid_parameters_add_consulta(app, client):
         if (not consultas):
             raise Exception("It is not possible to continue without any registered consulta")
 
-        new_consulta["id_cliente"] = random.choice(clientes).id_cliente
+        new_consulta["id_cliente"] = random.choice(consultas).id_cliente
         new_consulta["id_clinica"] = random.choice(consultas).id_clinica
         new_consulta["marcada"] = str(generate_marcada(new_consulta["id_clinica"]))
 
@@ -130,6 +118,80 @@ def test_invalid_parameters_add_consulta(app, client):
 
 
 
+def test_get_consultas(app, client):
+
+    date_start = datetime.combine(date.today(), time(0), tzinfo=timezone.utc)
+    date_end = date_start + timedelta(weeks=1)
+
+#   Buscando todas as consultas
+
+    rs = client.get("/consultas")
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.all()
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    #assert expected_rs == rs.get_json()
+
+#   Buscando todas as consultas de uma clinica
+    with app.app_context():
+        id_clinica = Clinica.query.first().id
+
+    rs = client.get("/consultas?id_clinica="+str(id_clinica))
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.filter_by(id_clinica=id_clinica)
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    #assert expected_rs == rs.get_json()
+
+#   Buscando todas as consultas de uma clinica no intervalo de uma semana
+
+    with app.app_context():
+        id_clinica = Clinica.query.first().id
+
+
+    rs = client.get("/consultas?id_clinica=".format(id_clinica, date))
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.filter_by(id_clinica=id_clinica).filter(Consulta.marcada >= date_start).filter(Consulta.marcada <= date_end)
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    #assert expected_rs == rs.get_json()
+
+
+#   Buscando todas as consultas de um cliente
+    with app.app_context():
+        id_cliente = Cliente.query.first().id
+
+    rs = client.get("/consultas?id_cliente="+str(id_cliente))
+
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.filter_by(id_clinica=id_clinica)
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    #assert expected_rs == rs.get_json()
 
 
 
