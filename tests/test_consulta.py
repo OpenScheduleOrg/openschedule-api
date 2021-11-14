@@ -7,7 +7,9 @@ from conftest import app, client
 from db import db, Consulta, Cliente, Clinica, generate_marcada
 
 
-def test_api_add_consulta(app, client):
+def test_add_consulta(app, client):
+
+#   Marcando consultas com todos os usuários em todas as clinicas
     with app.app_context():
         clientes = Cliente.query.all()
         clinicas = Clinica.query.all()
@@ -25,7 +27,6 @@ def test_api_add_consulta(app, client):
 
             rs = client.post("/consulta", json=new_consulta)
 
-            print(rs.get_json())
 
             assert rs.status_code == 201
 
@@ -55,7 +56,6 @@ def test_invalid_parameters_add_consulta(app, client):
     assert rs_json["data"] == expected_data
 
 #   Tentando cadastro de uma consulta em um cliente não cadastrado
-
     with app.app_context():
         consultas = Consulta.query.all()
 
@@ -120,8 +120,8 @@ def test_invalid_parameters_add_consulta(app, client):
 
 def test_get_consultas(app, client):
 
-    date_start = datetime.combine(date.today(), time(0), tzinfo=timezone.utc)
-    date_end = date_start + timedelta(weeks=1)
+    date_start = datetime.combine(date.today(), time(0))
+    date_end = datetime.combine(date_start.date()+timedelta(weeks=1), time.max)
 
 #   Buscando todas as consultas
 
@@ -132,11 +132,11 @@ def test_get_consultas(app, client):
     rs_json = rs.get_json()
 
     with app.app_context():
-        consultas = Consulta.query.all()
+        consultas = Consulta.query.filter(Consulta.marcada >= date_start).filter(Consulta.marcada <= date_end).all()
 
     expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
 
-    #assert expected_rs == rs.get_json()
+    assert expected_rs == rs.get_json()
 
 #   Buscando todas as consultas de uma clinica
     with app.app_context():
@@ -153,27 +153,21 @@ def test_get_consultas(app, client):
 
     expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
 
-    #assert expected_rs == rs.get_json()
+    assert expected_rs == rs.get_json()
 
 #   Buscando todas as consultas de uma clinica no intervalo de uma semana
-
-    with app.app_context():
-        id_clinica = Clinica.query.first().id
-
-
-    rs = client.get("/consultas?id_clinica=".format(id_clinica, date))
+    rs = client.get("/consultas?id_clinica={}&date_start={}&date_end={}".format(id_clinica, date_start.isoformat(), date_end.isoformat()))
 
     assert rs.status_code == 200
 
     rs_json = rs.get_json()
 
     with app.app_context():
-        consultas = Consulta.query.filter_by(id_clinica=id_clinica).filter(Consulta.marcada >= date_start).filter(Consulta.marcada <= date_end)
+        consultas = Consulta.query.filter_by(id_clinica=id_clinica).filter(Consulta.marcada >= date_start).filter(Consulta.marcada <= date_end).all()
 
     expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
 
-    #assert expected_rs == rs.get_json()
-
+    assert expected_rs == rs.get_json()
 
 #   Buscando todas as consultas de um cliente
     with app.app_context():
@@ -187,11 +181,115 @@ def test_get_consultas(app, client):
     rs_json = rs.get_json()
 
     with app.app_context():
-        consultas = Consulta.query.filter_by(id_clinica=id_clinica)
+        consultas = Consulta.query.filter_by(id_cliente=id_cliente)
 
     expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
 
-    #assert expected_rs == rs.get_json()
+    assert expected_rs == rs.get_json()
 
+
+#   Buscando todas as consultas de um cliente no intervalo de uma semana
+    rs = client.get("/consultas?id_cliente={}&date_start={}&date_end={}".format(id_cliente, date_start.isoformat(), date_end.isoformat()))
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.filter_by(id_cliente=id_cliente).filter(Consulta.marcada >= date_start).filter(Consulta.marcada <= date_end).all()
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    assert expected_rs == rs.get_json()
+
+#   Buscando todas as consultas de um cliente em uma clinica
+    rs = client.get("/consultas?id_cliente={}&id_clinica={}".format(id_cliente,id_clinica))
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.filter_by(id_cliente=id_cliente, id_clinica=id_clinica)
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    assert expected_rs == rs.get_json()
+
+#   Buscando todas as consultas de um cliente em uma clinica no intervalo de uma semana
+    rs = client.get("/consultas?id_cliente={}&id_clinica={}&date_start={}&date_end={}".format(id_cliente, id_clinica, date_start.isoformat(), date_end.isoformat()))
+
+    assert rs.status_code == 200
+
+    rs_json = rs.get_json()
+
+    with app.app_context():
+        consultas = Consulta.query.filter_by(id_cliente=id_cliente, id_clinica=id_clinica).filter(Consulta.marcada >= date_start).filter(Consulta.marcada <= date_end).all()
+
+    expected_rs = {"status": "success", "data":{"consultas": [c._asjson() for c in consultas]}}
+
+    assert expected_rs == rs.get_json()
+
+
+
+
+def test_invalid_parameters_get_consulta(app, client):
+
+#   busca com paramatros não utlizados
+    rs = client.get("/consultas?inval=1&notvalid=0")
+
+    assert rs.status_code == 406
+
+    rs_json = rs.get_json()
+
+    assert rs_json["status"] == "fail"
+    assert rs_json["data"] == {"payload": {"inval":'1', "notvalid":'0'}, "detail":{"inval":"unusable", "notvalid":"unusable"}}
+
+#   tentando busca consultas de uma clinica não cadastrada
+
+    rs = client.get("/consultas?id_clinica=0")
+
+    assert rs.status_code == 400
+
+    rs_json = rs.get_json()
+
+    assert rs_json["status"] == "fail"
+    assert rs_json["data"] == {"payload": {"id_clinica":'0'}, "detail":{"id_clinica": "not found"}}
+
+#   tentando busca consultas de um cliente não cadastrada
+
+    rs = client.get("/consultas?id_cliente=0")
+
+    assert rs.status_code == 400
+
+    rs_json = rs.get_json()
+
+    assert rs_json["status"] == "fail"
+    assert rs_json["data"] == {"payload": {"id_cliente":'0'}, "detail":{"id_cliente": "not found"}}
+
+#   tentando buscar consultas com date_start e date_end com valores não iso format
+
+    rs = client.get("/consultas?date_start={}&date_end={}".format("notadateinisoformat", "thisisthesame"))
+
+    assert rs.status_code == 400
+
+    rs_json = rs.get_json()
+
+    assert rs_json["status"] == "fail"
+    assert rs_json["data"] == {"payload": {"date_start":"notadateinisoformat", "date_end": "thisisthesame"}, "detail":{"date_start": "invalid", "date_end":"invalid"}}
+
+#   tentando buscar consultas com date_start > date_end
+
+    date_start = datetime.combine(date.today(), time(0))
+    date_end = datetime.combine(date_start.date()+timedelta(weeks=1), time.max)
+
+    rs = client.get("/consultas?date_start={}&date_end={}".format(date_end, date_start))
+
+    assert rs.status_code == 400
+
+    rs_json = rs.get_json()
+
+    assert rs_json["status"] == "fail"
+    assert rs_json["data"] == {"payload": {"date_start":str(date_end), "date_end": str(date_start)}, "detail":{"date_start": "invalid", "date_end":"invalid"}}
 
 

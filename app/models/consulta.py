@@ -29,6 +29,14 @@ class Consulta(TimestampMixin, db.Model):
 
         super().__init__(**kw, marcada=marcada)
 
+    def _asjson(self, cliente=False):
+        obj_json = super()._asjson()
+
+        del obj_json["created_at"]
+        del obj_json["updated_at"]
+
+        return obj_json
+
     @validates('marcada')
     def validate_marcada(self, key, marcada):
 

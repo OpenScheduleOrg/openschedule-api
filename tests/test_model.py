@@ -1,5 +1,5 @@
 import random
-from datetime import date, datetime, timezone, timedelta
+from datetime import date, datetime, timezone, timedelta, time
 
 import pytest
 
@@ -72,3 +72,4 @@ def test_add_consulta(app):
         # no pós expediente
         with pytest.raises(APIExceptionHandler):
             new_consulta = Consulta(marcada=pm_fim, id_clinica=id_clinica_almoco, id_cliente=id_cliente)
+

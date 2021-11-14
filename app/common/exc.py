@@ -8,7 +8,7 @@ class APIExceptionHandler(Exception):
     status_code = 400
 
     def __init__(self, message, status_code=None, status="fail", detail=None):
-        super().__init__(message)
+        super().__init__()
         self.message = message
         if status_code is not None:
             self.status_code = status_code
@@ -27,7 +27,7 @@ class APIExceptionHandler(Exception):
 
 def api_exception_handler(e):
     e_json = e.to_dict()
-    e_json["data"]["payload"] = request.get_json()
+    e_json["data"]["payload"] = request.get_json() or request.args
 
     return jsonify(e_json), e.status_code
 

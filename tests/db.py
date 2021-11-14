@@ -3,8 +3,8 @@ from datetime import date, time, datetime, timezone, timedelta
 
 from app.models import db, Cliente, Clinica, Consulta, Horario
 
-NUMBERS_CLIENTES = 30
-NUMBERS_CLINICAS = 3
+NUMBERS_CLIENTES = 10
+NUMBERS_CLINICAS = 2
 
 cliente_template = {"nome":"cliente {}", "cpf":"{}{}{}{}{}{}{}{}{}{}{}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"Bairro do cliente {}, rua do cliente {}", "nascimento":date(2000, 10, 10)}
 
