@@ -3,27 +3,33 @@ import calendar
 
 from flask import request, jsonify
 
-from app.routes import api
-from app.models import db, Clinica
+from . import api
+from ..models import db, Clinica
+from ..common.exc import APIExceptionHandler
+
+# POST clinica #
+@api.route("/clinica", methods=["POST"])
+def post_clinica():
+    pass
+# END POST clinica #
 
 # GET clinicas #
 @api.route("/clinicas", methods=["GET"])
-def get_clinicas():
-    clinicas = Clinica.query.all()
-    clinicas_json = [clinica._asdict() for clinica in clinicas]
-
-    return jsonify(clinicas=clinicas_json), 200
+@api.route("/clinicas/<int:id>", methods=["GET"])
+def get_clinicas(id):
+    pass
 # END GET clinicas #
 
+# PUT clinica #
+@api.route("/clinica/<int:id>", methods=["PUT"])
+def put_clinica(id):
+    pass
+# END PUT clinica #
 
-# GET clinica by ID #
-@api.route("/clinica/<id>", methods=["GET"])
-def get_clinica(id):
-    clinica_objeto = Clinica.query.get(id)
-    clinica_json = clinica_objeto._asdict()
-
-    return jsonify(clinica=clinica_json), 200
-# END GET clinica by ID #
-
+# DELETE clinica #
+@api.route("/clinica", methods=["DELETE"])
+def delete_clinica():
+    pass
+# END DELETE clinica #
 
 

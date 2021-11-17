@@ -5,7 +5,7 @@ api = Blueprint("api", "api")
 from app.routes import cliente, clinica, consulta, horario
 
 
-# STATUS CODE REFERENCE
+#                STATUS CODE REFERENCE
 
 #           Repostas de sucesso
 ## 200 OK Estas requisição foi bem sucedida.
@@ -19,3 +19,31 @@ from app.routes import cliente, clinica, consulta, horario
 #           Respostas de erro do Servidor
 ## 500 INTERNAL SERVER ERROR O servidor encontrou uma situação com a qual não sabe lidar.
 
+
+"""
+                JSON RESPONSE FORMAT
+ success:
+ {"status": "success", data: {} | None}
+
+ fail e error:
+ {"status": "fail" | "error", "message": "problem message", "data": {"detail": {"key": "required" | "not found" | "invalid" | "unusable"}, "payload": {"request data"}}}
+
+ ! Formato de resposta de error e fail é o mesmo para todos métodos
+
+ POST JSON DATA RESPONSE
+
+ {"status": "success", "data": {"consulta": {"new_consulta_data"}}}
+
+ GET JSON DATA RESPONSE
+
+ {"status": "success", "data": {"consultas": [{"consulta data"}, {"consulta data"}] | "consulta": {"new_consulta_data"}}}
+
+ PUT JSON DATA RESPONSE
+
+ {"status": "success", "data": {"consulta": {"updated_consulta_data"}}}
+
+ DELETE JSON DATA RESPONSE
+
+ {"status": "success", "data": None}
+
+"""

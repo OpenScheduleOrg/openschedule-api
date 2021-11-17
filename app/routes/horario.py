@@ -3,20 +3,33 @@ import calendar
 
 from flask import request, jsonify
 
-from app.routes import api
-from app.models import db, Horario
+from . import api
+from ..models import db, Horario
+from ..common.exc import APIExceptionHandler
 
+# POST horario #
+@api.route("/horario", methods=["POST"])
+def post_horario():
+    pass
+# END POST horario #
 
+# GET horarios #
 @api.route("/horarios", methods=["GET"])
-def get_horarios():
+@api.route("/horarios/<int:id>", methods=["GET"])
+def get_horarios(id):
+    pass
+# END GET horarios #
 
-    horarios = Horario.query.all()
+# PUT horario #
+@api.route("/horario/<int:id>", methods=["PUT"])
+def put_horario(id):
+    pass
+# END PUT horario #
 
-    horarios_json = [h._asjson() for h in horarios]
+# DELETE horario #
+@api.route("/horario", methods=["DELETE"])
+def delete_horario():
+    pass
+# END DELETE horario #
 
-    return jsonify(status="success", data={"horarios": horarios_json}), 200
 
-@api.route("/horario", methods=["GET"])
-def get_horario():
-
-    return jsonify({"status": "fail", "message": "Nenhum horario encontrado"}), 404

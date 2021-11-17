@@ -12,6 +12,8 @@ def create_app(app_config=app_config[os.environ.get("APP_CONFIG") or "production
 
     from app.models import db
     db.init_app(app)
+    with app.app_context():
+        db.create_all()
 
     from app.routes import api
 
