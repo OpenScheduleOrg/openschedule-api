@@ -3,7 +3,7 @@ from datetime import date
 from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
-from app.models import db, TimestampMixin
+from . import db, TimestampMixin
 
 class Cliente(TimestampMixin, db.Model):
     __tablename__ = "cliente"
@@ -15,5 +15,13 @@ class Cliente(TimestampMixin, db.Model):
     nascimento = Column(Date, default=None)
 
     consultas = relationship("Consulta", back_populates="cliente")
+
+    def _asjson(self, complete=False, consultas=False):
+        obj_json = super()._asjson()
+
+        del obj_json["created_at"]
+        del obj_json["updated_at"]
+
+        return obj_json
 
 

@@ -1,9 +1,9 @@
 from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship
 
-from app.models import db
+from . import db, TimestampMixin
 
-class Clinica(db.Model):
+class Clinica(TimestampMixin, db.Model):
     __tablename__ = "clinica"
 
     nome = Column(String(255), nullable=False)

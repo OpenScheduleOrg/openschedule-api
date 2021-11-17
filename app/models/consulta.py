@@ -1,9 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 
-from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
+from sqlalchemy import select, Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, validates
+from sqlalchemy.ext.hybrid import hybrid_property
 
-from . import db, TimestampMixin
+from . import db, session, TimestampMixin
 from .clinica  import Clinica
 from .horario import Horario
 from ..common.exc import APIExceptionHandler
@@ -15,9 +16,9 @@ class Consulta(TimestampMixin, db.Model):
     marcada = Column(DateTime, nullable=False)
     descricao = Column(String(255))
     realizada = Column(Boolean, default=False)
-    id_cliente = Column(Integer, ForeignKey(
+    cliente_id = Column(Integer, ForeignKey(
         'cliente.id'), nullable=False)
-    id_clinica = Column(Integer, ForeignKey(
+    clinica_id = Column(Integer, ForeignKey(
         'clinica.id'), nullable=False)
 
     cliente = relationship("Cliente", back_populates="consultas")
@@ -48,27 +49,26 @@ class Consulta(TimestampMixin, db.Model):
             except Exception as e:
                 raise e
 
-        clinica = Clinica.query.get(self.id_clinica)
+        clinica = session.execute(select(Clinica.id).filter_by(id=self.clinica_id)).scalar()
 
         if clinica is None:
-            raise APIExceptionHandler("id_clinica is not a id of a cliente", detail={"id_clinica": "invalid"})
+            raise APIExceptionHandler("clinica_id is not a id of a clinica", detail={"clinica_id": "invalid"})
 
         weekday = marcada.weekday()
 
-        horario = Horario.query.filter_by(id_clinica=clinica.id, dia_semana=weekday).first()
+        horario = session.execute(select(Horario).filter_by(clinica_id=clinica, dia_semana=weekday)).scalar()
+        now = datetime.now()
 
         if horario is not None:
             hora = marcada.time()
 
-            if hora < horario.am_inicio or ( horario.almoco and (hora >= horario.am_fim and hora < horario.pm_inicio)) or hora >= horario.pm_fim:
+            if hora < horario.am_inicio or (horario.almoco and (hora >= horario.am_fim and hora < horario.pm_inicio)) or hora >= horario.pm_fim:
                 marcada = None
             else:
-                exists = Consulta.query.filter_by(marcada=marcada, id_clinica=self.id_clinica).first()
+                exists = session.execute(select(Consulta.id).filter_by(marcada=marcada, clinica_id=self.clinica_id)).scalar()
 
         if(not horario or marcada is None or exists is not None):
             raise APIExceptionHandler("This date and time are not valid", detail={"marcada":"invalid"})
 
         return marcada
-
-
 

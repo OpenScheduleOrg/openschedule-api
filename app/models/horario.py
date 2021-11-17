@@ -14,7 +14,7 @@ class Horario(db.Model):
     almoco = Column(Boolean, default=False)
     dia_semana = Column(Integer, nullable=False)
 
-    id_clinica = Column(Integer, ForeignKey('clinica.id'), nullable=False)
+    clinica_id = Column(Integer, ForeignKey('clinica.id'), nullable=False)
 
     clinica = relationship('Clinica', back_populates='horarios')
 
