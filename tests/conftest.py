@@ -2,6 +2,7 @@ import os
 import tempfile
 
 import pytest
+from flask import json
 
 from app import create_app
 from config import app_config
