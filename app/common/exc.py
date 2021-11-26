@@ -1,7 +1,7 @@
 from flask import jsonify, request
 
 def resource_not_found(error):
-    return jsonify({"status": "fail", "message": "Resource not found" , "path": request.full_path})
+    return jsonify({"status": "fail", "message": "Resource not found" , "path": request.full_path}), 404
 
 
 class APIExceptionHandler(Exception):

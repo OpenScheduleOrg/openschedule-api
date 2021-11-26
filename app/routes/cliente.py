@@ -4,7 +4,7 @@ import calendar
 from flask import request, jsonify
 
 from . import api
-from ..models import db, Cliente
+from ..models import Cliente
 from ..common.exc import APIExceptionHandler
 
 # POST cliente #

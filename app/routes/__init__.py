@@ -2,7 +2,7 @@ from flask import Blueprint, jsonify, request
 
 api = Blueprint("api", "api")
 
-from app.routes import cliente, clinica, consulta, horario
+from app.routes import cliente, clinica, consulta, horario, auth
 
 
 #                STATUS CODE REFERENCE

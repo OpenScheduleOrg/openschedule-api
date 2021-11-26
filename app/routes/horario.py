@@ -4,7 +4,7 @@ import calendar
 from flask import request, jsonify
 
 from . import api
-from ..models import db, Horario
+from ..models import Horario
 from ..common.exc import APIExceptionHandler
 
 # POST horario #

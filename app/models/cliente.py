@@ -9,6 +9,7 @@ class Cliente(TimestampMixin, db.Model):
     __tablename__ = "cliente"
 
     nome = Column(String(255), nullable=False)
+    sobrenome = Column(String(255), nullable=False)
     cpf = Column(String(11), nullable=False)
     telefone = Column(String(11), nullable=False)
     endereco = Column(String(255), default=None)
