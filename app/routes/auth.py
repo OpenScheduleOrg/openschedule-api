@@ -1,13 +1,12 @@
 import os
 
-from flask import request, jsonify
+from flask import request, jsonify, current_app
 import jwt
 
 from . import api
 from ..models import select
 from ..common.exc import APIExceptionHandler
 
-SECRET_KEY = os.environ["SECRET_KEY"]
 
 user = {
     "id": 1,

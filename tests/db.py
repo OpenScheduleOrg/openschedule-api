@@ -3,10 +3,10 @@ from datetime import date, time, datetime, timedelta
 
 from app.models import db, session, select, result_to_json,Cliente, Clinica, Consulta, Horario
 
-NUMBERS_CLIENTES = 15
+NUMBERS_CLIENTES = 25
 NUMBERS_CLINICAS = 4
 
-cliente_template = {"nome":"cliente {}", "cpf":"{}{}{}{}{}{}{}{}{}{}{}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"Bairro do cliente {}, rua do cliente {}", "nascimento":date(2000, 10, 10)}
+cliente_template = {"nome":"cliente {}", "sobrenome": "sobrenome {}","cpf":"{}{}{}{}{}{}{}{}{}{}{}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"Bairro do cliente {}, rua do cliente {}", "nascimento":date(2000, 10, 10)}
 
 clinica_template = {"nome":"Clinica {}", "tipo":"Tipo de clinica {}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"bairro da clinica {}, rua da clinica {}", "longitude": "893713413", "latitude":"23432432"}
 
@@ -33,6 +33,7 @@ def create_clientes():
     for i in range(1, NUMBERS_CLIENTES):
         cliente = cliente_template.copy()
         cliente["nome"] = cliente["nome"].format(i)
+        cliente["nome"] = cliente["sobrenome"].format(i)
         cliente["cpf"] = cliente["cpf"].format(random.randint(1, 9), *[random.randint(0, 9) for _ in range (10)])
         cliente["telefone"] = cliente["telefone"].format(random.randint(1, 9), random.randint(1, 9), 9, *[random.randint(0, 9) for _ in range (8)])
         cliente["endereco"] = cliente["endereco"].format(i, i)

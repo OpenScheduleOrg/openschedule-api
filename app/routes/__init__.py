@@ -1,6 +1,7 @@
 from flask import Blueprint, jsonify, request
 
 api = Blueprint("api", "api")
+auth = Blueprint("auth", "auth")
 
 from app.routes import cliente, clinica, consulta, horario, auth
 

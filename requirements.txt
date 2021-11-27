@@ -1,8 +1,10 @@
 attrs==21.2.0
 autopep8==1.5.7
+cffi==1.15.0
 click==8.0.1
 colorama==0.4.4
--e git+ssh://git@github.com/uchoamp/consuchat-api.git@73b7057b0a2b83f4988f85ec3d0bd5a54ab93290#egg=consuchat_api
+-e git+ssh://git@github.com/uchoamp/consuchat-api.git@742d11783887ee725ff3a21e05f4e8af64b536b9#egg=consuchat_api
+cryptography==36.0.0
 Flask==2.0.1
 Flask-Cors==3.0.10
 Flask-SQLAlchemy==2.5.1
@@ -18,6 +20,7 @@ pluggy==1.0.0
 protobuf==3.17.3
 py==1.10.0
 pycodestyle==2.7.0
+pycparser==2.21
 PyJWT==2.3.0
 pyparsing==2.4.7
 pytest==6.2.5

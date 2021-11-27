@@ -134,7 +134,7 @@ def test_get_consultas(app, client):
     date_end = datetime.combine(date_start.date()+timedelta(weeks=1), time.max)
 
     columns = (Consulta.id, Consulta.marcada, Consulta.realizada, Consulta.descricao,)
-    cliente_columns = (Consulta.cliente_id, Cliente.nome.label("cliente_nome"),)
+    cliente_columns = (Consulta.cliente_id, Cliente.nome.label("cliente_nome"),Cliente.sobrenome.label("cliente_sobrenome") )
     clinica_columns = (Consulta.clinica_id, Clinica.nome.label("clinica_nome"), Clinica.tipo.label("clinica_tipo"),)
 
     with app.app_context():
