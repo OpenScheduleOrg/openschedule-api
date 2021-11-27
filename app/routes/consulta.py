@@ -5,7 +5,7 @@ from flask import request, jsonify
 
 from . import api
 from ..models import session, select, delete, result_to_json, Consulta, Cliente, Clinica, Horario
-from ..common.exc import APIExceptionHandler
+from ..exceptions import APIExceptionHandler
 
 PARAMETERS_FOR_POST_CONSULTA = ["cliente_id", "clinica_id", "marcada", "descricao", "realizada"]
 PARAMETERS_FOR_GET_CONSULTA = ["cliente_id", "clinica_id", "date_start", "date_end"]

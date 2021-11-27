@@ -4,6 +4,7 @@ import tempfile
 import pytest
 from flask import json
 
+
 from app import create_app
 from config import app_config
 from db import set_up_db
@@ -33,6 +34,8 @@ def client(app):
     Client para test de requisições
     """
     return app.test_client()
+
+
 
 if __name__ == "__main__":
     app()

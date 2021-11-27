@@ -5,7 +5,7 @@ from flask import request, jsonify
 
 from . import api
 from ..models import Horario
-from ..common.exc import APIExceptionHandler
+from ..exceptions import APIExceptionHandler
 
 # POST horario #
 @api.route("/horario", methods=["POST"])

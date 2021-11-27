@@ -1,9 +1,8 @@
-import json
 from datetime import date, datetime
 
 from conftest import app, client
 
-from db import db, Cliente
+from db import Cliente
 
 def test_all_clientes(app, client):
     rs = client.get("/clientes")

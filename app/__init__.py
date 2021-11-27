@@ -5,7 +5,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 
 from config import app_config
-from app.common.exc import resource_not_found, APIExceptionHandler, api_exception_handler
+from .exceptions import resource_not_found, APIExceptionHandler, api_exception_handler
 
 def create_app(app_config=app_config[os.environ.get("APP_CONFIG") or "production"]):
     app = Flask(__name__)
@@ -17,9 +17,10 @@ def create_app(app_config=app_config[os.environ.get("APP_CONFIG") or "production
     with app.app_context():
         db.create_all()
 
-    from app.routes import api
+    from app.routes import api, auth
 
     app.register_blueprint(api)
+    app.register_blueprint(auth)
     app.register_error_handler(404, resource_not_found)
     app.register_error_handler(APIExceptionHandler, api_exception_handler)
 

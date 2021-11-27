@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta, time
 import pytest
 
 from app.models import db, Cliente, Clinica, Consulta, Horario
-from app.common.exc import  APIExceptionHandler
+from app.exceptions import  APIExceptionHandler
 from conftest import app
 from db import generate_marcada
 

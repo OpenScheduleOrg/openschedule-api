@@ -7,7 +7,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from . import db, session, TimestampMixin
 from .clinica  import Clinica
 from .horario import Horario
-from ..common.exc import APIExceptionHandler
+from ..exceptions import APIExceptionHandler
 
 
 class Consulta(TimestampMixin, db.Model):

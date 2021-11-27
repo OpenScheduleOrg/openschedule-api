@@ -5,7 +5,7 @@ from flask import request, jsonify
 
 from . import api
 from ..models import db, Clinica
-from ..common.exc import APIExceptionHandler
+from ..exceptions import APIExceptionHandler
 
 # POST clinica #
 @api.route("/clinica", methods=["POST"])

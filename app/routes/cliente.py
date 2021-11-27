@@ -5,7 +5,7 @@ from flask import request, jsonify
 
 from . import api
 from ..models import Cliente
-from ..common.exc import APIExceptionHandler
+from ..exceptions import APIExceptionHandler
 
 # POST cliente #
 @api.route("/cliente", methods=["POST"])

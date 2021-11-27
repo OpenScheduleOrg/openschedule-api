@@ -3,7 +3,7 @@ autopep8==1.5.7
 cffi==1.15.0
 click==8.0.1
 colorama==0.4.4
--e git+ssh://git@github.com/uchoamp/consuchat-api.git@742d11783887ee725ff3a21e05f4e8af64b536b9#egg=consuchat_api
+-e git+ssh://git@github.com/uchoamp/consuchat-api.git@b81db81a1535a06a172c1ff4ab7380c7de87fc60#egg=consuchat_api
 cryptography==36.0.0
 Flask==2.0.1
 Flask-Cors==3.0.10
