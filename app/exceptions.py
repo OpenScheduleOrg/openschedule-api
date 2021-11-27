@@ -1,8 +1,10 @@
 from flask import jsonify, request
 
-def resource_not_found(error):
-    return jsonify({"status": "fail", "message": "Resource not found" , "path": request.full_path}), 404
+def resource_not_found(e):
+    return jsonify({"status": "fail", "message": "Resource not found." , "path": request.full_path}), 404
 
+def internal_server_error(e):
+    return jsonify({"status": "error", "message": str(e)}), 500
 
 class APIExceptionHandler(Exception):
     status_code = 400

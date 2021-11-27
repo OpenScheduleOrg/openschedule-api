@@ -1,9 +1,9 @@
 from flask import Blueprint, jsonify, request
 
-api = Blueprint("api", "api", url_prefix="/")
-auth = Blueprint("auth", "auth", url_prefix="/auth")
+bp_api = Blueprint("api", "api", url_prefix="/")
+bp_auth = Blueprint("auth", "auth", url_prefix="/auth")
 
-from app.routes import cliente, clinica, consulta, horario, auth
+from . import cliente, clinica, consulta, horario, auth
 
 
 #                STATUS CODE REFERENCE

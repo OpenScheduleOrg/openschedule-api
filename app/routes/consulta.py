@@ -3,7 +3,7 @@ import calendar
 
 from flask import request, jsonify
 
-from . import api
+from . import bp_api
 from ..models import session, select, delete, result_to_json, Consulta, Cliente, Clinica, Horario
 from ..exceptions import APIExceptionHandler
 
@@ -12,7 +12,7 @@ PARAMETERS_FOR_GET_CONSULTA = ["cliente_id", "clinica_id", "date_start", "date_e
 PARAMETERS_FOR_PUT_CONSULTA = ["marcada", "realizada", "descricao"]
 
 # POST cosulta #
-@api.route("/consulta", methods=["POST"])
+@bp_api.route("/consulta", methods=["POST"])
 def post_consulta():
     body = request.get_json()
 
@@ -56,8 +56,8 @@ def post_consulta():
 
 
 # GET consultas #
-@api.route("/consultas/<int:id>", methods=["GET"])
-@api.route("/consultas", methods=["GET"])
+@bp_api.route("/consultas/<int:id>", methods=["GET"])
+@bp_api.route("/consultas", methods=["GET"])
 def get_consultas(id=None):
 
     def isoformat_datetime(**kw):
@@ -176,7 +176,7 @@ def get_consultas(id=None):
 # END GET consultas #
 
 # PUT consulta #
-@api.route("/consulta/<int:id>", methods=["PUT"])
+@bp_api.route("/consulta/<int:id>", methods=["PUT"])
 def update_consulta(id):
 
     body = request.get_json()
@@ -212,7 +212,7 @@ def update_consulta(id):
 # END PUT consulta #
 
 # DELETE consulta #
-@api.route("/consulta/<int:id>", methods=["DELETE"])
+@bp_api.route("/consulta/<int:id>", methods=["DELETE"])
 def delete_consulta(id):
 
     try:
