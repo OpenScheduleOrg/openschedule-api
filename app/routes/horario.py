@@ -4,7 +4,7 @@ import calendar
 from flask import request, jsonify
 
 from . import bp_api
-from ..models import Horario
+from ..models import session, select, Horario
 from ..exceptions import APIExceptionHandler
 
 # POST horario #
@@ -16,8 +16,19 @@ def post_horario():
 # GET horarios #
 @bp_api.route("/horarios", methods=["GET"])
 @bp_api.route("/horarios/<int:id>", methods=["GET"])
-def get_horarios(id):
-    pass
+def get_horarios(id=None):
+    clinica_id = request.args.get("clinica_id")
+
+    data = {}
+    data["horarios"] = []
+
+    stmt = select(Horario).where(Horario.clinica_id == clinica_id)
+    result = session.execute(stmt).scalars().all()
+
+    for row in result:
+        data["horarios"] += [row._asjson()]
+
+    return jsonify(status="success", data=data), 200
 # END GET horarios #
 
 # PUT horario #

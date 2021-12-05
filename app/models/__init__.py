@@ -18,9 +18,10 @@ class DefaultModel(Model):
         obj_dict = self._asdict()
 
         for key, value in obj_dict.items():
-
             if isinstance(value, (date, time,)):
                 obj_dict[key] = value.isoformat()
+            elif isinstance(value, timedelta):
+                obj_dict[key] = str(value)
             elif isinstance(value, tuple):
                 obj_dict[key] = list(value)
 

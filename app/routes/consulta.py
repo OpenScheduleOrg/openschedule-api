@@ -112,7 +112,7 @@ def get_consultas(id=None):
         cliente = cliente._asdict()
 
     data = {}
-    columns = (Consulta.id, Consulta.marcada, Consulta.realizada, Consulta.descricao,)
+    columns = (Consulta.id, Consulta.marcada, Consulta.realizada, Consulta.descricao, Consulta.duracao)
     cliente_columns = (Consulta.cliente_id, Cliente.nome.label("cliente_nome"), Cliente.sobrenome.label("cliente_sobrenome"),)
     clinica_columns = (Consulta.clinica_id, Clinica.nome.label("clinica_nome"), Clinica.tipo.label("clinica_tipo"),)
 

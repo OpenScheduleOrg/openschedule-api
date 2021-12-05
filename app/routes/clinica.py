@@ -4,7 +4,7 @@ import calendar
 from flask import request, jsonify
 
 from . import bp_api
-from ..models import db, Clinica
+from ..models import session, select, Clinica
 from ..exceptions import APIExceptionHandler
 
 # POST clinica #
@@ -17,7 +17,10 @@ def post_clinica():
 @bp_api.route("/clinicas", methods=["GET"])
 @bp_api.route("/clinicas/<int:id>", methods=["GET"])
 def get_clinicas(id):
-    pass
+
+    clinica = session.get(Clinica, id);
+
+    return jsonify(status="success", data={"clinica": clinica._asjson()}), 200
 # END GET clinicas #
 
 # PUT clinica #
