@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from dateutil.parser import isoparse
 
 from sqlalchemy import select, Column, ForeignKey, Integer, SmallInteger, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, validates
@@ -47,7 +48,7 @@ class Consulta(TimestampMixin, db.Model):
     def getClinicaHorario(self, marcada, clinica_id):
         if not isinstance(marcada, datetime):
             try:
-                marcada = self._marcada = datetime.fromisoformat(marcada)
+                marcada = self._marcada = isoparse(marcada)
             except ValueError:
                 raise APIExceptionHandler("date and time is not a string in iso format", detail={"marcada": "invalid"})
             except Exception as e:

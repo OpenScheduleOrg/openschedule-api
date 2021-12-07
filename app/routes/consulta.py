@@ -1,6 +1,7 @@
 from datetime import datetime, time, date, timedelta
 import calendar
 
+from dateutil.parser import isoparse
 from flask import request, jsonify
 
 from . import bp_api
@@ -69,7 +70,7 @@ def get_consultas(id=None):
                 converted.append(None)
                 continue
             try:
-                converted.append(datetime.fromisoformat(value))
+                converted.append(isoparse(value))
             except ValueError as e:
                 detail[key] = "invalid"
             except Exception as e:

@@ -3,7 +3,7 @@ autopep8==1.5.7
 cffi==1.15.0
 click==8.0.1
 colorama==0.4.4
--e git+ssh://git@github.com/uchoamp/consuchat-api.git@b81db81a1535a06a172c1ff4ab7380c7de87fc60#egg=consuchat_api
+-e git+ssh://git@github.com/uchoamp/consuchat-api.git@3979b04b9e9959f65ebc9ee36a98014847da82a1#egg=consuchat_api
 cryptography==36.0.0
 Flask==2.0.1
 Flask-Cors==3.0.10
@@ -24,6 +24,7 @@ pycparser==2.21
 PyJWT==2.3.0
 pyparsing==2.4.7
 pytest==6.2.5
+python-dateutil==2.8.2
 python-dotenv==0.18.0
 six==1.16.0
 SQLAlchemy==1.4.20
