@@ -10,8 +10,8 @@ from ..auth import getToken, validateToken, REMEMBER_EXPIRE
 
 user = {
     "id": 1,
-    "nome": "Consu",
-    "sobrenome": "Chat",
+    "nome": "Marcos",
+    "sobrenome": "Pacheco",
     "email": "consuchat@consuchat.com",
     "username": "consuchat",
     "password":"hash",

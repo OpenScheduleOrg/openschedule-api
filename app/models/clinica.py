@@ -8,7 +8,7 @@ class Clinica(TimestampMixin, db.Model):
 
     nome = Column(String(255), nullable=False)
     tipo = Column(String(255))
-    telefone = Column(String(11), nullable=False)
+    telefone = Column(String(10), nullable=False)
     endereco = Column(String(255), nullable=False)
     longitude = Column(String(45))
     latitude = Column(String(45))

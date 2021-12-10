@@ -11,7 +11,7 @@ class Cliente(TimestampMixin, db.Model):
     nome = Column(String(255), nullable=False)
     sobrenome = Column(String(255), nullable=False)
     cpf = Column(String(11), nullable=False)
-    telefone = Column(String(11), nullable=False)
+    telefone = Column(String(10), nullable=False)
     endereco = Column(String(255), default=None)
     nascimento = Column(Date, default=None)
 
