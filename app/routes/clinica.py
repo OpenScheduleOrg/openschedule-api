@@ -6,6 +6,7 @@ from flask import request, jsonify
 from . import bp_api
 from ..models import session, select, Clinica
 from ..exceptions import APIExceptionHandler
+from ..utils import useless_params
 
 # POST clinica #
 @bp_api.route("/clinica", methods=["POST"])
@@ -16,7 +17,7 @@ def post_clinica():
 # GET clinicas #
 @bp_api.route("/clinicas", methods=["GET"])
 @bp_api.route("/clinicas/<int:id>", methods=["GET"])
-def get_clinicas(id):
+def get_clinicas(id=None):
 
     clinica = session.get(Clinica, id);
 

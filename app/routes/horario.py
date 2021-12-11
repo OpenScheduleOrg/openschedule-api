@@ -6,6 +6,7 @@ from flask import request, jsonify
 from . import bp_api
 from ..models import session, select, Horario
 from ..exceptions import APIExceptionHandler
+from ..utils import useless_params
 
 # POST horario #
 @bp_api.route("/horario", methods=["POST"])

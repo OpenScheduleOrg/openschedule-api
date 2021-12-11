@@ -149,7 +149,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns, *cliente_columns, *clinica_columns).join(Consulta.cliente).join(Consulta.clinica).where(Consulta.marcada >= date_start, Consulta.marcada <= date_end)
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas}
 
@@ -158,7 +158,7 @@ def test_get_consultas(app, client):
 #   Buscando uma consulta pelo id
     with app.app_context():
         stmt = select(*columns, *cliente_columns, *clinica_columns).join(Consulta.cliente).join(Consulta.clinica)
-        consulta = result_to_json(session.execute(stmt), first=True, marcada=datetime.isoformat.__name__)
+        consulta = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     rs = client.get("/consultas/"+str(consulta["id"]))
 
@@ -177,7 +177,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns, *cliente_columns, *clinica_columns).join(Consulta.cliente).join(Consulta.clinica).where(Consulta.marcada >= date_start, Consulta.marcada <= date_end)
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consulta = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas}
 
@@ -194,7 +194,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns, *cliente_columns).join(Consulta.cliente).where(Consulta.clinica_id == clinica["id"])
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas, "clinica":clinica}
 
@@ -209,7 +209,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns, *cliente_columns).join(Consulta.cliente).where(Consulta.clinica_id == clinica["id"]).where(Consulta.marcada >= date_start, Consulta.marcada <= date_end)
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas, "clinica": clinica}
 
@@ -224,7 +224,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns, *clinica_columns).join(Consulta.clinica).where(Consulta.cliente_id == cliente["id"])
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas, "cliente": cliente}
 
@@ -240,7 +240,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns, *clinica_columns).join(Consulta.clinica).where(Consulta.cliente_id == cliente["id"]).where(Consulta.marcada >= date_start, Consulta.marcada <= date_end)
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas, "cliente": cliente}
 
@@ -253,7 +253,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns).join(Consulta.clinica).where(Consulta.cliente_id == cliente["id"], Consulta.clinica_id == clinica["id"])
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas, "cliente": cliente, "clinica": clinica}
 
@@ -266,7 +266,7 @@ def test_get_consultas(app, client):
 
     with app.app_context():
         stmt = select(*columns).where(Consulta.cliente_id == cliente["id"], Consulta.clinica_id == clinica["id"]).where(Consulta.marcada >= date_start, Consulta.marcada <= date_end)
-        consultas = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+        consultas = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
     expected_rs["data"] = {"consultas": consultas, "cliente": cliente, "clinica": clinica}
 

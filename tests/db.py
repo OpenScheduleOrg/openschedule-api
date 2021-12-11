@@ -3,7 +3,7 @@ from datetime import date, time, datetime, timedelta
 
 from app.models import db, session, select, result_to_json,Cliente, Clinica, Consulta, Horario
 
-NUMBERS_CLIENTES = 25
+NUMBERS_CLIENTES = 10
 NUMBERS_CLINICAS = 4
 
 cliente_template = {"nome":"cliente {}", "sobrenome": "sobrenome {}","cpf":"{}{}{}{}{}{}{}{}{}{}{}", "telefone":"{}{}{}{}{}{}{}{}{}{}{}", "endereco":"Bairro do cliente {}, rua do cliente {}", "nascimento":date(2000, 10, 10)}

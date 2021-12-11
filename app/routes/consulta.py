@@ -7,6 +7,7 @@ from flask import request, jsonify
 from . import bp_api
 from ..models import session, select, delete, result_to_json, Consulta, Cliente, Clinica, Horario
 from ..exceptions import APIExceptionHandler
+from ..utils import useless_params, valid_date_params
 
 PARAMETERS_FOR_POST_CONSULTA = ["cliente_id", "clinica_id", "marcada", "descricao", "realizada"]
 PARAMETERS_FOR_GET_CONSULTA = ["cliente_id", "clinica_id", "date_start", "date_end"]
@@ -17,14 +18,9 @@ PARAMETERS_FOR_PUT_CONSULTA = ["marcada", "realizada", "descricao"]
 def post_consulta():
     body = request.get_json()
 
+    useless_params(body.keys(), PARAMETERS_FOR_POST_CONSULTA)
+
     detail = {}
-    for key in body.keys():
-        if key not in PARAMETERS_FOR_POST_CONSULTA:
-            detail[key] = "unusable"
-
-    if detail:
-        raise APIExceptionHandler("Request have parameters worthless", detail=detail, status_code=422)
-
     if "clinica_id" not in body:
         detail["clinica_id"] = "required"
     if "cliente_id" not in body:
@@ -60,42 +56,14 @@ def post_consulta():
 @bp_api.route("/consultas/<int:id>", methods=["GET"])
 @bp_api.route("/consultas", methods=["GET"])
 def get_consultas(id=None):
+    params = request.args
 
-    def isoformat_datetime(**kw):
-        detail = {}
-        converted = []
+    useless_params(params.keys(), PARAMETERS_FOR_GET_CONSULTA)
 
-        for key, value in kw.items():
-            if(value is None):
-                converted.append(None)
-                continue
-            try:
-                converted.append(isoparse(value))
-            except ValueError as e:
-                detail[key] = "invalid"
-            except Exception as e:
-                raise e
-
-        if detail:
-            raise APIExceptionHandler("Date and time are not in iso format", detail=detail)
-
-        if((isinstance(converted[0], datetime) and isinstance(converted[1], datetime)) and converted[0] > converted[1]):
-                raise APIExceptionHandler("Invalid datetime values date_start < date_end", detail={"date_start": "invalid", "date_end":"invalid"})
-
-        return converted
-
-    detail = {}
-    for key in request.args.keys():
-        if key not in PARAMETERS_FOR_GET_CONSULTA:
-            detail[key] = "unusable"
-
-    if detail:
-        raise APIExceptionHandler("Request have parameters worthless", detail=detail, status_code=422)
-
-    clinica_id = request.args.get("clinica_id")
-    cliente_id = request.args.get("cliente_id")
-    date_start = request.args.get("date_start")
-    date_end = request.args.get("date_end")
+    clinica_id = params.get("clinica_id")
+    cliente_id = params.get("cliente_id")
+    date_start = params.get("date_start")
+    date_end = params.get("date_end")
 
     if(clinica_id is not None):
         clinica = session.execute(select(Clinica.id, Clinica.nome, Clinica.tipo, Clinica.endereco, Clinica.telefone).where(Clinica.id == clinica_id)).first()
@@ -122,7 +90,7 @@ def get_consultas(id=None):
         try:
             stmt = select(*columns, *cliente_columns, *clinica_columns).join(Consulta.cliente).join(Consulta.clinica).where(Consulta.id == id)
 
-            data["consulta"] = result_to_json(session.execute(stmt), first=True, marcada=datetime.isoformat.__name__)
+            data["consulta"] = result_to_json(session.execute(stmt), first=True, marcada=lambda v: v.isoformat())
 
         except Exception as e:
             raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
@@ -132,7 +100,7 @@ def get_consultas(id=None):
 
     elif(clinica_id or cliente_id or date_start or date_end):
 
-        date_start, date_end = isoformat_datetime(date_start=date_start, date_end=date_end)
+        date_start, date_end = valid_date_params(date_start=date_start, date_end=date_end)
         try:
             if(cliente_id and clinica_id):
                 stmt = select(*columns).where(Consulta.clinica_id == clinica_id, Consulta.cliente_id == cliente_id)
@@ -155,7 +123,7 @@ def get_consultas(id=None):
             if(date_end):
                 stmt = stmt.where(Consulta.marcada <= date_end)
 
-            data["consultas"] = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+            data["consultas"] = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
         except Exception as e:
             raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
@@ -167,7 +135,7 @@ def get_consultas(id=None):
         try:
 
             stmt = select(*columns, *cliente_columns, *clinica_columns).join(Consulta.cliente).join(Consulta.clinica).where(Consulta.marcada >= date_start, Consulta.marcada <= date_end)
-            data["consultas"] = result_to_json(session.execute(stmt), marcada=datetime.isoformat.__name__)
+            data["consultas"] = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
 
         except Exception as e:
             raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
@@ -179,18 +147,12 @@ def get_consultas(id=None):
 # PUT consulta #
 @bp_api.route("/consulta/<int:id>", methods=["PUT"])
 def update_consulta(id):
-
     body = request.get_json()
-    detail = {}
-    for key in body.keys():
-        if key not in PARAMETERS_FOR_PUT_CONSULTA:
-            detail[key] = "unusable"
 
-    if detail:
-        raise APIExceptionHandler("Request have parameters worthless", detail=detail, status_code=422)
+
+    useless_params(body.keys(), PARAMETERS_FOR_PUT_CONSULTA)
 
     consulta = session.get(Consulta, id)
-
     if consulta is None:
         raise APIExceptionHandler("id is not a reference for a consulta", detail={"id": "not found"}, payload = {"id": id}, status_code=404)
 

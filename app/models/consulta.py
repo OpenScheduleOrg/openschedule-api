@@ -3,7 +3,6 @@ from dateutil.parser import isoparse
 
 from sqlalchemy import select, Column, ForeignKey, Integer, SmallInteger, Date, Time, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, validates
-from sqlalchemy.ext.hybrid import hybrid_property
 
 from . import db, session, TimestampMixin
 from .clinica  import Clinica
@@ -45,6 +44,7 @@ class Consulta(TimestampMixin, db.Model):
         del obj_json["updated_at"]
 
         return obj_json
+
     def getClinicaHorario(self, marcada, clinica_id):
         if not isinstance(marcada, datetime):
             try:

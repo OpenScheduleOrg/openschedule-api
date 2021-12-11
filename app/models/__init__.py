@@ -40,7 +40,7 @@ def result_to_json(result, first=False, **serialize):
         if(row):
             row_asdict = row._asdict()
             for key, method in serialize.items():
-                row_asdict[key] = getattr(row_asdict[key], method)()
+                row_asdict[key] =  method(row_asdict[key])
             return row_asdict
 
         return row
@@ -51,7 +51,7 @@ def result_to_json(result, first=False, **serialize):
         row_asdict = row._asdict()
 
         for key, method in serialize.items():
-            row_asdict[key] = getattr(row_asdict[key], method)()
+            row_asdict[key] =  method(row_asdict[key])
 
         rows.append(row_asdict)
     return rows
