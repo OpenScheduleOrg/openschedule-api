@@ -96,7 +96,7 @@ def get_clientes(id=None):
 
     if(cliente):
         data["cliente"] = cliente._asjson()
-    elif(one): return jsonify(status="fail", message="cliente not found", data=none, status_code=404)
+    elif(one): return jsonify(status="fail", message="cliente not found", data=None, status_code=404)
 
     return jsonify(status="success", data=data), 200
 # END GET clientes #

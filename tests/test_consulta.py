@@ -134,7 +134,7 @@ def test_get_consultas(app, client):
     date_end = datetime.combine(date_start.date()+timedelta(weeks=1), time.max)
 
     columns = (Consulta.id, Consulta.marcada, Consulta.realizada, Consulta.descricao, Consulta.duracao)
-    cliente_columns = (Consulta.cliente_id, Cliente.nome.label("cliente_nome"),Cliente.sobrenome.label("cliente_sobrenome") )
+    cliente_columns = (Consulta.cliente_id, Cliente.nome.label("cliente_nome"),Cliente.sobrenome.label("cliente_sobrenome"), Cliente.telefone.label("cliente_telefone"), Cliente.cpf.label("cliente_cpf"))
     clinica_columns = (Consulta.clinica_id, Clinica.nome.label("clinica_nome"), Clinica.tipo.label("clinica_tipo"),)
 
     with app.app_context():
@@ -158,7 +158,7 @@ def test_get_consultas(app, client):
 #   Buscando uma consulta pelo id
     with app.app_context():
         stmt = select(*columns, *cliente_columns, *clinica_columns).join(Consulta.cliente).join(Consulta.clinica)
-        consulta = result_to_json(session.execute(stmt), marcada=lambda v: v.isoformat())
+        consulta = result_to_json(session.execute(stmt), first=True, marcada=lambda v: v.isoformat())
 
     rs = client.get("/consultas/"+str(consulta["id"]))
 

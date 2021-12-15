@@ -9,7 +9,7 @@ from .exceptions import resource_not_found, internal_server_error, APIExceptionH
 
 def create_app(app_config=app_config[os.environ.get("APP_CONFIG") or "production"]):
     app = Flask(__name__)
-    CORS(app, origins=["http://localhost:8080"], supports_credentials=True)
+    CORS(app, origins=["http://localhost:8080", "http://10.0.0.115:8080"], supports_credentials=True)
     app.config.from_object(app_config)
 
     from app.models import db
