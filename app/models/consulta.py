@@ -81,7 +81,7 @@ class Consulta(TimestampMixin, db.Model):
             if hora < horario.am_inicio or (horario.almoco and (hora >= horario.am_fim and hora < horario.pm_inicio)) or hora >= horario.pm_fim:
                 marcada = None
             else:
-                exists = session.execute(select(Consulta.id).filter_by(marcada=marcada, clinica_id=self.clinica_id)).scalar()
+                exists = session.execute(select(Consulta.id).filter_by(marcada=marcada, clinica_id=self.clinica_id).filter(Consulta.id != self.id)).scalar()
 
         if(not horario or marcada is None or exists is not None):
             raise APIExceptionHandler("This date and time are not valid", detail={"marcada":"invalid"})

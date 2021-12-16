@@ -11,6 +11,7 @@ from ..utils import useless_params
 
 PARAMETERS_FOR_POST_CLIENTE = ["nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco"]
 PARAMETERS_FOR_GET_CLIENTE = ["nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco", "search"]
+PARAMETERS_FOR_PUT_CLIENTE = ["nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco"]
 
 # POST cliente #
 @bp_api.route("/cliente", methods=["POST"])
@@ -36,12 +37,13 @@ def post_cliente():
 
         session.refresh(cliente)
 
-        return jsonify(status="success", data={"cliente": cliente._asjson()}), 201
 
     except APIExceptionHandler as e:
         raise e
     except Exception as e:
         raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
+
+    return jsonify(status="success", data={"cliente": cliente._asjson()}), 201
 
 
 
@@ -81,7 +83,8 @@ def get_clientes(id=None):
     elif cpf:
         one = True
         try:
-            pass
+            stmt = select(Cliente).filter_by(cpf=cpf)
+            cliente = session.execute(stmt).scalar()
         except Exception as e:
             raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
 
@@ -96,15 +99,46 @@ def get_clientes(id=None):
 
     if(cliente):
         data["cliente"] = cliente._asjson()
-    elif(one): return jsonify(status="fail", message="cliente not found", data=None, status_code=404)
+    elif(one): return jsonify(status="fail", message="cliente not found", data=None), 404
 
     return jsonify(status="success", data=data), 200
 # END GET clientes #
 
 # PUT cliente #
 @bp_api.route("/cliente/<int:id>", methods=["PUT"])
-def put_cliente(id):
-    pass
+def put_cliente(id=None):
+    body = request.get_json()
+
+    useless_params(body.keys(), PARAMETERS_FOR_PUT_CLIENTE)
+
+    nome = body.get("nome")
+    sobrenome = body.get("sobrenome")
+    telefone = body.get("telefone")
+    nascimento = body.get("nascimento")
+    endereco = body.get("endereco")
+
+    try:
+        cliente = session.get(Cliente, id)
+        if(cliente is None):
+            raise APIExceptionHandler("Cliente not found", detail=detail, status_code=404)
+        session.refresh(cliente)
+
+        if(nome): cliente.nome = nome
+        if(sobrenome): cliente.sobrenome= sobrenome
+        if(telefone): cliente.telefone = telefone
+        if(nascimento): cliente.nascimento = nascimento
+        if(endereco): cliente.endereco = endereco
+
+        session.commit()
+        session.refresh(cliente)
+
+    except APIExceptionHandler as e:
+        raise e
+    except Exception as e:
+        raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
+
+    return jsonify(status="success", data={"cliente": cliente._asjson()}), 200
+
 # END PUT cliente #
 
 # DELETE cliente #

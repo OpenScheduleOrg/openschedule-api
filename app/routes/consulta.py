@@ -161,7 +161,7 @@ def update_consulta(id):
             consulta.marcada = body["marcada"]
         if body.get("descricao"):
             consulta.descricao = body["descricao"]
-        if body.get("realizada"):
+        if body.get("realizada") is not None:
             consulta.realizada = body["realizada"]
 
         session.commit()
