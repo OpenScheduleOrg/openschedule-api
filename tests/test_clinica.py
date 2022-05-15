@@ -14,6 +14,6 @@ def test_all_clinicas(app, client):
     with app.app_context():
         clinicas = Clinica.query.all()
 
-    expected_rs = {"status": "success", "data":{"clinicas": [c._asjson() for c in clinicas]}}
+    expected_rs = {"status": "success", "data":{"clinicas": [c.as_json() for c in clinicas]}}
 
     assert expected_rs == rs_json

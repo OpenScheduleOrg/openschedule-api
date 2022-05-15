@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 from dateutil.parser import isoparse
 
-from sqlalchemy import select, Column, ForeignKey, Integer, SmallInteger, Date, Time, String, DateTime, Boolean
+from sqlalchemy import select, Column, ForeignKey, Integer, SmallInteger, String, DateTime, Boolean
 from sqlalchemy.orm import relationship, validates
 
 from . import db, session, TimestampMixin
-from .clinica  import Clinica
+from .clinica import Clinica
 from .horario import Horario
 from ..exceptions import APIExceptionHandler
 
@@ -17,77 +17,82 @@ class Consulta(TimestampMixin, db.Model):
     marcada = Column(DateTime, nullable=False)
     duracao = Column(SmallInteger, nullable=False)
     realizada = Column(Boolean, default=False)
-    cliente_id = Column(Integer, ForeignKey(
-        'cliente.id'), nullable=False)
-    clinica_id = Column(Integer, ForeignKey(
-        'clinica.id'), nullable=False)
+    cliente_id = Column(Integer, ForeignKey('cliente.id'), nullable=False)
+    clinica_id = Column(Integer, ForeignKey('clinica.id'), nullable=False)
 
     cliente = relationship("Cliente", back_populates="consultas")
     clinica = relationship("Clinica", back_populates="consultas")
 
     def __init__(self, **kw):
         marcada = kw["marcada"]
+
+        _, horario = self.verifica_marcada(marcada, kw["clinica_id"])
         del kw["marcada"]
 
-        self.getClinicaHorario(marcada,kw["clinica_id"])
-
-        if(not kw.get("duracao")):
-            kw["duracao"] = self.horario.intervalo.total_seconds() if self.horario else 0
-
+        if not kw.get("duracao"):
+            kw["duracao"] = horario.intervalo.total_seconds(
+            ) if horario else 0
 
         super().__init__(**kw, marcada=marcada)
 
-    def _asjson(self, cliente=False):
-        obj_json = super()._asjson()
+    def as_json(self):
+        obj_json = super().as_json()
 
         del obj_json["created_at"]
         del obj_json["updated_at"]
 
         return obj_json
 
-    def getClinicaHorario(self, marcada, clinica_id):
+    def verifica_marcada(self, marcada, clinica_id):
+        """
+        Verifica se a clinica existe e os horários
+        """
         if not isinstance(marcada, datetime):
             try:
-                marcada = self._marcada = isoparse(marcada)
-            except ValueError:
-                raise APIExceptionHandler("date and time is not a string in iso format", detail={"marcada": "invalid"})
-            except Exception as e:
-                raise e
-        else:
-            self._marcada = marcada
+                marcada = isoparse(marcada)
+            except ValueError as error:
+                raise APIExceptionHandler(
+                    "date and time is not a string in iso format",
+                    detail={"marcada": "invalid"}) from error
+            except Exception as error:
+                raise error
 
-
-        clinica = session.execute(select(Clinica.id).filter_by(id=clinica_id)).scalar()
+        clinica = session.execute(select(
+            Clinica.id).filter_by(id=clinica_id)).scalar()
 
         if clinica is None:
-            raise APIExceptionHandler("clinica_id is not a id of a clinica", detail={"clinica_id": "invalid"})
+            raise APIExceptionHandler("clinica_id is not a id of a clinica",
+                                      detail={"clinica_id": "invalid"})
 
         weekday = marcada.weekday()
 
-        self.horario = session.execute(select(Horario).filter_by(clinica_id=clinica, dia_semana=weekday)).scalar()
+        horario = session.execute(
+            select(Horario).filter_by(clinica_id=clinica,
+                                      dia_semana=weekday)).scalar()
+        return marcada, horario
 
     @validates('marcada')
-    def validate_marcada(self, key, marcada):
-        if not hasattr(self, "horario"):
-            self.getClinicaHorario(marcada, self.clinica_id)
-        horario = self.horario
-        marcada = self._marcada
-
-        now = datetime.now()
+    def valida_marcada(self, _, marcada):
+        """
+        Valida se uma consulta marcada é válida
+        """
+        marcada, horario = self.verifica_marcada(marcada, self.clinica_id)
 
         if horario is not None:
             hora = marcada.time()
 
-            if hora < horario.am_inicio or (horario.almoco and (hora >= horario.am_fim and hora < horario.pm_inicio)) or hora >= horario.pm_fim:
+            if hora < horario.am_inicio or (horario.am_fim and hora >= horario.am_fim and hora < horario.pm_inicio) or hora >= horario.pm_fim:
                 marcada = None
+                print(horario.as_dict())
             else:
-                exists = session.execute(select(Consulta.id).filter_by(marcada=marcada, clinica_id=self.clinica_id).filter(Consulta.id != self.id)).scalar()
+                exists = session.execute(
+                    select(Consulta.id)
+                    .filter_by(clinica_id=self.clinica_id)
+                    .filter(Consulta.id != self.id)
+                    .filter(Consulta.marcada >= marcada, Consulta.marcada < (marcada + timedelta(seconds=self.duracao)))).scalar()
 
-        if(not horario or marcada is None or exists is not None):
-            raise APIExceptionHandler("This date and time are not valid", detail={"marcada":"invalid"})
-
-        del self.horario
-        del self._marcada
+        if (not horario or marcada is None or exists is not None):
+            raise APIExceptionHandler("This date and time are not valid",
+                                      detail={"marcada": "invalid"})
 
         return marcada
-

@@ -14,7 +14,7 @@ def test_all_clientes(app, client):
     with app.app_context():
         clientes = Cliente.query.all()
 
-    expected_rs = {"status":"success", "data": {"clientes": [c._asjson() for c in clientes]}}
+    expected_rs = {"status":"success", "data": {"clientes": [c.as_json() for c in clientes]}}
 
     assert expected_rs == rs_json
 
@@ -30,7 +30,7 @@ def test_add_cliente(app, client):
 
     with app.app_context():
         cliente = Cliente.query.filter_by(**new_cliente).first()
-        cliente_dict = cliente._asjson()
+        cliente_dict = cliente.as_json()
 
     expected_rs = {"status": "success", "data":{"cliente": cliente_dict}}
 

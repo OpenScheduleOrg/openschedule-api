@@ -1,62 +1,37 @@
-import os
-
-from flask import request, jsonify, abort
-import jwt
+from flask import request, jsonify, current_app
 
 from . import bp_auth
-from ..models import select
+from ..models import session, select
 from ..exceptions import APIExceptionHandler
-from ..auth import getToken, validateToken, REMEMBER_EXPIRE
+from ..auth import cria_token, verifica_token
 
-user = {
-    "id": 1,
-    "nome": "Marcos",
-    "sobrenome": "Pacheco",
-    "email": "consuchat@consuchat.com",
-    "username": "consuchat",
-    "password":"hash",
-    "clinica_id": 1
-}
 
-@bp_auth.route("/loged", methods=["GET"])
-def loged():
-    token = request.cookies.get("jwt-token")
+@bp_auth.route("/signin/<string:auth_type>", methods=["GET", "POST"])
+def signin(auth_type="header"):
+    """
+    Everyone knows whats is a login
+    """
+    id_token = None
+    password = None
+    username = None
+    usuario = None
 
-    if(token):
-        payload = validateToken(token)
+    if request.headers.get("Authorization", None):
         try:
-            if(payload["password"] == user["password"] and payload["username"] == user["username"]):
-                return jsonify(status="success", data={"funcionario": user}), 200
-        except:
             pass
+        except Exception:
+            invalid_credentials = True
 
-    return jsonify(status="fail", message="token not exists", data=None), 401
-
-
-@bp_auth.route("/signin", methods=["POST"])
-def signin():
     body = request.get_json()
-    username = body.get("username")
-    password = body.get("password")
 
-    if (user["username"] == username and user["password"] == password):
-
-        expire = REMEMBER_EXPIRE if  body.get("rememberMe") else None
-
-        token = getToken(user["id"], user["username"], user["password"], expire)
-
-        res_json = jsonify(status="success", data={ "funcionario":user })
-        res_json.set_cookie("jwt-token", token, expire, httponly=True)
-
-        return res_json, 200
-
-    return jsonify(status="fail", message="username ou senha incorreto.", data=None), 401
 
 @bp_auth.route("/logout", methods=["DELETE"])
 def logout():
+    """
+    This is the opposite of login
+    """
 
     res_json = jsonify(status="success", data=None)
     res_json.delete_cookie("jwt-token")
 
     return res_json, 200
-

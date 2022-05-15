@@ -1,7 +1,8 @@
-from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean
+from sqlalchemy import Column, String
 from sqlalchemy.orm import relationship
 
 from . import db, TimestampMixin
+
 
 class Clinica(TimestampMixin, db.Model):
     __tablename__ = "clinica"
@@ -14,6 +15,5 @@ class Clinica(TimestampMixin, db.Model):
     latitude = Column(String(45))
 
     consultas = relationship("Consulta", back_populates="clinica")
+    usuarios = relationship("Usuario", back_populates="clinica")
     horarios = relationship("Horario", back_populates="clinica")
-
-

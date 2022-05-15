@@ -16,7 +16,7 @@ def test_all_horarios(app, client):
     with app.app_context():
         horarios_data = Horario.query.all()
 
-    expected_rs = {"status": "success", "data": {"horarios": [h._asjson() for h in horarios_data]}}
+    expected_rs = {"status": "success", "data": {"horarios": [h.as_json() for h in horarios_data]}}
 
     assert expected_rs == rs_json
 
