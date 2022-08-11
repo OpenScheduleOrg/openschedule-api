@@ -7,7 +7,7 @@ from sqlalchemy.orm import relationship, validates
 from . import db, session, TimestampMixin
 from .clinica import Clinica
 from .horario import Horario
-from ..exceptions import APIExceptionHandler
+from ..exceptions import APIException
 
 
 class Consulta(TimestampMixin, db.Model):
@@ -17,10 +17,10 @@ class Consulta(TimestampMixin, db.Model):
     marcada = Column(DateTime, nullable=False)
     duracao = Column(SmallInteger, nullable=False)
     realizada = Column(Boolean, default=False)
-    cliente_id = Column(Integer, ForeignKey('cliente.id'), nullable=False)
+    patient_id = Column(Integer, ForeignKey('patients.id'), nullable=False)
     clinica_id = Column(Integer, ForeignKey('clinica.id'), nullable=False)
 
-    cliente = relationship("Cliente", back_populates="consultas")
+    patient = relationship("Patient", back_populates="consultas")
     clinica = relationship("Clinica", back_populates="consultas")
 
     def __init__(self, **kw):
@@ -51,7 +51,7 @@ class Consulta(TimestampMixin, db.Model):
             try:
                 marcada = isoparse(marcada)
             except ValueError as error:
-                raise APIExceptionHandler(
+                raise APIException(
                     "date and time is not a string in iso format",
                     detail={"marcada": "invalid"}) from error
             except Exception as error:
@@ -61,7 +61,7 @@ class Consulta(TimestampMixin, db.Model):
             Clinica.id).filter_by(id=clinica_id)).scalar()
 
         if clinica is None:
-            raise APIExceptionHandler("clinica_id is not a id of a clinica",
+            raise APIException("clinica_id is not a id of a clinica",
                                       detail={"clinica_id": "invalid"})
 
         weekday = marcada.weekday()
@@ -92,7 +92,7 @@ class Consulta(TimestampMixin, db.Model):
                     .filter(Consulta.marcada >= marcada, Consulta.marcada < (marcada + timedelta(seconds=self.duracao)))).scalar()
 
         if (not horario or marcada is None or exists is not None):
-            raise APIExceptionHandler("This date and time are not valid",
+            raise APIException("This date and time are not valid",
                                       detail={"marcada": "invalid"})
 
         return marcada

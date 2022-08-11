@@ -2,7 +2,7 @@ from flask import request, jsonify, current_app
 
 from . import bp_auth
 from ..models import session, select
-from ..exceptions import APIExceptionHandler
+from ..exceptions import APIException
 from ..auth import cria_token, verifica_token
 
 

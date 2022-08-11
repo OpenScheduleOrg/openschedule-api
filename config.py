@@ -40,7 +40,7 @@ class ProductionConfig(Config):
     pass
 
 
-app_config = {
+app_configs = {
     "development": DevelopmentConfig,
     "test": TestingConfig,
     "production": ProductionConfig

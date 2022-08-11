@@ -1,4 +1,5 @@
 import os
+import enum
 from hashlib import sha256
 import hmac
 from datetime import datetime, timedelta, timezone
@@ -6,8 +7,36 @@ from datetime import datetime, timedelta, timezone
 import jwt
 from flask import current_app
 
-from .models import Usuario
-from .exceptions import APIExceptionHandler
+from .exceptions import APIException
+
+
+class AccessLevel(enum.Enum):
+    """
+        Enum with access level
+    """
+    CLINICA_READ = 0b0000000001
+    CLINICA_WRITE = 0b0000000010
+    USUARIO_READ = 0b0000000100
+    USUARIO_WRITE = 0b0000001000
+    CONSULTA_READ = 0b0000010000
+    CONSULTA_WRITE = 0b0000100000
+    CLIENTE_READ = 0b0001000000
+    CLIENTE_WRITE = 0b0010000000
+    HORARIO_READ = 0b0100000000
+    HORARIO_WRITE = 0b1000000000
+
+    ADMIN = CLINICA_READ + CLINICA_WRITE + USUARIO_READ + \
+        USUARIO_WRITE + CONSULTA_READ + \
+        CONSULTA_WRITE + CLIENTE_READ + \
+        CLIENTE_WRITE + HORARIO_READ + HORARIO_WRITE
+
+    CLINICA_ADMIN = CLINICA_READ + USUARIO_READ + USUARIO_WRITE + \
+        CONSULTA_READ + CONSULTA_WRITE + CLIENTE_READ + \
+        CLIENTE_WRITE + HORARIO_READ + HORARIO_WRITE
+
+    FUNCIONARI0 = CLINICA_READ + USUARIO_READ + CONSULTA_READ + \
+        CONSULTA_WRITE + CLIENTE_READ + CLIENTE_WRITE +\
+        HORARIO_READ + HORARIO_WRITE
 
 
 def gera_csrf_token(key):
@@ -20,7 +49,7 @@ def gera_csrf_token(key):
     return hmac_csrf_token.hexdigest()
 
 
-def cria_token(usuario: Usuario, exp: int or None = None, csrf_token: str or None = None):
+def cria_token(usuario, exp: int or None = None, csrf_token: str or None = None):
     """
     Generate JWT token
     """
@@ -59,15 +88,15 @@ def verifica_token(token):
                              options=options)
 
     except jwt.exceptions.ExpiredSignatureError as error:
-        raise APIExceptionHandler(status="fail",
+        raise APIException(status="fail",
                                   message="Expired token.",
                                   status_code=401) from error
     except jwt.exceptions.PyJWTError as error:
-        raise APIExceptionHandler(status="fail",
+        raise APIException(status="fail",
                                   message="Invalid token.",
                                   status_code=401) from error
     except Exception as error:
-        raise APIExceptionHandler(status="error",
+        raise APIException(status="error",
                                   message="Unexpected error.",
                                   status_code=500) from error
 

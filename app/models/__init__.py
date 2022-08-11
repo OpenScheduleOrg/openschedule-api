@@ -77,8 +77,8 @@ delete = db.delete
 insert = db.insert
 update = db.update
 
-from .usuario import Usuario, NivelAcesso
-from .cliente import Cliente
+from .patient import Patient
+from .usuario import Usuario
 from .clinica import Clinica
 from .horario import Horario
 from .consulta import Consulta

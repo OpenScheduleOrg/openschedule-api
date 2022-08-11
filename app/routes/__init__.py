@@ -3,7 +3,7 @@ from flask import Blueprint, jsonify, request
 bp_api = Blueprint("api", "api", url_prefix="/api")
 bp_auth = Blueprint("auth", "auth", url_prefix="/auth")
 
-from . import cliente, clinica, consulta, horario, auth
+from . import patient, clinica, consulta, horario, auth
 
 
 #                STATUS CODE REFERENCE
