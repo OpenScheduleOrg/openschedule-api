@@ -17,7 +17,7 @@ class Patient(TimestampMixin, db.Model):
     consultas = relationship("Consulta", back_populates="patient")
 
     validators = {
-        "name": Validator("name").required(),
+        "name": Validator("name").required().length(2, 255),
         "cpf": Validator("cpf").required().cpf(),
         "phone": Validator("phone").required().phone(),
         "birthdate": Validator("birthdate").date(),

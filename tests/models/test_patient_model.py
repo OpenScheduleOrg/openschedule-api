@@ -2,6 +2,8 @@ import pytest
 from faker import Faker
 from sqlalchemy.exc import IntegrityError
 
+from db import create_patient
+
 from app.models import Patient, session
 from app.exceptions import ValidationException
 from app.validations import validate_payload
@@ -146,7 +148,7 @@ def test_should_raise_exception_when_validation_payload_fails():
     assert "phone" in errors and errors[
         "phone"] == ValidationMessages.REQUIRED_FIELD.format("phone")
 
-    payload["name"] = fake.name()
+    payload["name"] = fake.pystr(min_chars=1, max_chars=1)
     payload["cpf"] = "not a cpf"
     payload["phone"] = "not a phone number"
     payload["birthdate"] = "not a date"
@@ -154,10 +156,23 @@ def test_should_raise_exception_when_validation_payload_fails():
         validate_payload(payload, Patient.validators)
 
     errors = e_info.value.errors
-    assert len(errors) == 3
+    assert len(errors) == 4
+    assert "name" in errors and "name" in errors["name"] and "least" in errors[
+        "name"] and "2" in errors["name"]
     assert "cpf" in errors and errors[
         "cpf"] == ValidationMessages.INVALID_CPF.format("cpf")
     assert "phone" in errors and errors[
         "phone"] == ValidationMessages.INVALID_PHONE.format("phone")
     assert "birthdate" in errors and errors[
         "birthdate"] == ValidationMessages.INVALID_DATE.format("birthdate")
+
+    payload = create_patient(date_iso=True)
+    payload["name"] = fake.pystr(min_chars=256, max_chars=300)
+
+    with pytest.raises(ValidationException) as e_info:
+        validate_payload(payload, Patient.validators)
+
+    errors = e_info.value.errors
+    assert len(errors) == 1
+    assert "name" in errors and "name" in errors["name"] and "most" in errors[
+        "name"] and "255" in errors["name"]

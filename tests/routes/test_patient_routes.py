@@ -97,7 +97,7 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
     assert "cpf" in res_json
     assert "phone" in res_json
 
-    new_patient["name"] = fake.name()
+    new_patient["name"] = fake.pystr(min_chars=1, max_chars=1)
     new_patient["cpf"] = "not a cpf"
     new_patient["phone"] = "not a phone"
     new_patient["birthdate"] = "not a date"
@@ -107,10 +107,22 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
     assert res.status_code == 400
     res_json = res.get_json()
 
-    assert len(res_json) == 3
+    assert len(res_json) == 4
+    assert "name" in res_json
     assert "cpf" in res_json
     assert "phone" in res_json
     assert "birthdate" in res_json
+
+    new_patient = create_patient(date_iso=True)
+    new_patient["name"] = fake.pystr(min_chars=256, max_chars=300)
+
+    res = client.post("/api/patients", json=new_patient)
+
+    assert res.status_code == 400
+    res_json = res.get_json()
+
+    assert len(res_json) == 1
+    assert "name" in res_json
 
 
 def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use(
@@ -440,7 +452,7 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
     assert "cpf" in res_json
     assert "phone" in res_json
 
-    new_patient["name"] = fake.name()
+    new_patient["name"] = fake.pystr(min_chars=1, max_chars=1)
     new_patient["cpf"] = "not a cpf"
     new_patient["phone"] = "not a phone"
     new_patient["birthdate"] = "not a date"
@@ -450,10 +462,22 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
     assert res.status_code == 400
     res_json = res.get_json()
 
-    assert len(res_json) == 3
+    assert len(res_json) == 4
+    assert "name" in res_json
     assert "cpf" in res_json
     assert "phone" in res_json
     assert "birthdate" in res_json
+
+    new_patient = create_patient(date_iso=True)
+    new_patient["name"] = fake.pystr(min_chars=256, max_chars=300)
+
+    res = client.post("/api/patients", json=new_patient)
+
+    assert res.status_code == 400
+    res_json = res.get_json()
+
+    assert len(res_json) == 1
+    assert "name" in res_json
 
 
 def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use_on_update_patient(
