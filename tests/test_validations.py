@@ -87,7 +87,7 @@ def test_validate_required_should_return_none_if_fields_are_in_body():
     Should return none if field is in payload
     """
     field = "other_field"
-    payload = {"some_field": "some data", "other_field": "other some data"}
+    payload = {"some_field": "some data", "other_field": False}
 
     result = validate_required(field, payload)
     assert not result

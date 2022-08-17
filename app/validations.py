@@ -93,7 +93,7 @@ def validate_required(field: str, body: dict):
             validation message if invalid or none if valid
     """
     return ValidationMessages.REQUIRED_FIELD.format(
-        field) if field not in body or not body[field] else None
+        field) if field not in body or body[field] is None else None
 
 
 def validate_date(field: str, body: dict):
