@@ -11,3 +11,5 @@ class ValidationMessages:
     INVALID_DATE = "The field {} is not a date"
     CPF_REGISTERED = "The CPF has already been registered"
     PHONE_REGISTERED = "The phone number has already been registered"
+    LEAST_CHARACTERS = "The field {} must have at least {} characters"
+    MOST_CHARACTERS = "The field {} must have at most {} characters"

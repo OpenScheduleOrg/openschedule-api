@@ -113,6 +113,31 @@ def validate_date(field: str, body: dict):
     return None
 
 
+def validate_length(field: str, body: dict, min_len=None, max_len=None):
+    """
+    Validate field string length
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+            min_len (int): minimum characters expected
+            max_len (int): maximum characters expected
+        returns:
+            validation message if invalid or none if valid
+    """
+    if min_len is None and max_len is None:
+        raise ValueError("At least min or max must have some value.")
+
+    length = len(body[field])
+
+    if min_len is not None and length < min_len:
+        return ValidationMessages.LEAST_CHARACTERS.format(field, min_len)
+
+    if max_len is not None and length > max_len:
+        return ValidationMessages.MOST_CHARACTERS.format(field, max_len)
+
+    return None
+
+
 class Validator:
 
     def __init__(self, field):
@@ -147,6 +172,14 @@ class Validator:
         Add validate date to validators
         """
         self.validators.append(validate_date)
+        return self
+
+    def length(self, min_len=None, max_len=None):
+        """
+        Add validate cnpj to validators
+        """
+        self.validators.append(
+            lambda f, b: validate_length(f, b, min_len, max_len))
         return self
 
     def validate(self, obj: dict) -> str or None:

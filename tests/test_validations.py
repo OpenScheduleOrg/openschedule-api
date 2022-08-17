@@ -5,7 +5,7 @@ from faker import Faker
 from sqlalchemy.exc import IntegrityError
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_unique
+    validate_unique, validate_length
 from app.exceptions import ValidationException
 from app.constants import ValidationMessages
 
@@ -179,3 +179,41 @@ def test_validate_unique_should_raise_when_field_unique_message():
     validation_error = e_info.value
     assert field_name in validation_error.errors
     assert validation_error.errors[field_name] == fields_messages[field_name]
+
+
+def test_validate_length_should_return_none_if_string_has_correct_size():
+    """
+    Shold return None if string has correct size
+    """
+    field = "any_field"
+    value = "Some quote"
+    payload = {field: value}
+
+    result = validate_length(field, payload, min_len=0, max_len=255)
+    assert not result
+
+    result = validate_length(field, payload, min_len=0, max_len=len(value))
+    assert not result
+
+    value = "four"
+    payload[field] = value
+    result = validate_length(field, payload, min_len=4, max_len=len(value))
+    assert not result
+
+
+def test_validate_length_should_return_validation_message_if_string_is_out_of_bounds(
+):
+    """
+    Shold return validation message if string is out of bounds
+    """
+    field = "any_field"
+    value = "Some quote"
+    payload = {field: value}
+
+    max_len = len(value) - 3
+    result = validate_length(field, payload, min_len=0, max_len=max_len)
+    assert "most" in result and field in result and str(max_len) in result
+
+    min_len = len(value) + 3
+    result = validate_length(field, payload, min_len=min_len, max_len=max_len)
+    assert "least" in result and field in result and str(min_len) in result
