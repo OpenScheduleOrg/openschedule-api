@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal, InvalidOperation
 from datetime import date
 from dateutil.parser import isoparse
 
@@ -64,6 +65,36 @@ def validate_cpf(field: str, body: dict) -> str or None:
         if dvs[0] == digits[9] and dvs[1] == digits[10]:
             return None
     return ValidationMessages.INVALID_CPF.format(field)
+
+
+def validate_cnpj(field: str, body: dict) -> str or None:
+    """
+    Validate cnpj
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+        returns:
+            validation message if invalid or none if valid
+    """
+    cnpj = body[field] = remove_mask(body[field])
+    if re.match(r"^\d{14}$", cnpj):
+        digits = [int(d) for d in cnpj]
+        dvs = [0, 0]
+
+        i = 6
+        j = 5
+        for d in digits[:-2]:
+            dvs[0] += i * d
+            dvs[1] += j * d
+            i += 1 if i < 9 else -7
+            j += 1 if j < 9 else -7
+
+        dvs[0] = (dvs[0] % 11) % 10
+        dvs[1] = ((dvs[1] + dvs[0] * 9) % 11) % 10
+
+        if dvs[0] == digits[12] and dvs[1] == digits[13]:
+            return None
+    return ValidationMessages.INVALID_CNPJ.format(field)
 
 
 def validate_phone(field: str, body: dict) -> str or None:
@@ -138,6 +169,40 @@ def validate_length(field: str, body: dict, min_len=None, max_len=None):
     return None
 
 
+def validate_latitude(field: str, body: dict):
+    """
+    Validate if field is a latitude
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+        returns:
+            validation message if invalid or none if valid
+    """
+    try:
+        body[field] = latitude = Decimal(body[field])
+    except InvalidOperation:
+        return ValidationMessages.NOT_A_NUMBER
+
+    return None if -90 <= latitude <= 90 else ValidationMessages.INVALID_LATITUDE
+
+
+def validate_longitude(field: str, body: dict):
+    """
+    Validate if field is a longitude
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+        returns:
+            validation message if invalid or none if valid
+    """
+    try:
+        body[field] = longitude = Decimal(body[field])
+    except InvalidOperation:
+        return ValidationMessages.NOT_A_NUMBER
+
+    return None if -180 <= longitude <= 180 else ValidationMessages.INVALIDE_LONGITUDE
+
+
 class Validator:
 
     def __init__(self, field):
@@ -160,6 +225,13 @@ class Validator:
         self.validators.append(validate_cpf)
         return self
 
+    def cnpj(self):
+        """
+        Add validate cnpj to validators
+        """
+        self.validators.append(validate_cnpj)
+        return self
+
     def phone(self):
         """
         Add validate phone to validators
@@ -180,6 +252,20 @@ class Validator:
         """
         self.validators.append(
             lambda f, b: validate_length(f, b, min_len, max_len))
+        return self
+
+    def longitude(self):
+        """
+        Add validate longitude to validators
+        """
+        self.validators.append(validate_longitude)
+        return self
+
+    def latitude(self):
+        """
+        Add validate latitude to validators
+        """
+        self.validators.append(validate_latitude)
         return self
 
     def validate(self, obj: dict) -> str or None:

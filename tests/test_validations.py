@@ -5,7 +5,7 @@ from faker import Faker
 from sqlalchemy.exc import IntegrityError
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_unique, validate_length
+    validate_unique, validate_length, validate_cnpj, validate_latitude, validate_longitude
 from app.exceptions import ValidationException
 from app.constants import ValidationMessages
 
@@ -42,6 +42,39 @@ def test_validate_cpf_should_remove_cpf_mask():
     field = "cpf"
     payload = {field: fake.cpf()}
     validate_cpf(field, payload)
+    assert not re.match(r"\D", payload[field])
+
+
+def test_validate_cnpj_when_valid_cnpj_should_return_none():
+    """
+    Must be return none if cnpj is valid
+    """
+    field = "cnpj"
+    result = validate_cnpj(field, {field: fake.cnpj()})
+    assert not result
+    result = validate_cnpj(field, {field: fake.company_id()})
+    assert not result
+
+
+def test_validate_cnpj_when_invalid_cnpj_should_return_validation_result():
+    """
+    Must be return none if cnpj is invalid
+    """
+    field = "cnpj"
+    assert validate_cnpj(
+        field, {field: ""}) == ValidationMessages.INVALID_CNPJ.format(field)
+    assert validate_cnpj(field,
+                         {field: "10.270.561/1234-54"
+                          }) == ValidationMessages.INVALID_CNPJ.format(field)
+
+
+def test_validate_cnpj_should_remove_cnpj_mask():
+    """
+    Should remove cnpj mask
+    """
+    field = "cnpj"
+    payload = {field: fake.cnpj()}
+    validate_cnpj(field, payload)
     assert not re.match(r"\D", payload[field])
 
 
@@ -217,3 +250,89 @@ def test_validate_length_should_return_validation_message_if_string_is_out_of_bo
     min_len = len(value) + 3
     result = validate_length(field, payload, min_len=min_len, max_len=max_len)
     assert "least" in result and field in result and str(min_len) in result
+
+
+def test_validate_should_reutrn_not_a_number_field_has_no_number():
+    """
+    Shold return not a number if field not have a number
+
+    """
+    field = "any_field"
+    value = "Not a number"
+    payload = {field: value}
+
+    result = validate_latitude(field, payload)
+    assert result == ValidationMessages.NOT_A_NUMBER
+
+    result = validate_longitude(field, payload)
+    assert result == ValidationMessages.NOT_A_NUMBER
+
+
+def test_validate_latitude_should_reutrn_validation_message_if_field_contain_invalid_latitude(
+):
+    """
+    Shold return message if number is not a latitude
+    """
+    field = "any_field"
+    payload = {field: "-91"}
+    result = validate_latitude(field, payload)
+
+    assert result == ValidationMessages.INVALID_LATITUDE
+
+    payload[field] = 90.021
+    result = validate_latitude(field, payload)
+    assert result == ValidationMessages.INVALID_LATITUDE
+
+
+def test_validate_latitude_should_reutrn_none_when_field_contains_latitude():
+    """
+    Should return none if field have a valid latitude
+    """
+    field = "any_field"
+    payload = {field: "-90"}
+    result = validate_latitude(field, payload)
+
+    assert not result
+
+    payload[field] = 3.141592
+    result = validate_latitude(field, payload)
+    assert not result
+
+    payload[field] = 90.0000
+    result = validate_latitude(field, payload)
+    assert not result
+
+
+def test_validate_longitude_should_reutrn_validation_message_if_field_contain_invalid_longitude(
+):
+    """
+    Shold return message if number is not a longitude
+    """
+    field = "any_field"
+    payload = {field: "-181"}
+    result = validate_longitude(field, payload)
+
+    assert result == ValidationMessages.INVALIDE_LONGITUDE
+
+    payload[field] = 180.021
+    result = validate_longitude(field, payload)
+    assert result == ValidationMessages.INVALIDE_LONGITUDE
+
+
+def test_validate_longitude_should_reutrn_none_when_field_contains_longitude():
+    """
+    Should return none if field have a valid longitude
+    """
+    field = "any_field"
+    payload = {field: "-180"}
+
+    result = validate_longitude(field, payload)
+    assert not result
+
+    payload[field] = -3.141592
+    result = validate_longitude(field, payload)
+    assert not result
+
+    payload[field] = 180.0000
+    result = validate_longitude(field, payload)
+    assert not result
