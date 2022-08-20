@@ -1,21 +1,24 @@
 from faker import Faker
 from dateutil.parser import isoparse
 
-from db import populate_patients, create_patient
+from db import populate_patients
+from factory import PatientBuilder
 from app.models import Patient, session, select
 
 fake = Faker(["pt_BR"])
 
 
-def assert_patient(result, expected):
+def assert_patient(result, expected, complete=True):
     """
-    Compare to patient
+    Assert patient
     """
     assert result["name"] == expected["name"]
     assert result["cpf"] == expected["cpf"]
     assert result["phone"] == expected["phone"]
-    assert result["address"] == expected["address"]
-    assert result["birthdate"] == expected["birthdate"]
+
+    if complete:
+        assert result["address"] == expected["address"]
+        assert result["birthdate"] == expected["birthdate"]
 
 
 #  POST  #
@@ -26,9 +29,7 @@ def test_should_return_201_and_the_patient_whether_request_valid_only_required(
     """
     Should return status 201 and patient whether the request is valid with only required fields
     """
-    new_patient = create_patient()
-    del new_patient["address"]
-    del new_patient["birthdate"]
+    new_patient = PatientBuilder().build()
 
     res = client.post("/api/patients", json=new_patient)
 
@@ -46,18 +47,14 @@ def test_should_return_201_and_the_patient_whether_request_valid_only_required(
     assert "patient" in res_json
     res_patient = res_json["patient"]
 
-    assert res_patient["name"] == new_patient["name"]
-    assert res_patient["cpf"] == new_patient["cpf"]
-    assert res_patient["phone"] == new_patient["phone"]
-    assert not res_patient["address"]
-    assert not res_patient["birthdate"]
+    assert_patient(res_patient, new_patient, False)
 
 
 def test_should_return_201_and_the_patient_whether_request_valid(app, client):
     """
     Should return status 201 and patient whether the request is valid
     """
-    new_patient = create_patient(date_iso=True)
+    new_patient = PatientBuilder().complete().build()
 
     rs = client.post("/api/patients", json=new_patient)
 
@@ -97,10 +94,9 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
     assert "cpf" in res_json
     assert "phone" in res_json
 
-    new_patient["name"] = fake.pystr(min_chars=1, max_chars=1)
-    new_patient["cpf"] = "not a cpf"
-    new_patient["phone"] = "not a phone"
-    new_patient["birthdate"] = "not a date"
+    new_patient = PatientBuilder().with_name(
+        fake.pystr(min_chars=1, max_chars=1)).with_cpf("not a cpf").with_phone(
+            "not a phone").with_birthdate("not a date").build()
 
     res = client.post("/api/patients", json=new_patient)
 
@@ -113,8 +109,8 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
     assert "phone" in res_json
     assert "birthdate" in res_json
 
-    new_patient = create_patient(date_iso=True)
-    new_patient["name"] = fake.pystr(min_chars=256, max_chars=300)
+    new_patient = PatientBuilder().complete().with_name(
+        fake.pystr(min_chars=256, max_chars=300)).build()
 
     res = client.post("/api/patients", json=new_patient)
 
@@ -133,9 +129,7 @@ def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use(
     with app.app_context():
         patients = populate_patients()
 
-    patient = patients[0]
-    new_patient = create_patient(date_iso=True)
-    new_patient["cpf"] = patient["cpf"]
+    new_patient = PatientBuilder().with_cpf(patients[0]["cpf"]).build()
 
     res = client.post("/api/patients", json=new_patient)
 
@@ -153,9 +147,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use(
     with app.app_context():
         patients = populate_patients()
 
-    patient = patients[0]
-    new_patient = create_patient(date_iso=True)
-    new_patient["phone"] = patient["phone"]
+    new_patient = PatientBuilder().with_phone(patients[0]["phone"]).build()
 
     res = client.post("/api/patients", json=new_patient)
 
@@ -245,18 +237,10 @@ def test_should_return_should_return_first_n_patients_match_filter_name_ordered_
     filter_name = "foo"
     with app.app_context():
         created_patients = []
-        for i in range(10):
-            patient = create_patient()
-            patient["name"] = filter_name + patient["name"]
-            created_patients.append(patient)
-
-            patient = create_patient()
-            patient["name"] = fake.first_name() + filter_name \
-                + fake.last_name()
-            created_patients.append(patient)
-
-            patient = create_patient()
-            patient["name"] = patient["name"] + filter_name
+        for i in range(30):
+            patient = PatientBuilder().complete().with_name(
+                f"{fake.first_name()} {filter_name} {fake.last_name()}"
+            ).build_object()
             created_patients.append(patient)
 
         patients = populate_patients(100, created_patients)
@@ -305,17 +289,6 @@ def test_should_return_200_and_patient_get_patient_by_id(app, client):
     assert_patient(res_patient, patient)
 
 
-def test_should_return_404_if_patient_not_exists_on_get_patient_by_id(client):
-    """
-    Should return status 404 if patient not exists on get patient by id
-    """
-    res = client.get(f"/api/patients/{0}")
-
-    assert res.status_code == 404
-    res_json = res.get_json()
-    assert "message" in res_json
-
-
 def test_should_return_200_and_patient_get_patient_by_cpf(app, client):
     """
     Should return status 200 and patient get patient by cpf
@@ -335,17 +308,6 @@ def test_should_return_200_and_patient_get_patient_by_cpf(app, client):
     res_patient = res_json["patient"]
 
     assert_patient(res_patient, patient)
-
-
-def test_should_return_404_if_patient_not_exists_on_get_patient_by_cpf(client):
-    """
-    Should return status 404 if patient not exists on get patient by cpf
-    """
-    res = client.get("/api/patients/11111111111/cpf")
-
-    assert res.status_code == 404
-    res_json = res.get_json()
-    assert "message" in res_json
 
 
 def test_should_return_200_and_patient_get_patient_by_phone(app, client):
@@ -369,16 +331,20 @@ def test_should_return_200_and_patient_get_patient_by_phone(app, client):
     assert_patient(res_patient, patient)
 
 
-def test_should_return_404_if_patient_not_exists_on_get_patient_by_phone(
-        client):
+def test_should_return_404_if_patient_not_exists_on_get_patient(client):
     """
-    Should return status 404 if patient not exists on get patient by phone
+    Should return status 404 if patient not exists on get patient
     """
-    res = client.get("/api/patients/9999999999/phone")
+    endpoints = [
+        "/api/patients/0", "/api/patients/11111111111/cpf",
+        "/api/patients/9999999999/phone"
+    ]
+    for ept in endpoints:
+        res = client.get(ept)
 
-    assert res.status_code == 404
-    res_json = res.get_json()
-    assert "message" in res_json
+        assert res.status_code == 404
+        res_json = res.get_json()
+        assert "message" in res_json
 
 
 #  GET  #
@@ -394,7 +360,7 @@ def test_should_return_200_when_patient_is_updated_with_valid_data(
     with app.app_context():
         patients = populate_patients()
     patient_id = patients[0]["id"]
-    update_patient = create_patient(date_iso=True)
+    update_patient = PatientBuilder().complete().build()
 
     res = client.put(f"/api/patients/{patient_id}", json=update_patient)
 
@@ -426,7 +392,7 @@ def test_should_return_404_if_patient_to_update_not_exists(app, client):
     with app.app_context():
         populate_patients()
 
-    update_patient = create_patient(date_iso=True)
+    update_patient = PatientBuilder().complete().build()
 
     res = client.put(f"/api/patients/{0}", json=update_patient)
 
@@ -452,12 +418,11 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
     assert "cpf" in res_json
     assert "phone" in res_json
 
-    new_patient["name"] = fake.pystr(min_chars=1, max_chars=1)
-    new_patient["cpf"] = "not a cpf"
-    new_patient["phone"] = "not a phone"
-    new_patient["birthdate"] = "not a date"
+    new_patient = PatientBuilder().with_name(
+        fake.pystr(min_chars=1, max_chars=1)).with_cpf("not a cpf").with_phone(
+            "not a phone").with_birthdate("not a date").build()
 
-    res = client.post("/api/patients", json=new_patient)
+    res = client.put("/api/patients/0", json=new_patient)
 
     assert res.status_code == 400
     res_json = res.get_json()
@@ -468,10 +433,10 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
     assert "phone" in res_json
     assert "birthdate" in res_json
 
-    new_patient = create_patient(date_iso=True)
-    new_patient["name"] = fake.pystr(min_chars=256, max_chars=300)
+    new_patient = PatientBuilder().complete().with_name(
+        fake.pystr(min_chars=256, max_chars=300)).build()
 
-    res = client.post("/api/patients", json=new_patient)
+    res = client.put("/api/patients/0", json=new_patient)
 
     assert res.status_code == 400
     res_json = res.get_json()
@@ -489,9 +454,7 @@ def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use_on_up
         patients = populate_patients()
 
     patient_id = patients[0]["id"]
-    patient = patients[1]
-    new_patient = create_patient(date_iso=True)
-    new_patient["cpf"] = patient["cpf"]
+    new_patient = PatientBuilder().with_cpf(patients[1]["cpf"]).build()
 
     res = client.put(f"/api/patients/{patient_id}", json=new_patient)
 
@@ -510,9 +473,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use_on_
         patients = populate_patients()
 
     patient_id = patients[0]["id"]
-    patient = patients[1]
-    new_patient = create_patient(date_iso=True)
-    new_patient["phone"] = patient["phone"]
+    new_patient = PatientBuilder().with_phone(patients[1]["phone"]).build()
 
     res = client.put(f"/api/patients/{patient_id}", json=new_patient)
 
@@ -527,7 +488,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use_on_
 #  DELETE  #
 
 
-def test_should_return_204_when_delete_patient_if_exists_or_no(client, app):
+def test_should_return_204_when_delete_patient_if_exists_or_not(client, app):
     """
     Should return 204 when delete patient with him existing or not
     """
@@ -568,6 +529,9 @@ def test_should_return_422_when_request_have_useless_parameters(client):
         assert res_json["detail"][useless_atribute] == "useless"
 
     res = client.post("/api/patients", json=useless_payload)
+    assert_useless(res)
+
+    res = client.put("/api/patients/123", json=useless_payload)
     assert_useless(res)
 
     res = client.get("/api/patients", query_string=useless_payload)

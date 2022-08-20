@@ -1,5 +1,6 @@
 from faker import Faker
 
+from factory import PatientBuilder
 from app.models import db, session, Patient
 
 fake = Faker(["pt_BR"])
@@ -29,36 +30,18 @@ def populate_patients(num_rows=NUMBERS_PATIENTS, created_patients=None):
     """
     patients = []
     with db.session():
-        for _ in range(num_rows):
-            patient = Patient(**create_patient())
+        for i in range(num_rows):
+            patient = PatientBuilder().complete().build_object(
+            ) if i % 2 == 0 else PatientBuilder().build_object()
             db.session.add(patient)
             session.flush()
             patients.append(patient.as_json())
 
         if created_patients:
-            for p in created_patients:
-                patient = Patient(**p)
+            for patient in created_patients:
                 db.session.add(patient)
                 session.flush()
                 patients.append(patient.as_json())
 
         session.commit()
     return patients
-
-
-def create_patient(date_iso=False):
-    """
-    create a fake patient
-    """
-    return {
-        "name":
-        fake.name(),
-        "cpf":
-        fake.ssn(),
-        "phone":
-        fake.msisdn()[-10:],
-        "address":
-        fake.address(),
-        "birthdate":
-        fake.date_between().isoformat() if date_iso else fake.date_between()
-    }
