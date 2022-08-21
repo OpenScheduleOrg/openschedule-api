@@ -5,9 +5,11 @@ from faker import Faker
 from sqlalchemy.exc import IntegrityError
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_unique, validate_length, validate_cnpj, validate_latitude, validate_longitude
+    validate_unique, validate_length, validate_cnpj, validate_latitude, validate_longitude, \
+    validate_enum
 from app.exceptions import ValidationException
 from app.constants import ValidationMessages
+from app.models import ClinicType
 
 fake = Faker(["pt_BR"])
 
@@ -245,11 +247,11 @@ def test_validate_length_should_return_validation_message_if_string_is_out_of_bo
 
     max_len = len(value) - 3
     result = validate_length(field, payload, min_len=0, max_len=max_len)
-    assert "most" in result and field in result and str(max_len) in result
+    assert result == ValidationMessages.MOST_CHARACTERS.format(field, max_len)
 
     min_len = len(value) + 3
     result = validate_length(field, payload, min_len=min_len, max_len=max_len)
-    assert "least" in result and field in result and str(min_len) in result
+    assert result == ValidationMessages.LEAST_CHARACTERS.format(field, min_len)
 
 
 def test_validate_should_reutrn_not_a_number_field_has_no_number():
@@ -271,7 +273,7 @@ def test_validate_should_reutrn_not_a_number_field_has_no_number():
 def test_validate_latitude_should_reutrn_validation_message_if_field_contain_invalid_latitude(
 ):
     """
-    Shold return message if number is not a latitude
+    Should return message if number is not a latitude
     """
     field = "any_field"
     payload = {field: "-91"}
@@ -306,7 +308,7 @@ def test_validate_latitude_should_reutrn_none_when_field_contains_latitude():
 def test_validate_longitude_should_reutrn_validation_message_if_field_contain_invalid_longitude(
 ):
     """
-    Shold return message if number is not a longitude
+    Should return message if number is not a longitude
     """
     field = "any_field"
     payload = {field: "-181"}
@@ -336,3 +338,29 @@ def test_validate_longitude_should_reutrn_none_when_field_contains_longitude():
     payload[field] = 180.0000
     result = validate_longitude(field, payload)
     assert not result
+
+
+def test_validate_enum_should_return_none_if_number_match_with_enum():
+    """
+    Should return None if number match with enum
+    """
+    field = "any_field"
+    value = ClinicType.PEDIATRIC.value
+    payload = {field: value}
+
+    result = validate_enum(field, payload, ClinicType)
+    assert not result
+
+
+def test_validate_length_should_return_validation_message_if_number_is_not_in_enum(
+):
+    """
+    Shold return validation message if number is not in enum
+    """
+    field = "any_field"
+    value = 0
+    payload = {field: value}
+
+    result = validate_enum(field, payload, ClinicType)
+    assert result == ValidationMessages.NOT_IN_ENUM.format(
+        value, ClinicType.__qualname__)

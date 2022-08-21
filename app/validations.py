@@ -1,4 +1,5 @@
 import re
+from enum import Enum
 from decimal import Decimal, InvalidOperation
 from datetime import date
 from dateutil.parser import isoparse
@@ -11,7 +12,7 @@ from .utils import remove_mask
 
 def validate_dates(**kw):
     """
-        This method verify if the date parameters are valids.
+    This method verify if the date parameters are valids.
     """
     detail = {}
     converted = []
@@ -203,6 +204,25 @@ def validate_longitude(field: str, body: dict):
     return None if -180 <= longitude <= 180 else ValidationMessages.INVALIDE_LONGITUDE
 
 
+def validate_enum(field: str, body: dict, enum: Enum):
+    """
+    Validate if field is a longitude
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+            enum (Enum): type of enum to validate
+        returns:
+            validation message if invalid or none if valid
+    """
+    try:
+        body[field] = enum(body[field])
+    except ValueError:
+        return ValidationMessages.NOT_IN_ENUM.format(body[field],
+                                                     enum.__qualname__)
+
+    return None
+
+
 class Validator:
 
     def __init__(self, field):
@@ -266,6 +286,13 @@ class Validator:
         Add validate latitude to validators
         """
         self.validators.append(validate_latitude)
+        return self
+
+    def enum(self, enum: Enum):
+        """
+        Add validate enum to validators
+        """
+        self.validators.append(lambda f, b: validate_enum(f, b, enum))
         return self
 
     def validate(self, obj: dict) -> str or None:
