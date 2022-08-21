@@ -1,12 +1,27 @@
 import os
+import decimal
 
 from flask import Flask, request
+from flask.json import JSONEncoder
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+
+from app.models import db, ClinicType
 
 from config import app_configs
 from .exceptions import resource_not_found, internal_server_error, \
     APIException, api_exception_handler, ValidationException, validation_exception_handler
+
+
+class JsonEncoder(JSONEncoder):
+
+    def default(self, o):
+        if isinstance(o, decimal.Decimal):
+            return str(o)
+        if isinstance(o, ClinicType):
+            return int(o.value)
+
+        return JSONEncoder.default(self, o)
 
 
 def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
@@ -19,8 +34,8 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
          origins=["http://localhost:8080", "http://10.0.0.115:8080"],
          supports_credentials=True)
     app.config.from_object(app_config)
+    app.json_encoder = JsonEncoder
 
-    from app.models import db
     db.init_app(app)
     db.create_all(app=app)
 

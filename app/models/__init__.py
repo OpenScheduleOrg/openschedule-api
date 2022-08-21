@@ -2,6 +2,7 @@ from datetime import datetime, date, time, timedelta
 
 from flask_sqlalchemy import Model, SQLAlchemy
 from sqlalchemy import Column, Integer, DateTime
+from .enums import ClinicType
 
 
 class DefaultModel(Model):
@@ -79,6 +80,6 @@ update = db.update
 
 from .patient import Patient
 from .usuario import Usuario
-from .clinica import Clinica
+from .clinic import Clinic
 from .horario import Horario
 from .consulta import Consulta

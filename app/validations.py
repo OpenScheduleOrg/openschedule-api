@@ -1,6 +1,5 @@
 import re
 from enum import Enum
-from decimal import Decimal, InvalidOperation
 from datetime import date
 from dateutil.parser import isoparse
 
@@ -180,8 +179,8 @@ def validate_latitude(field: str, body: dict):
             validation message if invalid or none if valid
     """
     try:
-        body[field] = latitude = Decimal(body[field])
-    except InvalidOperation:
+        body[field] = latitude = float(body[field])
+    except ValueError:
         return ValidationMessages.NOT_A_NUMBER
 
     return None if -90 <= latitude <= 90 else ValidationMessages.INVALID_LATITUDE
@@ -197,8 +196,8 @@ def validate_longitude(field: str, body: dict):
             validation message if invalid or none if valid
     """
     try:
-        body[field] = longitude = Decimal(body[field])
-    except InvalidOperation:
+        body[field] = longitude = float(body[field])
+    except ValueError:
         return ValidationMessages.NOT_A_NUMBER
 
     return None if -180 <= longitude <= 180 else ValidationMessages.INVALIDE_LONGITUDE

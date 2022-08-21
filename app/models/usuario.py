@@ -21,9 +21,7 @@ class Usuario(TimestampMixin, db.Model):
     username = Column(String(10), nullable=False)
     email = Column(String(255), nullable=False)
     password = Column(String(255), nullable=False)
-    clinica_id = Column(Integer, ForeignKey('clinica.id'))
-
-    clinica = relationship("Clinica", back_populates="usuarios")
+    clinic_id = Column(Integer, ForeignKey('clinics.id'))
 
     @validates("username")
     def valida_username(self, key, username):
@@ -32,12 +30,11 @@ class Usuario(TimestampMixin, db.Model):
         """
         if not username:
             raise APIException("username is required",
-                                      detail={key: "required"})
+                               detail={key: "required"})
 
         if not re.match(r"[A-Za-z0-9._-]{5,}", username):
-            raise APIException(
-                "This username is not valid",
-                detail={key: "invalid"})
+            raise APIException("This username is not valid",
+                               detail={key: "invalid"})
 
         return username
 
@@ -48,16 +45,14 @@ class Usuario(TimestampMixin, db.Model):
         """
         if not password:
             raise APIException("password is required",
-                                      detail={key: "required"})
+                               detail={key: "required"})
 
         if re.match(r":", password):
-            raise APIException(
-                "Password must be contain 8 or more caracteres",
-                detail={key: "invalid"})
+            raise APIException("Password must be contain 8 or more caracteres",
+                               detail={key: "invalid"})
 
-        return bcrypt.using(
-            rounds=current_app.config["BCRYPT_ROUNDS"]).hash(current_app.config["BCRYPT_PEPPER"] +
-                                                             password)
+        return bcrypt.using(rounds=current_app.config["BCRYPT_ROUNDS"]).hash(
+            current_app.config["BCRYPT_PEPPER"] + password)
 
     def match_password(self, password):
         """

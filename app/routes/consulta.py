@@ -3,16 +3,16 @@ from datetime import datetime, time, date, timedelta
 from flask import request, jsonify
 
 from . import bp_api
-from ..models import session, select, delete, result_to_json, Consulta, Patient, Clinica
+from ..models import session, select, delete, result_to_json, Consulta, Patient, Clinic
 from ..exceptions import APIException
 from ..utils import useless_params
 from ..validations import validate_dates
 
 PARAMETERS_FOR_POST_CONSULTA = [
-    "patient_id", "clinica_id", "marcada", "descricao", "realizada"
+    "patient_id", "clinic_id", "marcada", "descricao", "realizada"
 ]
 PARAMETERS_FOR_GET_CONSULTA = [
-    "patient_id", "clinica_id", "date_start", "date_end"
+    "patient_id", "clinic_id", "date_start", "date_end"
 ]
 PARAMETERS_FOR_PUT_CONSULTA = ["marcada", "realizada", "descricao"]
 
@@ -29,8 +29,8 @@ def post_consulta():
     useless_params(body.keys(), PARAMETERS_FOR_POST_CONSULTA)
 
     detail = {}
-    if "clinica_id" not in body:
-        detail["clinica_id"] = "required"
+    if "clinic_id" not in body:
+        detail["clinic_id"] = "required"
     if "patient_id" not in body:
         detail["patient_id"] = "required"
     if "marcada" not in body:
@@ -78,21 +78,21 @@ def get_consultas(consulta_id=None):
 
     useless_params(params.keys(), PARAMETERS_FOR_GET_CONSULTA)
 
-    clinica_id = params.get("clinica_id")
+    clinic_id = params.get("clinic_id")
     patient_id = params.get("patient_id")
     date_start = params.get("date_start")
     date_end = params.get("date_end")
 
-    if clinica_id is not None:
-        clinica = session.execute(
-            select(Clinica.id, Clinica.nome, Clinica.tipo, Clinica.endereco,
-                   Clinica.telefone).where(Clinica.id == clinica_id)).first()
+    if clinic_id is not None:
+        clinic = session.execute(
+            select(Clinic.id, Clinic.nome, Clinic.tipo, Clinic.endereco,
+                   Clinic.telefone).where(Clinic.id == clinic_id)).first()
 
-        if clinica is None:
-            raise APIException("clinica_id is not a reference to a clinica",
-                               detail={"clinica_id": "not found"},
+        if clinic is None:
+            raise APIException("clinic_id is not a reference to a clinic",
+                               detail={"clinic_id": "not found"},
                                status_code=404)
-        clinica = clinica._asdict()
+        clinic = clinic._asdict()
 
     if patient_id is not None:
         patient = session.execute(
@@ -114,18 +114,18 @@ def get_consultas(consulta_id=None):
         Patient.phone.label("patient_phone"),
         Patient.cpf.label("patient_cpf"),
     )
-    clinica_columns = (
-        Consulta.clinica_id,
-        Clinica.nome.label("clinica_nome"),
-        Clinica.tipo.label("clinica_tipo"),
+    clinic_columns = (
+        Consulta.clinic_id,
+        Clinic.nome.label("clinic_nome"),
+        Clinic.tipo.label("clinic_tipo"),
     )
 
     if consulta_id is not None:
 
         try:
-            stmt = select(*columns, *patient_columns, *clinica_columns).join(
+            stmt = select(*columns, *patient_columns, *clinic_columns).join(
                 Consulta.patient).join(
-                    Consulta.clinica).where(Consulta.id == consulta_id)
+                    Consulta.clinic).where(Consulta.id == consulta_id)
 
             data["consulta"] = result_to_json(session.execute(stmt),
                                               first=True,
@@ -142,33 +142,33 @@ def get_consultas(consulta_id=None):
                                payload={"id": consulta_id},
                                status_code=404)
 
-    elif (clinica_id or patient_id or date_start or date_end):
+    elif (clinic_id or patient_id or date_start or date_end):
 
         if date_start and date_end:
             date_start, date_end, *_ = validate_dates(date_start=date_start,
                                                       date_end=date_end)
         try:
-            if patient_id and clinica_id:
+            if patient_id and clinic_id:
                 stmt = select(*columns).where(
-                    Consulta.clinica_id == clinica_id,
+                    Consulta.clinic_id == clinic_id,
                     Consulta.patient_id == patient_id)
-                data["clinica"] = clinica
+                data["clinic"] = clinic
                 data["patient"] = patient
 
-            elif clinica_id:
+            elif clinic_id:
                 stmt = select(*columns, *patient_columns).join(
-                    Consulta.patient).where(Consulta.clinica_id == clinica_id)
-                data["clinica"] = clinica
+                    Consulta.patient).where(Consulta.clinic_id == clinic_id)
+                data["clinic"] = clinic
 
             elif patient_id:
-                stmt = select(*columns, *clinica_columns).join(
-                    Consulta.clinica).where(Consulta.patient_id == patient_id)
+                stmt = select(*columns, *clinic_columns).join(
+                    Consulta.clinic).where(Consulta.patient_id == patient_id)
                 data["patient"] = patient
 
             else:
                 stmt = select(*columns, *patient_columns,
-                              *clinica_columns).join(Consulta.patient).join(
-                                  Consulta.clinica)
+                              *clinic_columns).join(Consulta.patient).join(
+                                  Consulta.clinic)
 
             if date_start:
                 stmt = stmt.where(Consulta.marcada >= date_start)
@@ -189,8 +189,8 @@ def get_consultas(consulta_id=None):
 
         try:
 
-            stmt = select(*columns, *patient_columns, *clinica_columns).join(
-                Consulta.patient).join(Consulta.clinica).where(
+            stmt = select(*columns, *patient_columns, *clinic_columns).join(
+                Consulta.patient).join(Consulta.clinic).where(
                     Consulta.marcada >= date_start,
                     Consulta.marcada <= date_end)
             data["consultas"] = result_to_json(session.execute(stmt),
