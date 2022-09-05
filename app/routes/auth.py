@@ -12,22 +12,25 @@ user = {
     "id": 1,
     "nome": "Marcos",
     "sobrenome": "Pacheco",
-    "email": "consuchat@consuchat.com",
-    "username": "consuchat",
-    "password":"hash",
+    "email": "marcos@consuchat.com",
+    "username": "marcos",
+    "password": "pass",
     "clinica_id": 1
 }
+
 
 @bp_auth.route("/loged", methods=["GET"])
 def loged():
     token = request.cookies.get("jwt-token")
 
-    if(token):
+    if (token):
         payload = validateToken(token)
         try:
-            if(payload["password"] == user["password"] and payload["username"] == user["username"]):
-                return jsonify(status="success", data={"funcionario": user}), 200
-        except:
+            if (payload["password"] == user["password"]
+                    and payload["username"] == user["username"]):
+                return jsonify(status="success", data={"funcionario":
+                                                       user}), 200
+        except Exception:
             pass
 
     return jsonify(status="fail", message="token not exists", data=None), 401
@@ -41,16 +44,20 @@ def signin():
 
     if (user["username"] == username and user["password"] == password):
 
-        expire = REMEMBER_EXPIRE if  body.get("rememberMe") else None
+        expire = REMEMBER_EXPIRE if body.get("rememberMe") else None
 
-        token = getToken(user["id"], user["username"], user["password"], expire)
+        token = getToken(user["id"], user["username"], user["password"],
+                         expire)
 
-        res_json = jsonify(status="success", data={ "funcionario":user })
+        res_json = jsonify(status="success", data={"funcionario": user})
         res_json.set_cookie("jwt-token", token, expire, httponly=True)
 
         return res_json, 200
 
-    return jsonify(status="fail", message="username ou senha incorreto.", data=None), 401
+    return jsonify(status="fail",
+                   message="username ou senha incorreto.",
+                   data=None), 401
+
 
 @bp_auth.route("/logout", methods=["DELETE"])
 def logout():
@@ -59,4 +66,3 @@ def logout():
     res_json.delete_cookie("jwt-token")
 
     return res_json, 200
-

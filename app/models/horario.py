@@ -1,7 +1,8 @@
-from sqlalchemy import Column, ForeignKey, Integer, Date, Time, String, DateTime, Boolean, Interval
+from sqlalchemy import Column, ForeignKey, Integer, Time, Boolean, Interval
 from sqlalchemy.orm import relationship
 
 from app.models import db
+
 
 class Horario(db.Model):
     __tablename__ = "horario"
@@ -17,4 +18,3 @@ class Horario(db.Model):
     clinica_id = Column(Integer, ForeignKey('clinica.id'), nullable=False)
 
     clinica = relationship('Clinica', back_populates='horarios')
-
