@@ -32,7 +32,7 @@ class Cliente(TimestampMixin, db.Model):
     def validate_cpf(self, key, cpf):
         cpf =  cpf.replace(".", "").replace("-", "")
         if(re.match(r"^\d{11}$", cpf)):
-            res = session.execute(select(Cliente).where(Cliente.cpf == cpf)).scalar()
+            res = session.execute(select(Cliente).where(Cliente.cpf == cpf, Cliente.id != self.id)).scalar()
             if(res): raise APIExceptionHandler("O cpf já foi cadastrado.", detail={key: "registered"})
             return cpf
         raise APIExceptionHandler("Invalid format cpf.", detail={key: "invalid"})
@@ -43,7 +43,7 @@ class Cliente(TimestampMixin, db.Model):
 
         if(re.match(r"^\d{11}$", telefone) and telefone[-9] == "9"): telefone = telefone[0:2] + telefone[3:]
         if(re.match(r"^\d{10}$", telefone)):
-            res = session.execute(select(Cliente).where(Cliente.telefone == telefone)).scalar()
+            res = session.execute(select(Cliente).where(Cliente.telefone == telefone, Cliente.id != self.id)).scalar()
             if(res): raise APIExceptionHandler("O telefone já foi cadastrado.", detail={key: "registered"})
             return telefone;
 
