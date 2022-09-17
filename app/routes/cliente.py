@@ -9,12 +9,20 @@ from ..models import Cliente, session, select
 from ..exceptions import APIExceptionHandler
 from ..utils import useless_params
 
-PARAMETERS_FOR_POST_CLIENTE = ["nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco"]
-PARAMETERS_FOR_GET_CLIENTE = ["nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco", "search"]
-PARAMETERS_FOR_PUT_CLIENTE = ["nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco"]
+PARAMETERS_FOR_POST_CLIENTE = [
+    "nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco"
+]
+PARAMETERS_FOR_GET_CLIENTE = [
+    "nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco", "search"
+]
+PARAMETERS_FOR_PUT_CLIENTE = [
+    "nome", "sobrenome", "cpf", "telefone", "nascimento", "endereco"
+]
 
 # POST cliente #
-@bp_api.route("/cliente", methods=["POST"])
+
+
+@bp_api.route("/clientes", methods=["POST"])
 def post_cliente():
     body = request.get_json()
 
@@ -29,7 +37,8 @@ def post_cliente():
         detail["telefone"] = "required"
 
     if detail:
-        raise APIExceptionHandler("Required parameter is missing", detail=detail)
+        raise APIExceptionHandler("Required parameter is missing",
+                                  detail=detail)
     try:
         cliente = Cliente(**body)
         session.add(cliente)
@@ -37,17 +46,18 @@ def post_cliente():
 
         session.refresh(cliente)
 
-
     except APIExceptionHandler as e:
         raise e
     except Exception as e:
-        raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
+        raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)),
+                                  status="error",
+                                  status_code=500)
 
     return jsonify(status="success", data={"cliente": cliente._asjson()}), 201
 
 
-
 # END POST cliente #
+
 
 # GET clientes #
 @bp_api.route("/clientes", methods=["GET"])
@@ -75,10 +85,16 @@ def get_clientes(id=None):
             cliente = session.get(Cliente, id)
 
         except Exception as e:
-            raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
-        if(cliente):
+            raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)),
+                                      status="error",
+                                      status_code=500)
+        if (cliente):
             data["cliente"] = cliente._asjson()
-        else: return jsonify(status="fail", message="cliente not found", data=None, status_code=404)
+        else:
+            return jsonify(status="fail",
+                           message="cliente not found",
+                           data=None,
+                           status_code=404)
 
     elif cpf:
         one = True
@@ -86,7 +102,9 @@ def get_clientes(id=None):
             stmt = select(Cliente).filter_by(cpf=cpf)
             cliente = session.execute(stmt).scalar()
         except Exception as e:
-            raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
+            raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)),
+                                      status="error",
+                                      status_code=500)
 
     elif telefone:
         one = True
@@ -94,18 +112,25 @@ def get_clientes(id=None):
             stmt = select(Cliente).filter_by(telefone=telefone)
             cliente = session.execute(stmt).scalar()
         except Exception as e:
-            raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
+            raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)),
+                                      status="error",
+                                      status_code=500)
 
-
-    if(cliente):
+    if (cliente):
         data["cliente"] = cliente._asjson()
-    elif(one): return jsonify(status="fail", message="cliente not found", data=None), 404
+    elif (one):
+        return jsonify(status="fail", message="cliente not found",
+                       data=None), 404
 
     return jsonify(status="success", data=data), 200
+
+
 # END GET clientes #
 
 # PUT cliente #
-@bp_api.route("/cliente/<int:id>", methods=["PUT"])
+
+
+@bp_api.route("/clientes/<int:id>", methods=["PUT"])
 def put_cliente(id=None):
     body = request.get_json()
 
@@ -119,15 +144,22 @@ def put_cliente(id=None):
 
     try:
         cliente = session.get(Cliente, id)
-        if(cliente is None):
-            raise APIExceptionHandler("Cliente not found", detail=detail, status_code=404)
+        if (cliente is None):
+            raise APIExceptionHandler("Cliente not found",
+                                      detail=detail,
+                                      status_code=404)
         session.refresh(cliente)
 
-        if(nome): cliente.nome = nome
-        if(sobrenome): cliente.sobrenome= sobrenome
-        if(telefone): cliente.telefone = telefone
-        if(nascimento): cliente.nascimento = nascimento
-        if(endereco): cliente.endereco = endereco
+        if (nome):
+            cliente.nome = nome
+        if (sobrenome):
+            cliente.sobrenome = sobrenome
+        if (telefone):
+            cliente.telefone = telefone
+        if (nascimento):
+            cliente.nascimento = nascimento
+        if (endereco):
+            cliente.endereco = endereco
 
         session.commit()
         session.refresh(cliente)
@@ -135,16 +167,21 @@ def put_cliente(id=None):
     except APIExceptionHandler as e:
         raise e
     except Exception as e:
-        raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)), status="error", status_code=500)
+        raise APIExceptionHandler(str(getattr(e, "orig", None) or str(e)),
+                                  status="error",
+                                  status_code=500)
 
     return jsonify(status="success", data={"cliente": cliente._asjson()}), 200
+
 
 # END PUT cliente #
 
 # DELETE cliente #
-@bp_api.route("/cliente", methods=["DELETE"])
+
+
+@bp_api.route("/clientes", methods=["DELETE"])
 def delete_cliente():
     pass
+
+
 # END DELETE cliente #
-
-

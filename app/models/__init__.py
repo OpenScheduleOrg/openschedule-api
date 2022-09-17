@@ -3,6 +3,7 @@ from datetime import datetime, date, time, timedelta
 from flask_sqlalchemy import Model, SQLAlchemy
 from sqlalchemy import Column, Integer, DateTime
 
+
 class DefaultModel(Model):
 
     id = Column(Integer, primary_key=True)
@@ -18,7 +19,10 @@ class DefaultModel(Model):
         obj_dict = self._asdict()
 
         for key, value in obj_dict.items():
-            if isinstance(value, (date, time,)):
+            if isinstance(value, (
+                    date,
+                    time,
+            )):
                 obj_dict[key] = value.isoformat()
             elif isinstance(value, timedelta):
                 obj_dict[key] = str(value)
@@ -27,9 +31,11 @@ class DefaultModel(Model):
 
         return obj_dict
 
+
 class TimestampMixin(object):
     created_at = Column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime, onupdate=datetime.utcnow)
+
 
 def result_to_json(result, first=False, **serialize):
     """
@@ -37,10 +43,10 @@ def result_to_json(result, first=False, **serialize):
     """
     if first:
         row = result.first()
-        if(row):
+        if (row):
             row_asdict = row._asdict()
             for key, method in serialize.items():
-                row_asdict[key] =  method(row_asdict[key])
+                row_asdict[key] = method(row_asdict[key])
             return row_asdict
 
         return row
@@ -51,7 +57,7 @@ def result_to_json(result, first=False, **serialize):
         row_asdict = row._asdict()
 
         for key, method in serialize.items():
-            row_asdict[key] =  method(row_asdict[key])
+            row_asdict[key] = method(row_asdict[key])
 
         rows.append(row_asdict)
     return rows
@@ -64,7 +70,8 @@ delete = db.delete
 insert = db.insert
 update = db.update
 
-from app.models.cliente import Cliente
-from app.models.clinica import Clinica
-from app.models.horario import Horario
 from app.models.consulta import Consulta
+from app.models.horario import Horario
+from app.models.clinica import Clinica
+from app.models.cliente import Cliente
+from app.models.notification import Notification

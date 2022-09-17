@@ -1,0 +1,35 @@
+{
+    "configurations": {
+        "flask-launch": {
+            "adapter": "debugpy",
+            "filetypes": [ "python"  ],
+            "configuration": {
+                "type": "python",
+                "request": "launch",
+                "module": "flask",
+                "cwd":"${workspaceRoot}",
+                "justMyCode":true,
+                "args":[
+                    "run",
+                    "--no-debugger",
+                    "--no-reload"
+                ]
+            }
+        },
+        "pytest-launch": {
+            "adapter": "debugpy",
+            "filetypes": [ "python"  ],
+            "configuration": {
+                "type": "python",
+                "request": "launch",
+                "module": "pytest",
+                "cwd":"${workspaceRoot}",
+                "justMyCode":true,
+                "args":[
+                    "${file}"
+                ]
+            }
+        }
+    }
+}
+

@@ -3,8 +3,7 @@ from flask import Blueprint, jsonify, request
 bp_api = Blueprint("api", "api", url_prefix="/")
 bp_auth = Blueprint("auth", "auth", url_prefix="/auth")
 
-from . import cliente, clinica, consulta, horario, auth
-
+from . import cliente, clinica, consulta, horario, auth, notification
 
 #                STATUS CODE REFERENCE
 
@@ -19,8 +18,6 @@ from . import cliente, clinica, consulta, horario, auth
 
 #           Respostas de erro do Servidor
 ## 500 INTERNAL SERVER ERROR O servidor encontrou uma situação com a qual não sabe lidar.
-
-
 """
                 JSON RESPONSE FORMAT
  success:
