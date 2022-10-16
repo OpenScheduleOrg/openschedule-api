@@ -43,11 +43,7 @@ def test_should_return_201_and_the_patient_whether_request_valid_only_required(
 
     assert res.status_code == 201
 
-    res_json = res.get_json()
-    assert "patient" in res_json
-    res_patient = res_json["patient"]
-
-    assert_patient(res_patient, new_patient, False)
+    assert_patient(res.get_json(), new_patient, False)
 
 
 def test_should_return_201_and_the_patient_whether_request_valid(app, client):
@@ -72,10 +68,7 @@ def test_should_return_201_and_the_patient_whether_request_valid(app, client):
                 & (Patient.birthdate == new_patient["birthdate"]))).scalar()
     assert persited_patient
 
-    assert "patient" in res_json
-    res_patient = res_json["patient"]
-
-    assert_patient(res_patient, new_patient)
+    assert_patient(res_json, new_patient)
 
 
 def test_should_return_400_whether_request_payload_is_invalid(client):
@@ -282,11 +275,7 @@ def test_should_return_200_and_patient_get_patient_by_id(app, client):
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "patient" in res_json
-    res_patient = res_json["patient"]
-
-    assert_patient(res_patient, patient)
+    assert_patient(res.get_json(), patient)
 
 
 def test_should_return_200_and_patient_get_patient_by_cpf(app, client):
@@ -303,11 +292,7 @@ def test_should_return_200_and_patient_get_patient_by_cpf(app, client):
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "patient" in res_json
-    res_patient = res_json["patient"]
-
-    assert_patient(res_patient, patient)
+    assert_patient(res.get_json(), patient)
 
 
 def test_should_return_200_and_patient_get_patient_by_phone(app, client):
@@ -324,11 +309,7 @@ def test_should_return_200_and_patient_get_patient_by_phone(app, client):
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "patient" in res_json
-    res_patient = res_json["patient"]
-
-    assert_patient(res_patient, patient)
+    assert_patient(res.get_json(), patient)
 
 
 def test_should_return_404_if_patient_not_exists_on_get_patient(client):
@@ -378,11 +359,7 @@ def test_should_return_200_when_patient_is_updated_with_valid_data(
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "patient" in res_json
-    res_patient = res_json["patient"]
-
-    assert_patient(res_patient, update_patient)
+    assert_patient(res.get_json(), update_patient)
 
 
 def test_should_return_404_if_patient_to_update_not_exists(app, client):

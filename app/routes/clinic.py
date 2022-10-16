@@ -1,13 +1,12 @@
 from flask import request, jsonify
 from sqlalchemy import desc
-from sqlalchemy.exc import IntegrityError
 
 from . import bp_api
 from ..models import Clinic, session, select, delete, update, ClinicType
-from ..exceptions import APIException
+from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
-from ..validations import validate_payload, validate_unique
+from ..validations import validate_payload
 
 PARAMETERS_FOR_POST_CLINIC = [
     "name", "cnpj", "phone", "type", "address", "latitude", "longitude"
@@ -20,11 +19,6 @@ PARAMETERS_FOR_GET_CLINIC = [
 PARAMETERS_FOR_PUT_CLINIC = [
     "name", "cnpj", "phone", "address", "type", "latitude", "longitude"
 ]
-
-FIELDS_UNIQUE = {
-    "cnpj": ValidationMessages.CNPJ_REGISTERED,
-    "phone": ValidationMessages.PHONE_REGISTERED
-}
 
 # POST clinic #
 
@@ -39,16 +33,20 @@ def create_clinic():
     useless_params(body.keys(), PARAMETERS_FOR_POST_CLINIC)
     validate_payload(body, Clinic.validators)
 
-    try:
-        clinic = Clinic(**body)
-        session.add(clinic)
-        session.commit()
-        session.refresh(clinic)
-    except IntegrityError as e:
-        validate_unique(e, FIELDS_UNIQUE)
-        raise e
+    if session.query(
+            Clinic.id).filter(Clinic.cnpj == body["cnpj"]).first() is not None:
+        raise ValidationException({"cnpj": ValidationMessages.CNPJ_REGISTERED})
+    if session.query(Clinic.id).filter(
+            Clinic.phone == body["phone"]).first() is not None:
+        raise ValidationException(
+            {"phone": ValidationMessages.PHONE_REGISTERED})
 
-    return jsonify(clinic=clinic.as_json()), 201
+    clinic = Clinic(**body)
+    session.add(clinic)
+    session.commit()
+    session.refresh(clinic)
+
+    return jsonify(clinic.as_json()), 201
 
 
 # END POST clinic #
@@ -100,7 +98,7 @@ def get_clinic_by_id(clinic_id=None):
     if clinic is None:
         raise APIException(ResponseMessages.CLINIC_NO_FOUND, status_code=404)
 
-    return jsonify(clinic=clinic.as_json())
+    return jsonify(clinic.as_json())
 
 
 @bp_api.route("/clinics/<string:clinic_cnpj>/cnpj", methods=["GET"])
@@ -114,7 +112,7 @@ def get_clinic_by_cnpj(clinic_cnpj):
     if clinic is None:
         raise APIException(ResponseMessages.CLINIC_NO_FOUND, status_code=404)
 
-    return jsonify(clinic=clinic.as_json())
+    return jsonify(clinic.as_json())
 
 
 @bp_api.route("/clinics/<string:clinic_phone>/phone", methods=["GET"])
@@ -128,7 +126,7 @@ def get_clinic_by_phone(clinic_phone):
     if clinic is None:
         raise APIException(ResponseMessages.CLINIC_NO_FOUND, status_code=404)
 
-    return jsonify(clinic=clinic.as_json())
+    return jsonify(clinic.as_json())
 
 
 # END GET clinics #
@@ -146,20 +144,26 @@ def update_clinic(clinic_id):
     useless_params(body.keys(), PARAMETERS_FOR_POST_CLINIC)
     validate_payload(body, Clinic.validators)
 
-    try:
-        stmt = update(Clinic).where(Clinic.id == clinic_id).values(**body)
-        rowcount = session.execute(stmt).rowcount
-        session.commit()
-    except IntegrityError as e:
-        validate_unique(e, FIELDS_UNIQUE)
-        raise e
+    if session.query(
+            Clinic.id).filter(Clinic.cnpj == body["cnpj"],
+                              Clinic.id != clinic_id).first() is not None:
+        raise ValidationException({"cnpj": ValidationMessages.CNPJ_REGISTERED})
+    if session.query(
+            Clinic.id).filter(Clinic.phone == body["phone"],
+                              Clinic.id != clinic_id).first() is not None:
+        raise ValidationException(
+            {"phone": ValidationMessages.PHONE_REGISTERED})
+
+    stmt = update(Clinic).where(Clinic.id == clinic_id).values(**body)
+    rowcount = session.execute(stmt).rowcount
+    session.commit()
 
     if not rowcount:
         raise APIException("Clinic no found", status_code=404)
 
     clinic = session.get(Clinic, clinic_id)
 
-    return jsonify(clinic=clinic.as_json()), 200
+    return jsonify(clinic.as_json()), 200
 
 
 # END PUT clinic #
@@ -170,7 +174,7 @@ def update_clinic(clinic_id):
 @bp_api.route("/clinics/<int:clinic_id>", methods=["DELETE"])
 def delete_clinic(clinic_id):
     """
-    Delete clinic
+    Delete clinic by id
     """
     stmt = delete(Clinic).where(Clinic.id == clinic_id)
     session.execute(stmt)

@@ -45,11 +45,7 @@ def test_should_return_201_and_the_clinic_whether_request_valid_only_required(
                 & (Clinic.name == new_clinic["name"]))).scalar()
     assert persited_clinic
 
-    res_json = res.get_json()
-    assert "clinic" in res_json
-    res_clinic = res_json["clinic"]
-
-    assert_clinic(res_clinic, new_clinic, False)
+    assert_clinic(res.get_json(), new_clinic, False)
 
 
 def test_should_return_201_and_the_clinic_whether_request_valid(app, client):
@@ -76,10 +72,7 @@ def test_should_return_201_and_the_clinic_whether_request_valid(app, client):
                 & (Clinic.longitude == new_clinic["longitude"]))).scalar()
     assert persited_clinic
 
-    assert "clinic" in res_json
-    res_clinic = res_json["clinic"]
-
-    assert_clinic(res_clinic, new_clinic)
+    assert_clinic(res_json, new_clinic)
 
 
 def test_should_return_400_whether_request_payload_is_invalid(client):
@@ -319,11 +312,7 @@ def test_should_return_200_and_clinic_get_clinic_by_id(app, client):
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "clinic" in res_json
-    res_clinic = res_json["clinic"]
-
-    assert_clinic(res_clinic, clinic)
+    assert_clinic(res.get_json(), clinic)
 
 
 def test_should_return_200_and_clinic_get_clinic_by_cnpj(app, client):
@@ -340,11 +329,7 @@ def test_should_return_200_and_clinic_get_clinic_by_cnpj(app, client):
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "clinic" in res_json
-    res_clinic = res_json["clinic"]
-
-    assert_clinic(res_clinic, clinic)
+    assert_clinic(res.get_json(), clinic)
 
 
 def test_should_return_200_and_clinic_get_clinic_by_phone(app, client):
@@ -361,11 +346,7 @@ def test_should_return_200_and_clinic_get_clinic_by_phone(app, client):
 
     assert res.status_code == 200
 
-    res_json = res.get_json()
-    assert "clinic" in res_json
-    res_clinic = res_json["clinic"]
-
-    assert_clinic(res_clinic, clinic)
+    assert_clinic(res.get_json(), clinic)
 
 
 def test_should_return_404_if_clinic_not_exists_on_get_clinic(client):
@@ -422,11 +403,7 @@ def test_should_return_200_when_clinic_is_updated_with_valid_data(app, client):
                 & (Clinic.longitude == update_clinic["longitude"]))).scalar()
     assert persited_clinic
 
-    res_json = res.get_json()
-    assert "clinic" in res_json
-    res_clinic = res_json["clinic"]
-
-    assert_clinic(res_clinic, update_clinic)
+    assert_clinic(res.get_json(), update_clinic)
 
 
 def test_should_return_404_if_clinic_to_update_not_exists(app, client):
