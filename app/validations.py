@@ -106,11 +106,13 @@ def validate_phone(field: str, body: dict) -> str or None:
         returns:
             validation message if invalid or none if valid
     """
-    phone = body[field] = remove_mask(body[field])
+    phone = remove_mask(body[field])
     if (re.match(r"^\d{11}$", phone) and phone[-9] == "9"):
         phone = phone[0:2] + phone[3:]
     if re.match(r"^\d{10}$", phone):
+        body[field] = phone
         return None
+
     return ValidationMessages.INVALID_PHONE.format(field)
 
 

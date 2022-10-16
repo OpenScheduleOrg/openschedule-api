@@ -107,14 +107,14 @@ def test_validate_phone_when_invalid_phone_number_should_return_validation_messa
                            }) == ValidationMessages.INVALID_PHONE.format(field)
 
 
-def test_validate_phone_should_remove_phone_number_mask():
+def test_validate_phone_should_remove_phone_number_mask_and_9():
     """
-    Should remove phone number mask
+    Should remove phone number mask and 9
     """
     field = "phone"
-    payload = {field: fake.cellphone_number().replace("+55", "")}
+    payload = {field: "(86) 98767-8978"}
     validate_phone(field, payload)
-    assert not re.match(r"\D", payload[field])
+    assert payload[field] == "8687678978"
 
 
 def test_validate_required_should_return_none_if_fields_are_in_body():
