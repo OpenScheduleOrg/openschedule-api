@@ -23,6 +23,8 @@ class Config():
     DEBUG = False
     TESTING = False
 
+    CORS_ORIGINS = os.environ.get("CORS_ORIGINS").split(";")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True

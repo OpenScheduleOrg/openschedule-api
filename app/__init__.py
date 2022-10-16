@@ -30,9 +30,7 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
     Instancing flask app
     """
     app = Flask(__name__)
-    CORS(app,
-         origins=["http://localhost:8080", "http://10.0.0.115:8080"],
-         supports_credentials=True)
+    CORS(app, origins=app_config.CORS_ORIGINS, supports_credentials=True)
     app.config.from_object(app_config)
     app.json_encoder = JsonEncoder
 
