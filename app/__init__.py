@@ -5,8 +5,10 @@ from flask import Flask, request
 from flask.json import JSONEncoder
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from flasgger import Swagger
 
 from app.models import db, ClinicType
+from app.docs import swagger_template, swagger_config
 
 from config import app_configs
 from .exceptions import resource_not_found, internal_server_error, \
@@ -32,6 +34,7 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
     app = Flask(__name__)
     CORS(app, origins=app_config.CORS_ORIGINS, supports_credentials=True)
     app.config.from_object(app_config)
+    Swagger(app, template=swagger_template, config=swagger_config)
     app.json_encoder = JsonEncoder
 
     db.init_app(app)
