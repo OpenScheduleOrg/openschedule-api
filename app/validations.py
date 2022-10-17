@@ -98,7 +98,7 @@ def validate_cnpj(field: str, body: dict) -> str or None:
 
 def validate_phone(field: str, body: dict) -> str or None:
     """
-    Validate cpf
+    Validate phone
         parameters:
             field (str): field to validate
             body (dict): object with field to validate
@@ -113,6 +113,24 @@ def validate_phone(field: str, body: dict) -> str or None:
         return None
 
     return ValidationMessages.INVALID_PHONE.format(field)
+
+
+def validate_email(field: str, body: dict) -> str or None:
+    """
+    Validate email
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+        returns:
+            validation message if invalid or none if valid
+    """
+    # pylint: disable=line-too-long
+    if re.match(
+            r"^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$",
+            body[field]):
+        return None
+
+    return ValidationMessages.INVALID_EMAIL
 
 
 def validate_required(field: str, body: dict):
@@ -223,6 +241,13 @@ class Validator:
         Add validate phone to validators
         """
         self.validators.append(validate_phone)
+        return self
+
+    def email(self):
+        """
+        Add validate email to validators
+        """
+        self.validators.append(validate_email)
         return self
 
     def date(self):

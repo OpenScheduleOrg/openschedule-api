@@ -3,7 +3,7 @@ from datetime import date
 from faker import Faker
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_length, validate_cnpj, validate_enum
+    validate_length, validate_cnpj, validate_enum, validate_email
 from app.constants import ValidationMessages
 from app.models import ClinicType
 
@@ -111,6 +111,25 @@ def test_validate_phone_should_remove_phone_number_mask_and_9():
     payload = {field: "(86) 98767-8978"}
     validate_phone(field, payload)
     assert payload[field] == "8687678978"
+
+
+def test_validate_email_when_valid_email_should_return_none():
+    """
+    Must be return none if email is valid
+    """
+    field = "email"
+    assert not validate_email(field, {field: fake.email()})
+
+
+def test_validate_email_should_return_validation_message_email_invalid():
+    """
+    Must be return validation message if email is invalid
+    """
+    field = "email"
+    assert validate_email(
+        field, {field: "notaemail@really"}) == ValidationMessages.INVALID_EMAIL
+    assert validate_email(
+        field, {field: "not a email"}) == ValidationMessages.INVALID_EMAIL
 
 
 def test_validate_required_should_return_none_if_fields_are_in_body():

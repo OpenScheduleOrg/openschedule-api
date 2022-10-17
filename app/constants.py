@@ -11,7 +11,8 @@ class ValidationMessages:
     INVALID_CPF = "The field {} is not a valid cpf"
     INVALID_CNPJ = "The field {} is not a valid cnpj"
 
-    INVALID_PHONE = "The field {} is not a valid phone number"
+    INVALID_PHONE = "The field is not a email"
+    INVALID_EMAIL = "The field {} is not a valid phone number"
     INVALID_DATE = "The field {} is not a date"
 
     CPF_REGISTERED = "The CPF has already been registered"
