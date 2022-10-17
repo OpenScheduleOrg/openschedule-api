@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from sqlalchemy import desc
+from flasgger import swag_from
 
 from . import bp_api
 from ..models import Patient, session, select, delete, update
@@ -7,6 +8,8 @@ from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
 from ..validations import validate_payload
+
+from ..docs import patient_specs
 
 PARAMETERS_FOR_POST_PATIENT = ["name", "cpf", "phone", "birthdate", "address"]
 
@@ -20,6 +23,7 @@ PARAMETERS_FOR_PUT_PATIENT = ["name", "cpf", "phone", "birthdate"]
 
 
 @bp_api.route("/patients", methods=["POST"])
+@swag_from(patient_specs.post_patient)
 def create_patient():
     """
     Create a new patient
@@ -50,6 +54,7 @@ def create_patient():
 
 # GET patients #
 @bp_api.route("/patients", methods=["GET"])
+@swag_from(patient_specs.get_patients)
 def get_patients():
     """
     Get patients
@@ -81,7 +86,8 @@ def get_patients():
 
 
 @bp_api.route("/patients/<int:patient_id>", methods=["GET"])
-def get_patient_by_id(patient_id=None):
+@swag_from(patient_specs.get_patient_by_id)
+def get_patient_by_id(patient_id):
     """
     Get patient by id
     """
@@ -94,6 +100,7 @@ def get_patient_by_id(patient_id=None):
 
 
 @bp_api.route("/patients/<string:patient_cpf>/cpf", methods=["GET"])
+@swag_from(patient_specs.get_patient_by_cpf)
 def get_patient_by_cpf(patient_cpf):
     """
     Get patient by cpf
@@ -108,6 +115,7 @@ def get_patient_by_cpf(patient_cpf):
 
 
 @bp_api.route("/patients/<string:patient_phone>/phone", methods=["GET"])
+@swag_from(patient_specs.get_patient_by_phone)
 def get_patient_by_phone(patient_phone):
     """
     Get patient by phone
@@ -127,6 +135,7 @@ def get_patient_by_phone(patient_phone):
 
 
 @bp_api.route("/patients/<int:patient_id>", methods=["PUT"])
+@swag_from(patient_specs.update_patient)
 def update_patient(patient_id):
     """
     Update patiend with id
@@ -164,6 +173,7 @@ def update_patient(patient_id):
 
 
 @bp_api.route("/patients/<int:patient_id>", methods=["DELETE"])
+@swag_from(patient_specs.delete_patient)
 def delete_patient(patient_id):
     """
     Delete patient by id
