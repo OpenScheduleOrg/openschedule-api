@@ -1,5 +1,6 @@
 from flask import request, jsonify
 from sqlalchemy import desc
+from flasgger import swag_from
 
 from . import bp_api
 from ..models import Clinic, session, select, delete, update, ClinicType
@@ -7,6 +8,8 @@ from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
 from ..validations import validate_payload
+
+from ..docs import clinic_specs
 
 PARAMETERS_FOR_POST_CLINIC = [
     "name", "cnpj", "phone", "type", "address", "latitude", "longitude"
@@ -24,6 +27,7 @@ PARAMETERS_FOR_PUT_CLINIC = [
 
 
 @bp_api.route("/clinics", methods=["POST"])
+@swag_from(clinic_specs.post_clinic)
 def create_clinic():
     """
     Create a new clinic
@@ -54,6 +58,7 @@ def create_clinic():
 
 # GET clinics #
 @bp_api.route("/clinics", methods=["GET"])
+@swag_from(clinic_specs.get_clinics)
 def get_clinics():
     """
     Get clinics
@@ -89,7 +94,8 @@ def get_clinics():
 
 
 @bp_api.route("/clinics/<int:clinic_id>", methods=["GET"])
-def get_clinic_by_id(clinic_id=None):
+@swag_from(clinic_specs.get_clinic_by_id)
+def get_clinic_by_id(clinic_id):
     """
     Get clinic by id
     """
@@ -102,6 +108,7 @@ def get_clinic_by_id(clinic_id=None):
 
 
 @bp_api.route("/clinics/<string:clinic_cnpj>/cnpj", methods=["GET"])
+@swag_from(clinic_specs.get_clinic_by_cnpj)
 def get_clinic_by_cnpj(clinic_cnpj):
     """
     Get clinic by cnpj
@@ -116,6 +123,7 @@ def get_clinic_by_cnpj(clinic_cnpj):
 
 
 @bp_api.route("/clinics/<string:clinic_phone>/phone", methods=["GET"])
+@swag_from(clinic_specs.get_clinic_by_phone)
 def get_clinic_by_phone(clinic_phone):
     """
     Get clinic by phone
@@ -135,13 +143,14 @@ def get_clinic_by_phone(clinic_phone):
 
 
 @bp_api.route("/clinics/<int:clinic_id>", methods=["PUT"])
+@swag_from(clinic_specs.update_clinic)
 def update_clinic(clinic_id):
     """
     Update patiend with id
     """
     body: dict[str, str] = request.get_json()
 
-    useless_params(body.keys(), PARAMETERS_FOR_POST_CLINIC)
+    useless_params(body.keys(), PARAMETERS_FOR_PUT_CLINIC)
     validate_payload(body, Clinic.validators)
 
     if session.query(
@@ -172,6 +181,7 @@ def update_clinic(clinic_id):
 
 
 @bp_api.route("/clinics/<int:clinic_id>", methods=["DELETE"])
+@swag_from(clinic_specs.delete_clinic)
 def delete_clinic(clinic_id):
     """
     Delete clinic by id
