@@ -1,13 +1,9 @@
 import re
 from datetime import date
-import pytest
 from faker import Faker
-from sqlalchemy.exc import IntegrityError
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_unique, validate_length, validate_cnpj, validate_latitude, validate_longitude, \
-    validate_enum
-from app.exceptions import ValidationException
+    validate_length, validate_cnpj, validate_latitude, validate_longitude, validate_enum
 from app.constants import ValidationMessages
 from app.models import ClinicType
 
@@ -169,51 +165,6 @@ def test_validate_date_should_convert_iso_date_to_object_date_if_valid():
     payload = {field: fake.date_between().isoformat()}
     validate_date(field, payload)
     assert isinstance(payload[field], date)
-
-
-def test_validate_unique_should_not_raise_exception_if_unique_not_in_message():
-    """
-    Should not raise exception if UNIQUE not in exception
-    """
-    integrity_error = IntegrityError(
-        None, None, Exception("Something related to FOREIGN KEY"))
-    validate_unique(integrity_error,
-                    {"some_field": "Some very describable message"})
-
-
-def test_validate_unique_should_not_raise_exception_if_none_field_in_message():
-    """
-    Should not raise exception if UNIQUE not in exception
-    """
-    integrity_error = IntegrityError(
-        None, None,
-        Exception("UNIQUE constraint failed: table_name.field_name"))
-    validate_unique(
-        integrity_error, {
-            "some_field": "Some very describable message",
-            "other_field": "Other very describable message",
-        })
-
-
-def test_validate_unique_should_raise_when_field_unique_message():
-    """
-    Should not raise exception if UNIQUE not in exception
-    """
-    field_name = "some_field"
-    integrity_error = IntegrityError(
-        None, None,
-        Exception(f"UNIQUE constraint failed: table_name.{field_name}"))
-    fields_messages = {
-        field_name: "Some very describable message",
-        "other_field": "Other very describable message",
-    }
-
-    with pytest.raises(ValidationException) as e_info:
-        validate_unique(integrity_error, fields_messages)
-
-    validation_error = e_info.value
-    assert field_name in validation_error.errors
-    assert validation_error.errors[field_name] == fields_messages[field_name]
 
 
 def test_validate_length_should_return_none_if_string_has_correct_size():

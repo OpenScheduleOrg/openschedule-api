@@ -3,7 +3,6 @@ from enum import Enum
 from datetime import date
 from dateutil.parser import isoparse
 
-from sqlalchemy.exc import IntegrityError
 from .exceptions import APIException, ValidationException
 from .constants import ValidationMessages
 from .utils import remove_mask
@@ -321,18 +320,3 @@ def validate_payload(payload: dict,
             errors[field] = result
     if errors:
         raise ValidationException(errors)
-
-
-def validate_unique(error: IntegrityError, fields_message: dict):
-    """
-    Validate if field already registered with database error unique constraint
-    """
-    db_error_msg = error.orig.args and error.orig.args[0][::-1]
-    field = ""
-    if "EUQINU" in db_error_msg:
-        for c in db_error_msg:
-            if c == ".":
-                break
-            field = c + field
-        if field in fields_message:
-            raise ValidationException({field: fields_message[field]})
