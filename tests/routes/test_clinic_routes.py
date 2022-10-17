@@ -94,35 +94,29 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
 
     new_clinic = ClinicBuilder().with_name(fake.pystr(
         min_chars=1, max_chars=1)).with_cnpj("not a cnpj").with_phone(
-            "not a phone number").with_latitude(-91).with_longitude(
-                181).with_type(0).build()
+            "not a phone number").with_type(0).build()
 
     res = client.post("/api/clinics", json=new_clinic)
 
     assert res.status_code == 400
     res_json = res.get_json()
 
-    assert len(res_json) == 6
+    assert len(res_json) == 4
     assert "name" in res_json
     assert "cnpj" in res_json
     assert "phone" in res_json
     assert "type" in res_json
-    assert "latitude" in res_json
-    assert "longitude" in res_json
 
     new_clinic = ClinicBuilder().complete().with_name(
-        fake.pystr(min_chars=256, max_chars=300)).with_latitude(
-            "not a number").with_longitude("not a number").build()
+        fake.pystr(min_chars=256, max_chars=300)).build()
 
     res = client.post("/api/clinics", json=new_clinic)
 
     assert res.status_code == 400
     res_json = res.get_json()
 
-    assert len(res_json) == 3
+    assert len(res_json) == 1
     assert "name" in res_json
-    assert "latitude" in res_json
-    assert "longitude" in res_json
 
 
 def test_should_return_400_whether_payload_have_cnpj_that_is_already_in_use(
@@ -442,35 +436,29 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
 
     new_clinic = ClinicBuilder().with_name(fake.pystr(
         min_chars=1, max_chars=1)).with_cnpj("not a cnpj").with_phone(
-            "not a phone number").with_latitude(-91).with_longitude(
-                181).with_type(0).build()
+            "not a phone number").with_type(0).build()
 
     res = client.put("/api/clinics/0", json=new_clinic)
 
     assert res.status_code == 400
     res_json = res.get_json()
 
-    assert len(res_json) == 6
+    assert len(res_json) == 4
     assert "name" in res_json
     assert "cnpj" in res_json
     assert "phone" in res_json
     assert "type" in res_json
-    assert "latitude" in res_json
-    assert "longitude" in res_json
 
     new_clinic = ClinicBuilder().complete().with_name(
-        fake.pystr(min_chars=256, max_chars=300)).with_latitude(
-            "not a number").with_longitude("not a number").build()
+        fake.pystr(min_chars=256, max_chars=300)).build()
 
     res = client.put("/api/clinics/0", json=new_clinic)
 
     assert res.status_code == 400
     res_json = res.get_json()
 
-    assert len(res_json) == 3
+    assert len(res_json) == 1
     assert "name" in res_json
-    assert "latitude" in res_json
-    assert "longitude" in res_json
 
 
 def test_should_return_400_whether_payload_have_cnpj_that_is_already_in_use_on_update_clinic(

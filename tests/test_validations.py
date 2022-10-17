@@ -3,7 +3,7 @@ from datetime import date
 from faker import Faker
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_length, validate_cnpj, validate_latitude, validate_longitude, validate_enum
+    validate_length, validate_cnpj, validate_enum
 from app.constants import ValidationMessages
 from app.models import ClinicType
 
@@ -203,92 +203,6 @@ def test_validate_length_should_return_validation_message_if_string_is_out_of_bo
     min_len = len(value) + 3
     result = validate_length(field, payload, min_len=min_len, max_len=max_len)
     assert result == ValidationMessages.LEAST_CHARACTERS.format(field, min_len)
-
-
-def test_validate_should_reutrn_not_a_number_field_has_no_number():
-    """
-    Shold return not a number if field not have a number
-
-    """
-    field = "any_field"
-    value = "Not a number"
-    payload = {field: value}
-
-    result = validate_latitude(field, payload)
-    assert result == ValidationMessages.NOT_A_NUMBER
-
-    result = validate_longitude(field, payload)
-    assert result == ValidationMessages.NOT_A_NUMBER
-
-
-def test_validate_latitude_should_reutrn_validation_message_if_field_contain_invalid_latitude(
-):
-    """
-    Should return message if number is not a latitude
-    """
-    field = "any_field"
-    payload = {field: "-91"}
-    result = validate_latitude(field, payload)
-
-    assert result == ValidationMessages.INVALID_LATITUDE
-
-    payload[field] = 90.021
-    result = validate_latitude(field, payload)
-    assert result == ValidationMessages.INVALID_LATITUDE
-
-
-def test_validate_latitude_should_reutrn_none_when_field_contains_latitude():
-    """
-    Should return none if field have a valid latitude
-    """
-    field = "any_field"
-    payload = {field: "-90"}
-    result = validate_latitude(field, payload)
-
-    assert not result
-
-    payload[field] = 3.141592
-    result = validate_latitude(field, payload)
-    assert not result
-
-    payload[field] = 90.0000
-    result = validate_latitude(field, payload)
-    assert not result
-
-
-def test_validate_longitude_should_reutrn_validation_message_if_field_contain_invalid_longitude(
-):
-    """
-    Should return message if number is not a longitude
-    """
-    field = "any_field"
-    payload = {field: "-181"}
-    result = validate_longitude(field, payload)
-
-    assert result == ValidationMessages.INVALIDE_LONGITUDE
-
-    payload[field] = 180.021
-    result = validate_longitude(field, payload)
-    assert result == ValidationMessages.INVALIDE_LONGITUDE
-
-
-def test_validate_longitude_should_reutrn_none_when_field_contains_longitude():
-    """
-    Should return none if field have a valid longitude
-    """
-    field = "any_field"
-    payload = {field: "-180"}
-
-    result = validate_longitude(field, payload)
-    assert not result
-
-    payload[field] = -3.141592
-    result = validate_longitude(field, payload)
-    assert not result
-
-    payload[field] = 180.0000
-    result = validate_longitude(field, payload)
-    assert not result
 
 
 def test_validate_enum_should_return_none_if_number_match_with_enum():

@@ -80,8 +80,8 @@ class ClinicBuilder():
         Complete with field no required
         """
         latlng = fake.latlng()
-        self.clinic["latitude"] = float(latlng[0])
-        self.clinic["longitude"] = float(latlng[1])
+        self.clinic["latitude"] = str(latlng[0])
+        self.clinic["longitude"] = str(latlng[1])
         return self
 
     def build(self):

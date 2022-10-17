@@ -13,8 +13,6 @@ class ValidationMessages:
 
     INVALID_PHONE = "The field {} is not a valid phone number"
     INVALID_DATE = "The field {} is not a date"
-    INVALID_LATITUDE = "Latitude must be a decimal between -90 and 90"
-    INVALIDE_LONGITUDE = "Longitude must be a value between -180 and 180"
 
     CPF_REGISTERED = "The CPF has already been registered"
     CNPJ_REGISTERED = "The CNPJ has already been registered"

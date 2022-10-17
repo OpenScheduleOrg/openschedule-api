@@ -170,40 +170,6 @@ def validate_length(field: str, body: dict, min_len=None, max_len=None):
     return None
 
 
-def validate_latitude(field: str, body: dict):
-    """
-    Validate if field is a latitude
-        parameters:
-            field (str): field to validate
-            body (dict): object with field to validate
-        returns:
-            validation message if invalid or none if valid
-    """
-    try:
-        body[field] = latitude = float(body[field])
-    except ValueError:
-        return ValidationMessages.NOT_A_NUMBER
-
-    return None if -90 <= latitude <= 90 else ValidationMessages.INVALID_LATITUDE
-
-
-def validate_longitude(field: str, body: dict):
-    """
-    Validate if field is a longitude
-        parameters:
-            field (str): field to validate
-            body (dict): object with field to validate
-        returns:
-            validation message if invalid or none if valid
-    """
-    try:
-        body[field] = longitude = float(body[field])
-    except ValueError:
-        return ValidationMessages.NOT_A_NUMBER
-
-    return None if -180 <= longitude <= 180 else ValidationMessages.INVALIDE_LONGITUDE
-
-
 def validate_enum(field: str, body: dict, enum: Enum):
     """
     Validate if field is a longitude
@@ -272,20 +238,6 @@ class Validator:
         """
         self.validators.append(
             lambda f, b: validate_length(f, b, min_len, max_len))
-        return self
-
-    def longitude(self):
-        """
-        Add validate longitude to validators
-        """
-        self.validators.append(validate_longitude)
-        return self
-
-    def latitude(self):
-        """
-        Add validate latitude to validators
-        """
-        self.validators.append(validate_latitude)
         return self
 
     def enum(self, enum: Enum):

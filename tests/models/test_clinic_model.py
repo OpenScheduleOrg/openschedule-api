@@ -72,14 +72,13 @@ def test_should_raise_exception_when_validation_payload_fails():
 
     payload = ClinicBuilder().with_name(fake.pystr(
         min_chars=1, max_chars=1)).with_cnpj("not a cnpj").with_phone(
-            "not a phone number").with_latitude(-91).with_longitude(
-                181).with_type(0).build()
+            "not a phone number").with_type(0).build()
 
     with pytest.raises(ValidationException) as e_info:
         validate_payload(payload, Clinic.validators)
 
     errors = e_info.value.errors
-    assert len(errors) == 6
+    assert len(errors) == 4
     assert "name" in errors and "name" in errors["name"] and "least" in errors[
         "name"] and "2" in errors["name"]
     assert "cnpj" in errors and errors[
@@ -89,23 +88,14 @@ def test_should_raise_exception_when_validation_payload_fails():
     assert "type" in errors and errors[
         "type"] == ValidationMessages.NOT_IN_ENUM.format(
             0, ClinicType.__qualname__)
-    assert "latitude" in errors and errors[
-        "latitude"] == ValidationMessages.INVALID_LATITUDE
-    assert "longitude" in errors and errors[
-        "longitude"] == ValidationMessages.INVALIDE_LONGITUDE
 
     payload = ClinicBuilder().complete().with_name(
-        fake.pystr(min_chars=256, max_chars=300)).with_latitude(
-            "not a number").with_longitude("not a number").build()
+        fake.pystr(min_chars=256, max_chars=300)).build()
 
     with pytest.raises(ValidationException) as e_info:
         validate_payload(payload, Clinic.validators)
 
     errors = e_info.value.errors
-    assert len(errors) == 3
+    assert len(errors) == 1
     assert "name" in errors and "name" in errors["name"] and "most" in errors[
         "name"] and "255" in errors["name"]
-    assert "latitude" in errors and errors[
-        "latitude"] == ValidationMessages.NOT_A_NUMBER
-    assert "longitude" in errors and errors[
-        "longitude"] == ValidationMessages.NOT_A_NUMBER
