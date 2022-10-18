@@ -1,6 +1,7 @@
 class ResponseMessages:
     UNEXPECTED_ERROR = "Unexpected error ocurred"
     PATIENT_NO_FOUND = "Patient not found"
+    USER_NO_FOUND = "User not found"
     CLINIC_NO_FOUND = "Clinic not found"
 
 
@@ -18,6 +19,8 @@ class ValidationMessages:
     CPF_REGISTERED = "The CPF has already been registered"
     CNPJ_REGISTERED = "The CNPJ has already been registered"
     PHONE_REGISTERED = "The phone number has already been registered"
+    USERNAME_REGISTERED = "The username has already been registered"
+    EMAIL_REGISTERED = "The email has already been registered"
 
     LEAST_CHARACTERS = "The field {} must have at least {} characters"
     MOST_CHARACTERS = "The field {} must have at most {} characters"

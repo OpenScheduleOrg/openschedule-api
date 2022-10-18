@@ -79,7 +79,7 @@ insert = db.insert
 update = db.update
 
 from .patient import Patient
-from .usuario import Usuario
 from .clinic import Clinic
 from .horario import Horario
 from .consulta import Consulta
+from .user import User

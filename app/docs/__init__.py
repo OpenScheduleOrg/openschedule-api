@@ -1,5 +1,6 @@
 from .clinic_specs import clinic_model
 from .patient_specs import patient_model
+from .user_specs import user_model
 
 swagger_template = {
     "openapi": "3.0.2",
@@ -24,6 +25,7 @@ swagger_template = {
         "schemas": {
             "Clinic": clinic_model,
             "Patient": patient_model,
+            "User": user_model,
             "ValidationResponse": {
                 "type": "object",
                 "properties": {
