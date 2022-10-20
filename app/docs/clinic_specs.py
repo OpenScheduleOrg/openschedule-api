@@ -67,6 +67,9 @@ post_clinic = {
     **tags, "summary": "Create clinic",
     "description": "Any description about post clinic",
     "opeartionId": "post_clinic",
+    "security": [{
+        "BearerAuth": []
+    }],
     "requestBody": {
         "description": "Any description about body request",
         "content": {
@@ -90,6 +93,9 @@ get_clinics = {
     "Filter and load clinics with pagination",
     "opeartionId":
     "get_clinics",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "page",
         "in": "query",
@@ -149,6 +155,9 @@ get_clinic_by_id = {
     "load clinic by id",
     "opeartionId":
     "get_clinic_by_id",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "clinic_id",
         "in": "path",
@@ -172,6 +181,9 @@ get_clinic_by_cnpj = {
     "load clinic by cnpj",
     "opeartionId":
     "get_clinic_by_cnpj",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "clinic_cnpj",
         "in": "path",
@@ -196,6 +208,9 @@ get_clinic_by_phone = {
     "load clinic by phone",
     "opeartionId":
     "get_clinic_by_phone",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "clinic_phone",
         "in": "path",
@@ -220,6 +235,9 @@ update_clinic = {
     "update a clinic using id",
     "opeartionId":
     "put_clinic",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "clinic_id",
         "in": "path",
@@ -251,6 +269,9 @@ delete_clinic = {
     "delete clinic using id",
     "opeartionId":
     "delete_clinic",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "clinic_id",
         "in": "path",

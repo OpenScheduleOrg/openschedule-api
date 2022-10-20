@@ -8,6 +8,7 @@ from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
 from ..validations import validate_payload
+from ..middlewares import token_required, only_admin
 
 from ..docs import clinic_specs
 
@@ -28,7 +29,9 @@ PARAMETERS_FOR_PUT_CLINIC = [
 
 @bp_api.route("/clinics", methods=["POST"])
 @swag_from(clinic_specs.post_clinic)
-def create_clinic():
+@token_required
+@only_admin
+def create_clinic(_):
     """
     Create a new clinic
     """
@@ -59,7 +62,9 @@ def create_clinic():
 # GET clinics #
 @bp_api.route("/clinics", methods=["GET"])
 @swag_from(clinic_specs.get_clinics)
-def get_clinics():
+@token_required
+@only_admin
+def get_clinics(_):
     """
     Get clinics
     """
@@ -95,7 +100,9 @@ def get_clinics():
 
 @bp_api.route("/clinics/<int:clinic_id>", methods=["GET"])
 @swag_from(clinic_specs.get_clinic_by_id)
-def get_clinic_by_id(clinic_id):
+@token_required
+@only_admin
+def get_clinic_by_id(_, clinic_id):
     """
     Get clinic by id
     """
@@ -109,7 +116,9 @@ def get_clinic_by_id(clinic_id):
 
 @bp_api.route("/clinics/<string:clinic_cnpj>/cnpj", methods=["GET"])
 @swag_from(clinic_specs.get_clinic_by_cnpj)
-def get_clinic_by_cnpj(clinic_cnpj):
+@token_required
+@only_admin
+def get_clinic_by_cnpj(_, clinic_cnpj):
     """
     Get clinic by cnpj
     """
@@ -124,7 +133,9 @@ def get_clinic_by_cnpj(clinic_cnpj):
 
 @bp_api.route("/clinics/<string:clinic_phone>/phone", methods=["GET"])
 @swag_from(clinic_specs.get_clinic_by_phone)
-def get_clinic_by_phone(clinic_phone):
+@token_required
+@only_admin
+def get_clinic_by_phone(_, clinic_phone):
     """
     Get clinic by phone
     """
@@ -144,7 +155,9 @@ def get_clinic_by_phone(clinic_phone):
 
 @bp_api.route("/clinics/<int:clinic_id>", methods=["PUT"])
 @swag_from(clinic_specs.update_clinic)
-def update_clinic(clinic_id):
+@token_required
+@only_admin
+def update_clinic(_, clinic_id):
     """
     Update patiend with id
     """
@@ -182,7 +195,9 @@ def update_clinic(clinic_id):
 
 @bp_api.route("/clinics/<int:clinic_id>", methods=["DELETE"])
 @swag_from(clinic_specs.delete_clinic)
-def delete_clinic(clinic_id):
+@token_required
+@only_admin
+def delete_clinic(_, clinic_id):
     """
     Delete clinic by id
     """
