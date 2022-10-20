@@ -13,9 +13,8 @@ class Config():
     SECRET_KEY = os.environ.get("SECRET_KEY")
 
     JWT_SECRET_KEY = os.environ.get("JWT_SECRET_KEY")
-    ALGO = str(os.environ.get("ALGO")).split(",")
+    ACCESS_TOKEN_EXPIRE = int(os.environ.get("ACCESS_TOKEN_EXPIRE"))
     SESSION_TOKEN_EXPIRE = int(os.environ.get("SESSION_TOKEN_EXPIRE"))
-    LONG_TOKEN_EXPIRE = int(os.environ.get("LONG_TOKEN_EXPIRE"))
 
     BCRYPT_ROUNDS = os.environ.get("BCRYPT_ROUNDS")
     BCRYPT_PEPPER = os.environ.get("BCRYPT_PEPPER")

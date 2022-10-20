@@ -24,6 +24,36 @@ class APIException(Exception):
         return rv
 
 
+class AuthenticationException(Exception):
+
+    status_code = 401
+
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def to_dict(self):
+        """
+        Result dict exception
+        """
+        return {"message": self.message}
+
+
+class AuthorizationException(Exception):
+
+    status_code = 403
+
+    def __init__(self, message):
+        super().__init__(message)
+        self.message = message
+
+    def to_dict(self):
+        """
+        Result dict exception
+        """
+        return {"message": self.message}
+
+
 class ValidationException(Exception):
 
     def __init__(self, errors: dict[str, str]):
@@ -52,6 +82,22 @@ def internal_server_error(e):
 def api_exception_handler(e):
     """
     Handle api exception
+    """
+    e_json = e.to_dict()
+    return jsonify(e_json), e.status_code
+
+
+def authentication_exception_handler(e):
+    """
+    Handle authentication exception
+    """
+    e_json = e.to_dict()
+    return jsonify(e_json), e.status_code
+
+
+def authorization_exception_handler(e):
+    """
+    Handle authorization exception
     """
     e_json = e.to_dict()
     return jsonify(e_json), e.status_code

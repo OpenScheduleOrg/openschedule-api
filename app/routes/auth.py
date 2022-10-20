@@ -1,37 +1,110 @@
+import datetime
+
+import jwt
 from flask import request, jsonify, current_app
+from passlib.hash import pbkdf2_sha256
+from sqlalchemy import or_
+from flasgger import swag_from
 
 from . import bp_auth
-from ..models import session, select
-from ..exceptions import APIException
-from ..auth import cria_token, verifica_token
+from ..models import session, select, User
+from ..helpers.auth import get_header_token, decode_token
+
+from ..docs import auth_specs
 
 
-@bp_auth.route("/signin/<string:auth_type>", methods=["GET", "POST"])
-def signin(auth_type="header"):
+@bp_auth.route("/signin", methods=["POST"])
+@swag_from(auth_specs.signin)
+def signin():
     """
-    Everyone knows whats is a login
+    Performs login
     """
-    id_token = None
-    password = None
-    username = None
-    usuario = None
+    remember_me = request.args.get("remember_me")
+    body = request.get_json() if request.data else None
+    header_auth = request.authorization
 
-    if request.headers.get("Authorization", None):
-        try:
-            pass
-        except Exception:
-            invalid_credentials = True
+    username = (header_auth and header_auth.username) or (body
+                                                          and body["username"])
+    password = (header_auth and header_auth.password) or (body
+                                                          and body["password"])
 
-    body = request.get_json()
+    if not username or not password:
+        return jsonify({"message": "credentials required"}), 401
+
+    user = session.execute(
+        select(User).where(
+            or_(User.username == username, User.email == username))).scalar()
+
+    if user and pbkdf2_sha256.verify(password, user.password):
+        access_token = jwt.encode(
+            {
+                'user_id':
+                user.id,
+                'name':
+                user.name,
+                'admin':
+                True,
+                'exp':
+                datetime.datetime.utcnow() + datetime.timedelta(
+                    seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
+            }, current_app.config["JWT_SECRET_KEY"], "HS256")
+        if remember_me and remember_me != "false":
+            session_token = jwt.encode(
+                {
+                    'user_id':
+                    user.id,
+                    'name':
+                    user.name,
+                    'admin':
+                    True,
+                    'exp':
+                    datetime.datetime.utcnow() + datetime.timedelta(
+                        seconds=current_app.config["SESSION_TOKEN_EXPIRE"])
+                }, current_app.config["JWT_SECRET_KEY"], "HS512")
+
+            return jsonify({
+                "access_token": access_token,
+                "session_token": session_token
+            }), 200
+
+        return jsonify({"access_token": access_token}), 200
+
+    return jsonify({"message": "username or password wrong"}), 401
 
 
-@bp_auth.route("/logout", methods=["DELETE"])
-def logout():
+@bp_auth.route("/refresh-token", methods=["GET"])
+@swag_from(auth_specs.refresh_token)
+def refresh_token():
     """
-    This is the opposite of login
+    Refresh token that are close to expiring
     """
+    auth_token = get_header_token(request.headers.get("Authorization"))
 
-    res_json = jsonify(status="success", data=None)
-    res_json.delete_cookie("jwt-token")
+    payload = decode_token(auth_token, current_app.config["JWT_SECRET_KEY"],
+                           "HS256")
 
-    return res_json, 200
+    payload["exp"] = datetime.datetime.utcnow() + datetime.timedelta(
+        seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
+
+    access_token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"],
+                              "HS256")
+    return jsonify({"access_token": access_token}), 200
+
+
+@bp_auth.route("/restore-session", methods=["GET"])
+@swag_from(auth_specs.restore_session)
+def restore_session():
+    """
+    Restore session with session token
+    """
+    auth_token = get_header_token(request.headers.get("Authorization"))
+
+    payload = decode_token(auth_token, current_app.config["JWT_SECRET_KEY"],
+                           "HS512")
+
+    payload["exp"] = datetime.datetime.utcnow() + datetime.timedelta(
+        seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
+
+    access_token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"],
+                              "HS256")
+    return jsonify({"access_token": access_token}), 200

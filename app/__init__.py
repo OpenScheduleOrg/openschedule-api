@@ -12,7 +12,9 @@ from app.docs import swagger_template, swagger_config
 
 from config import app_configs
 from .exceptions import resource_not_found, internal_server_error, \
-    APIException, api_exception_handler, ValidationException, validation_exception_handler
+    APIException, api_exception_handler, ValidationException, validation_exception_handler, \
+    AuthenticationException, authentication_exception_handler, \
+    AuthorizationException, authorization_exception_handler
 
 
 class JsonEncoder(JSONEncoder):
@@ -49,5 +51,9 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
     app.register_error_handler(APIException, api_exception_handler)
     app.register_error_handler(ValidationException,
                                validation_exception_handler)
+    app.register_error_handler(AuthenticationException,
+                               authentication_exception_handler)
+    app.register_error_handler(AuthorizationException,
+                               authorization_exception_handler)
 
     return app

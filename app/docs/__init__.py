@@ -18,9 +18,9 @@ swagger_template = {
         "version": "0.5.0"
     },
     "servers": [{
-        "url": "http://localhost:5000/api"
+        "url": "http://localhost:5000/"
     }],
-    "basePath": "/api",
+    "basePath": "/",
     "components": {
         "schemas": {
             "Clinic": clinic_model,
@@ -46,6 +46,18 @@ swagger_template = {
                     }
                 }
             },
+        },
+        "securitySchemes": {
+            "BearerAuth": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            },
+            "BearerAuthSession": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
         }
     }
 }
