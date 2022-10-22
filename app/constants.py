@@ -22,6 +22,8 @@ class ValidationMessages:
     USERNAME_REGISTERED = "The username has already been registered"
     EMAIL_REGISTERED = "The email has already been registered"
 
+    NO_ENTITY_RELATIONSHIP = "The {} referenced by {} not exists"
+
     LEAST_CHARACTERS = "The field {} must have at least {} characters"
     MOST_CHARACTERS = "The field {} must have at most {} characters"
 

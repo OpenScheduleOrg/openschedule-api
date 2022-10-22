@@ -20,6 +20,10 @@ user_minimal = {
         "password": {
             "type": "string",
             "example": "supersecret"
+        },
+        "clinic_id": {
+            "type": "integer",
+            "example": 1
         }
     }
 }

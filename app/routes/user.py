@@ -4,7 +4,7 @@ from passlib.hash import pbkdf2_sha256
 from flasgger import swag_from
 
 from . import bp_api
-from ..models import User, session, select, delete, update
+from ..models import User, Clinic, session, select, delete, update
 from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
@@ -12,11 +12,11 @@ from ..validations import validate_payload
 
 from ..docs import user_specs
 
-PARAMETERS_FOR_POST_USER = ["name", "username", "email", "password"]
+PARAMETERS_FOR_POST_USER = ["name", "username", "email", "password", "clinic_id"]
 
 PARAMETERS_FOR_GET_USER = ["name", "limit", "page", "order_by"]
 
-PARAMETERS_FOR_PUT_USER = ["name", "username", "email", "password"]
+PARAMETERS_FOR_PUT_USER = ["name", "username", "email", "password", "clinic_id"]
 
 # POST user #
 
@@ -40,6 +40,14 @@ def create_user():
             User.id).filter(User.email == body["email"]).first() is not None:
         raise ValidationException(
             {"email": ValidationMessages.EMAIL_REGISTERED})
+
+    if session.query(
+            Clinic.id).filter(Clinic.id == body["clinic_id"]).first() is None:
+        raise ValidationException({
+            "clinic_id":
+            ValidationMessages.NO_ENTITY_RELATIONSHIP.format(
+                "clinic", body["clinic_id"])
+        })
 
     body["password"] = pbkdf2_sha256.hash(body["password"])
 
@@ -131,7 +139,7 @@ def get_user_by_email(user_email):
 @swag_from(user_specs.update_user)
 def update_user(user_id):
     """
-    Update patiend with id
+    Update user with id
     """
     body: dict[str, str] = request.get_json()
 
@@ -146,6 +154,14 @@ def update_user(user_id):
                                      User.id != user_id).first() is not None:
         raise ValidationException(
             {"email": ValidationMessages.EMAIL_REGISTERED})
+
+    if session.query(
+            Clinic.id).filter(Clinic.id == body["clinic_id"]).first() is None:
+        raise ValidationException({
+            "clinic_id":
+            ValidationMessages.NO_ENTITY_RELATIONSHIP.format(
+                "clinic", body["clinic_id"])
+        })
 
     body["password"] = pbkdf2_sha256.hash(body["password"])
 

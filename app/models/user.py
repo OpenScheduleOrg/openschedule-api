@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, CHAR
+from sqlalchemy import Column, String, CHAR, Integer, ForeignKey
 from sqlalchemy.orm import relationship
 
 from . import db, TimestampMixin
@@ -12,6 +12,8 @@ class User(TimestampMixin, db.Model):
     username = Column(String(45), nullable=False)
     email = Column(String(255), nullable=False)
     password = Column(CHAR(87), nullable=False)
+
+    clinic_id = Column(Integer, ForeignKey('clinics.id'), nullable=False)
 
     validators = {
         "name": Validator("name").required().length(2, 255),
