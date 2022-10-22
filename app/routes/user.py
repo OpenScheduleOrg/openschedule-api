@@ -9,21 +9,28 @@ from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
 from ..validations import validate_payload
+from ..middlewares import token_required, only_admin
 
 from ..docs import user_specs
 
-PARAMETERS_FOR_POST_USER = ["name", "username", "email", "password", "clinic_id"]
+PARAMETERS_FOR_POST_USER = [
+    "name", "username", "email", "password", "clinic_id"
+]
 
 PARAMETERS_FOR_GET_USER = ["name", "limit", "page", "order_by"]
 
-PARAMETERS_FOR_PUT_USER = ["name", "username", "email", "password", "clinic_id"]
+PARAMETERS_FOR_PUT_USER = [
+    "name", "username", "email", "password", "clinic_id"
+]
 
 # POST user #
 
 
 @bp_api.route("/users", methods=["POST"])
 @swag_from(user_specs.post_user)
-def create_user():
+@token_required
+@only_admin
+def create_user(_):
     """
     Create a new user
     """
@@ -65,7 +72,9 @@ def create_user():
 # GET users #
 @bp_api.route("/users", methods=["GET"])
 @swag_from(user_specs.get_users)
-def get_users():
+@token_required
+@only_admin
+def get_users(_):
     """
     Get users
     """
@@ -89,7 +98,9 @@ def get_users():
 
 @bp_api.route("/users/<int:user_id>", methods=["GET"])
 @swag_from(user_specs.get_user_by_id)
-def get_user_by_id(user_id):
+@token_required
+@only_admin
+def get_user_by_id(_, user_id):
     """
     Get user by id
     """
@@ -103,7 +114,9 @@ def get_user_by_id(user_id):
 
 @bp_api.route("/users/<string:user_username>/username", methods=["GET"])
 @swag_from(user_specs.get_user_by_username)
-def get_user_by_username(user_username):
+@token_required
+@only_admin
+def get_user_by_username(_, user_username):
     """
     Get user by username
     """
@@ -118,7 +131,9 @@ def get_user_by_username(user_username):
 
 @bp_api.route("/users/<string:user_email>/email", methods=["GET"])
 @swag_from(user_specs.get_user_by_email)
-def get_user_by_email(user_email):
+@token_required
+@only_admin
+def get_user_by_email(_, user_email):
     """
     Get user by email
     """
@@ -137,7 +152,9 @@ def get_user_by_email(user_email):
 
 @bp_api.route("/users/<int:user_id>", methods=["PUT"])
 @swag_from(user_specs.update_user)
-def update_user(user_id):
+@token_required
+@only_admin
+def update_user(_, user_id):
     """
     Update user with id
     """
@@ -184,7 +201,9 @@ def update_user(user_id):
 
 @bp_api.route("/users/<int:user_id>", methods=["DELETE"])
 @swag_from(user_specs.delete_user)
-def delete_user(user_id):
+@token_required
+@only_admin
+def delete_user(_, user_id):
     """
     Delete user by id
     """

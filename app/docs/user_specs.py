@@ -58,6 +58,9 @@ post_user = {
     **tags, "summary": "Create user",
     "description": "Create a new user",
     "opeartionId": "post_user",
+    "security": [{
+        "BearerAuth": []
+    }],
     "requestBody": {
         "description": "Any description about body request",
         "content": {
@@ -81,6 +84,9 @@ get_users = {
     "Filter and load users with pagination",
     "opeartionId":
     "get_clinics",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "page",
         "in": "query",
@@ -119,6 +125,9 @@ get_user_by_id = {
     "load user by id",
     "opeartionId":
     "get_user_by_id",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "user_id",
         "in": "path",
@@ -142,6 +151,9 @@ get_user_by_username = {
     "load user by username",
     "opeartionId":
     "get_user_by_username",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "user_username",
         "in": "path",
@@ -166,6 +178,9 @@ get_user_by_email = {
     "load user by email",
     "opeartionId":
     "get_user_by_email",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "user_email",
         "in": "path",
@@ -190,6 +205,9 @@ update_user = {
     "update a user using id",
     "opeartionId":
     "put_user",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "user_id",
         "in": "path",
@@ -221,6 +239,9 @@ delete_user = {
     "update a user using id",
     "opeartionId":
     "delete_user",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "user_id",
         "in": "path",
