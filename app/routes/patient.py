@@ -8,6 +8,7 @@ from ..exceptions import APIException, ValidationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
 from ..validations import validate_payload
+from ..middlewares import token_required
 
 from ..docs import patient_specs
 
@@ -24,7 +25,8 @@ PARAMETERS_FOR_PUT_PATIENT = ["name", "cpf", "phone", "birthdate"]
 
 @bp_api.route("/patients", methods=["POST"])
 @swag_from(patient_specs.post_patient)
-def create_patient():
+@token_required
+def create_patient(_):
     """
     Create a new patient
     """
@@ -55,7 +57,8 @@ def create_patient():
 # GET patients #
 @bp_api.route("/patients", methods=["GET"])
 @swag_from(patient_specs.get_patients)
-def get_patients():
+@token_required
+def get_patients(_):
     """
     Get patients
     """
@@ -87,7 +90,8 @@ def get_patients():
 
 @bp_api.route("/patients/<int:patient_id>", methods=["GET"])
 @swag_from(patient_specs.get_patient_by_id)
-def get_patient_by_id(patient_id):
+@token_required
+def get_patient_by_id(_, patient_id):
     """
     Get patient by id
     """
@@ -101,7 +105,8 @@ def get_patient_by_id(patient_id):
 
 @bp_api.route("/patients/<string:patient_cpf>/cpf", methods=["GET"])
 @swag_from(patient_specs.get_patient_by_cpf)
-def get_patient_by_cpf(patient_cpf):
+@token_required
+def get_patient_by_cpf(_, patient_cpf):
     """
     Get patient by cpf
     """
@@ -116,7 +121,8 @@ def get_patient_by_cpf(patient_cpf):
 
 @bp_api.route("/patients/<string:patient_phone>/phone", methods=["GET"])
 @swag_from(patient_specs.get_patient_by_phone)
-def get_patient_by_phone(patient_phone):
+@token_required
+def get_patient_by_phone(_, patient_phone):
     """
     Get patient by phone
     """
@@ -136,7 +142,8 @@ def get_patient_by_phone(patient_phone):
 
 @bp_api.route("/patients/<int:patient_id>", methods=["PUT"])
 @swag_from(patient_specs.update_patient)
-def update_patient(patient_id):
+@token_required
+def update_patient(_, patient_id):
     """
     Update patiend with id
     """
@@ -174,7 +181,8 @@ def update_patient(patient_id):
 
 @bp_api.route("/patients/<int:patient_id>", methods=["DELETE"])
 @swag_from(patient_specs.delete_patient)
-def delete_patient(patient_id):
+@token_required
+def delete_patient(_, patient_id):
     """
     Delete patient by id
     """

@@ -59,6 +59,9 @@ post_patient = {
     **tags, "summary": "Create patient",
     "description": "Create a new patient",
     "opeartionId": "post_patient",
+    "security": [{
+        "BearerAuth": []
+    }],
     "requestBody": {
         "description": "Any description about body request",
         "content": {
@@ -82,6 +85,9 @@ get_patients = {
     "Filter and load patients with pagination",
     "opeartionId":
     "get_clinics",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "page",
         "in": "query",
@@ -134,6 +140,9 @@ get_patient_by_id = {
     "load patient by id",
     "opeartionId":
     "get_patient_by_id",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "patient_id",
         "in": "path",
@@ -157,6 +166,9 @@ get_patient_by_cpf = {
     "load patient by cpf",
     "opeartionId":
     "get_patient_by_cpf",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "patient_cpf",
         "in": "path",
@@ -181,6 +193,9 @@ get_patient_by_phone = {
     "load patient by phone",
     "opeartionId":
     "get_patient_by_phone",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "patient_phone",
         "in": "path",
@@ -205,6 +220,9 @@ update_patient = {
     "update a patient using id",
     "opeartionId":
     "put_patient",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "patient_id",
         "in": "path",
@@ -236,6 +254,9 @@ delete_patient = {
     "update a patient using id",
     "opeartionId":
     "delete_patient",
+    "security": [{
+        "BearerAuth": []
+    }],
     "parameters": [{
         "name": "patient_id",
         "in": "path",
