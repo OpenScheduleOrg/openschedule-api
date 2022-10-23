@@ -98,7 +98,8 @@ def get_patient_by_id(_, patient_id):
     patient = session.get(Patient, patient_id)
 
     if patient is None:
-        raise APIException(ResponseMessages.PATIENT_NO_FOUND, status_code=404)
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("Patient"),
+                           status_code=404)
 
     return jsonify(patient.as_json())
 
@@ -114,7 +115,8 @@ def get_patient_by_cpf(_, patient_cpf):
         select(Patient).filter_by(cpf=patient_cpf)).scalar()
 
     if patient is None:
-        raise APIException(ResponseMessages.PATIENT_NO_FOUND, status_code=404)
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("Patient"),
+                           status_code=404)
 
     return jsonify(patient.as_json())
 
@@ -130,7 +132,8 @@ def get_patient_by_phone(_, patient_phone):
         select(Patient).filter_by(phone=patient_phone)).scalar()
 
     if patient is None:
-        raise APIException(ResponseMessages.PATIENT_NO_FOUND, status_code=404)
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("Patient"),
+                           status_code=404)
 
     return jsonify(patient.as_json())
 

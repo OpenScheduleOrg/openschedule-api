@@ -1,8 +1,6 @@
 class ResponseMessages:
     UNEXPECTED_ERROR = "Unexpected error ocurred"
-    PATIENT_NO_FOUND = "Patient not found"
-    USER_NO_FOUND = "User not found"
-    CLINIC_NO_FOUND = "Clinic not found"
+    ENTITY_NOT_FOUND = "{} not found"
 
 
 class ValidationMessages:

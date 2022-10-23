@@ -107,7 +107,8 @@ def get_user_by_id(_, user_id):
     user = session.get(User, user_id)
 
     if user is None:
-        raise APIException(ResponseMessages.USER_NO_FOUND, status_code=404)
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("User"),
+                           status_code=404)
 
     return jsonify(user.as_json())
 
@@ -124,7 +125,8 @@ def get_user_by_username(_, user_username):
         select(User).filter_by(username=user_username)).scalar()
 
     if user is None:
-        raise APIException(ResponseMessages.USER_NO_FOUND, status_code=404)
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("User"),
+                           status_code=404)
 
     return jsonify(user.as_json())
 
@@ -140,7 +142,8 @@ def get_user_by_email(_, user_email):
     user = session.execute(select(User).filter_by(email=user_email)).scalar()
 
     if user is None:
-        raise APIException(ResponseMessages.USER_NO_FOUND, status_code=404)
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("User"),
+                           status_code=404)
 
     return jsonify(user.as_json())
 
