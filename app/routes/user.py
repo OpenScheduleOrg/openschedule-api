@@ -17,7 +17,9 @@ PARAMETERS_FOR_POST_USER = [
     "name", "username", "email", "password", "clinic_id"
 ]
 
-PARAMETERS_FOR_GET_USER = ["name", "limit", "page", "order_by"]
+PARAMETERS_FOR_GET_USER = [
+    "name", "username", "email", "limit", "page", "order_by"
+]
 
 PARAMETERS_FOR_PUT_USER = [
     "name", "username", "email", "password", "clinic_id"
@@ -84,12 +86,20 @@ def get_users(_):
     page = int(params.get("page") or 1)
     limit = int(params.get("limit") or 20)
     name = params.get("name")
+    username = params.get("username")
+    email = params.get("email")
 
     stmt = select(User).limit(limit).offset(
         (page - 1) * limit).order_by(desc(User.created_at))
 
     if name is not None:
         stmt = stmt.filter(User.name.like("%" + name + "%"))
+
+    if username is not None:
+        stmt = stmt.filter(User.username.like("%" + username + "%"))
+
+    if email is not None:
+        stmt = stmt.filter(User.email.like("%" + email + "%"))
 
     users = [p.as_json() for p in session.execute(stmt).scalars()]
 
