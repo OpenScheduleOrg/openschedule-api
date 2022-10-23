@@ -5,7 +5,7 @@ from flasgger import swag_from
 
 from . import bp_api
 from ..models import Professional, session, select, delete, update
-from ..exceptions import APIException, ValidationException
+from ..exceptions import APIException, ValidationException, AuthorizationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
 from ..validations import validate_payload
@@ -23,7 +23,7 @@ PARAMETERS_FOR_GET_PROFESSIONAL = [
 ]
 
 PARAMETERS_FOR_PUT_PROFESSIONAL = [
-    "name", "phone", "reg_number", "username", "email", "password"
+    "name", "phone", "reg_number", "username", "email"
 ]
 
 # POST professional #
@@ -111,10 +111,13 @@ def get_professionals(_):
 @bp_api.route("/professionals/<int:professional_id>", methods=["GET"])
 @swag_from(professional_specs.get_professional_by_id)
 @token_required
-def get_professional_by_id(_, professional_id):
+def get_professional_by_id(current_user, professional_id):
     """
     Get professional by id
     """
+    if not current_user["admin"] and current_user["id"] != professional_id:
+        raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
+
     professional = session.get(Professional, professional_id)
 
     if professional is None:
@@ -129,6 +132,7 @@ def get_professional_by_id(_, professional_id):
               methods=["GET"])
 @swag_from(professional_specs.get_professional_by_username)
 @token_required
+@only_admin
 def get_professional_by_username(_, professional_username):
     """
     Get professional by username
@@ -149,6 +153,7 @@ def get_professional_by_username(_, professional_username):
               methods=["GET"])
 @swag_from(professional_specs.get_professional_by_email)
 @token_required
+@only_admin
 def get_professional_by_email(_, professional_email):
     """
     Get professional by email
@@ -168,6 +173,7 @@ def get_professional_by_email(_, professional_email):
               methods=["GET"])
 @swag_from(professional_specs.get_professional_by_phone)
 @token_required
+@only_admin
 def get_professional_by_phone(_, professional_phone):
     """
     Get professional by phone
@@ -191,14 +197,18 @@ def get_professional_by_phone(_, professional_phone):
 @bp_api.route("/professionals/<int:professional_id>", methods=["PUT"])
 @swag_from(professional_specs.update_professional)
 @token_required
-def update_professional(_, professional_id):
+def update_professional(current_user, professional_id):
     """
     Update professional with id
     """
     body: dict[str, str] = request.get_json()
 
-    useless_params(body.keys(), PARAMETERS_FOR_POST_PROFESSIONAL)
-    validate_payload(body, Professional.validators)
+    if not current_user["admin"] and current_user["id"] != professional_id:
+        raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_OPERATION)
+
+    useless_params(body.keys(), PARAMETERS_FOR_PUT_PROFESSIONAL)
+    validate_payload(body, Professional.validators,
+                     PARAMETERS_FOR_PUT_PROFESSIONAL)
 
     if session.query(Professional.id).filter(
             Professional.username == body["username"],
@@ -210,8 +220,6 @@ def update_professional(_, professional_id):
             Professional.id != professional_id).first() is not None:
         raise ValidationException(
             {"email": ValidationMessages.EMAIL_REGISTERED})
-
-    body["password"] = pbkdf2_sha256.hash(body["password"])
 
     stmt = update(Professional).where(
         Professional.id == professional_id).values(**body)

@@ -21,9 +21,7 @@ PARAMETERS_FOR_GET_USER = [
     "name", "username", "email", "limit", "page", "order_by"
 ]
 
-PARAMETERS_FOR_PUT_USER = [
-    "name", "username", "email", "password", "clinic_id"
-]
+PARAMETERS_FOR_PUT_USER = ["name", "username", "email", "clinic_id"]
 
 # POST user #
 
@@ -174,7 +172,7 @@ def update_user(_, user_id):
     body: dict[str, str] = request.get_json()
 
     useless_params(body.keys(), PARAMETERS_FOR_POST_USER)
-    validate_payload(body, User.validators)
+    validate_payload(body, User.validators, PARAMETERS_FOR_PUT_USER)
 
     if session.query(User.id).filter(User.username == body["username"],
                                      User.id != user_id).first() is not None:
@@ -192,8 +190,6 @@ def update_user(_, user_id):
             ValidationMessages.NO_ENTITY_RELATIONSHIP.format(
                 "clinic", body["clinic_id"])
         })
-
-    body["password"] = pbkdf2_sha256.hash(body["password"])
 
     stmt = update(User).where(User.id == user_id).values(**body)
     rowcount = session.execute(stmt).rowcount
