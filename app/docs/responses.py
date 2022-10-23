@@ -101,7 +101,7 @@ validation_response_400 = {
     }
 }
 
-unauthenticated_user_401 = {
+unauthenticated_401 = {
     "description": "required to be authenticated",
     "content": {
         "application/json": {

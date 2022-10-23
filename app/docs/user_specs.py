@@ -1,5 +1,5 @@
 from .responses import created_201, updated_200, \
-    validation_response_400, unauthenticated_user_401, not_authorized_403, \
+    validation_response_400, unauthenticated_401, not_authorized_403, \
     list_response_200, unique_entity_200, entity_not_found_404, not_content_success_204
 
 user_minimal = {
@@ -72,7 +72,7 @@ post_user = {
     "responses": {
         "201": created_201("User"),
         "400": validation_response_400,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -110,10 +110,24 @@ get_users = {
         "schema": {
             "type": "string",
         }
+    }, {
+        "name": "username",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
+    }, {
+        "name": "email",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
     }],
     "responses": {
         "200": list_response_200("User"),
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -139,7 +153,7 @@ get_user_by_id = {
     "responses": {
         "200": unique_entity_200("User"),
         "404": entity_not_found_404,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -166,7 +180,7 @@ get_user_by_username = {
     "responses": {
         "200": unique_entity_200("User"),
         "404": entity_not_found_404,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -193,7 +207,7 @@ get_user_by_email = {
     "responses": {
         "200": unique_entity_200("User"),
         "404": entity_not_found_404,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -227,7 +241,7 @@ update_user = {
     "responses": {
         "200": updated_200("User"),
         "400": validation_response_400,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -252,7 +266,7 @@ delete_user = {
     }],
     "responses": {
         "204": not_content_success_204,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }

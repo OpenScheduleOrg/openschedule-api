@@ -1,5 +1,5 @@
 from .responses import created_201, updated_200, \
-    validation_response_400, unauthenticated_user_401, not_authorized_403, \
+    validation_response_400, unauthenticated_401, not_authorized_403, \
     list_response_200, unique_entity_200, entity_not_found_404, not_content_success_204
 
 patient_minimal = {
@@ -73,7 +73,7 @@ post_patient = {
     "responses": {
         "201": created_201("Patient"),
         "400": validation_response_400,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -128,7 +128,7 @@ get_patients = {
     }],
     "responses": {
         "200": list_response_200("Patient"),
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -154,7 +154,7 @@ get_patient_by_id = {
     "responses": {
         "200": unique_entity_200("Patient"),
         "404": entity_not_found_404,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -181,7 +181,7 @@ get_patient_by_cpf = {
     "responses": {
         "200": unique_entity_200("Patient"),
         "404": entity_not_found_404,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -208,7 +208,7 @@ get_patient_by_phone = {
     "responses": {
         "200": unique_entity_200("Patient"),
         "404": entity_not_found_404,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -242,7 +242,7 @@ update_patient = {
     "responses": {
         "200": updated_200("Patient"),
         "400": validation_response_400,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
@@ -267,7 +267,7 @@ delete_patient = {
     }],
     "responses": {
         "204": not_content_success_204,
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }

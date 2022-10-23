@@ -1,4 +1,4 @@
-from .responses import auth_200, unauthenticated_user_401, auth_only_access_token_200
+from .responses import auth_200, unauthenticated_401, auth_only_access_token_200
 
 credentials = {
     "type": "object",
@@ -46,7 +46,7 @@ signin = {
     },
     "responses": {
         "200": auth_200(),
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
     }
 }
 
@@ -59,7 +59,7 @@ refresh_token = {
     }],
     "responses": {
         "200": auth_only_access_token_200(),
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
     }
 }
 
@@ -72,6 +72,6 @@ restore_session = {
     }],
     "responses": {
         "200": auth_only_access_token_200(),
-        "401": unauthenticated_user_401,
+        "401": unauthenticated_401,
     }
 }
