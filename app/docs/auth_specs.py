@@ -5,11 +5,11 @@ credentials = {
     "properties": {
         "username": {
             "type": "string",
-            "example": "health10111"
+            "example": "admin"
         },
         "password": {
             "type": "string",
-            "example": "*********"
+            "example": "admin"
         },
     }
 }

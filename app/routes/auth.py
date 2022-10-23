@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from flasgger import swag_from
 
 from . import bp_auth
-from ..models import session, select, User
+from ..models import session, select, User, Professional
 from ..helpers.auth import get_header_token, decode_token
 
 from ..docs import auth_specs
@@ -31,19 +31,28 @@ def signin():
     if not username or not password:
         return jsonify({"message": "credentials required"}), 401
 
+    admin = True
     user = session.execute(
-        select(User).where(
-            or_(User.username == username, User.email == username))).scalar()
+        select(User.id, User.name, User.password).where(
+            or_(User.username == username, User.email == username))).first()
 
-    if user and pbkdf2_sha256.verify(password, user.password):
+    if user is None:
+        admin = False
+        user = session.execute(
+            select(Professional.id, Professional.name,
+                   Professional.password).where(
+                       or_(Professional.username == username,
+                           Professional.email == username))).first()
+
+    if user and pbkdf2_sha256.verify(password, user["password"]):
         access_token = jwt.encode(
             {
                 'user_id':
-                user.id,
+                user["id"],
                 'name':
-                user.name,
+                user["name"],
                 'admin':
-                True,
+                admin,
                 'exp':
                 datetime.datetime.utcnow() + datetime.timedelta(
                     seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
@@ -52,11 +61,11 @@ def signin():
             session_token = jwt.encode(
                 {
                     'user_id':
-                    user.id,
+                    user["id"],
                     'name':
-                    user.name,
+                    user["name"],
                     'admin':
-                    True,
+                    admin,
                     'exp':
                     datetime.datetime.utcnow() + datetime.timedelta(
                         seconds=current_app.config["SESSION_TOKEN_EXPIRE"])
