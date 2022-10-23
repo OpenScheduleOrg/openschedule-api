@@ -2,40 +2,44 @@ from .responses import created_201, updated_200, \
     validation_response_400, unauthenticated_401, not_authorized_403, \
     list_response_200, unique_entity_200, entity_not_found_404, not_content_success_204
 
-user_minimal = {
+professional_minimal = {
     "type": "object",
     "properties": {
         "name": {
             "type": "string",
-            "example": "Foo Bar"
+            "example": "Professional Foo Bar"
+        },
+        "phone": {
+            "type": "string",
+            "example": "(99) 99999-9999"
+        },
+        "reg_number": {
+            "type": "string",
+            "example": "9999"
         },
         "username": {
             "type": "string",
-            "example": "foobar23"
+            "example": "profoobar23"
         },
         "email": {
             "type": "string",
-            "example": "foo@bar.yz",
+            "example": "foo@bar.prof",
         },
         "password": {
             "type": "string",
             "example": "supersecret"
-        },
-        "clinic_id": {
-            "type": "integer",
-            "example": 1
         }
     }
 }
 
-user_model = {
+professional_model = {
     "type": "object",
     "properties": {
         "id": {
             "type": "integer",
             "example": 10
         },
-        **user_minimal["properties"], "created_at": {
+        **professional_minimal["properties"], "created_at": {
             "type": "string",
             "format": "date-time",
             "example": "2022-09-22 14:38:23"
@@ -50,14 +54,14 @@ user_model = {
 
 tags = {
     "tags": [{
-        "name": "users",
+        "name": "professionals",
     }]
 }
 
-post_user = {
-    **tags, "summary": "Create user",
-    "description": "Create a new user",
-    "opeartionId": "post_user",
+post_professional = {
+    **tags, "summary": "Create professional",
+    "description": "Create a new professional",
+    "opeartionId": "post_professional",
     "security": [{
         "BearerAuth": []
     }],
@@ -65,25 +69,25 @@ post_user = {
         "description": "Any description about body request",
         "content": {
             "application/json": {
-                "schema": user_minimal
+                "schema": professional_minimal
             }
         }
     },
     "responses": {
-        "201": created_201("User"),
+        "201": created_201("Professional"),
         "400": validation_response_400,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
 
-get_users = {
+get_professionals = {
     **tags, "summary":
-    "Load users",
+    "Load professionals",
     "description":
-    "Filter and load users with pagination",
+    "Filter and load professionals with pagination",
     "opeartionId":
-    "get_users",
+    "get_professionals",
     "security": [{
         "BearerAuth": []
     }],
@@ -111,6 +115,20 @@ get_users = {
             "type": "string",
         }
     }, {
+        "name": "phone",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
+    }, {
+        "name": "reg_number",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
+    }, {
         "name": "username",
         "in": "query",
         "required": False,
@@ -126,24 +144,24 @@ get_users = {
         }
     }],
     "responses": {
-        "200": list_response_200("User"),
+        "200": list_response_200("Professional"),
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
 
-get_user_by_id = {
+get_professional_by_id = {
     **tags, "summary":
-    "Load a user",
+    "Load a professional",
     "description":
-    "load user by id",
+    "load professional by id",
     "opeartionId":
-    "get_user_by_id",
+    "get_professional_by_id",
     "security": [{
         "BearerAuth": []
     }],
     "parameters": [{
-        "name": "user_id",
+        "name": "professional_id",
         "in": "path",
         "required": False,
         "schema": {
@@ -151,25 +169,25 @@ get_user_by_id = {
         }
     }],
     "responses": {
-        "200": unique_entity_200("User"),
+        "200": unique_entity_200("Professional"),
         "404": entity_not_found_404,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
 
-get_user_by_username = {
+get_professional_by_phone = {
     **tags, "summary":
-    "Load a user using username",
+    "Load a professional using phone",
     "description":
-    "load user by username",
+    "load professional by phone",
     "opeartionId":
-    "get_user_by_username",
+    "get_professional_by_phone",
     "security": [{
         "BearerAuth": []
     }],
     "parameters": [{
-        "name": "user_username",
+        "name": "professional_phone",
         "in": "path",
         "description": "must be without mask",
         "required": False,
@@ -178,25 +196,25 @@ get_user_by_username = {
         }
     }],
     "responses": {
-        "200": unique_entity_200("User"),
+        "200": unique_entity_200("Professional"),
         "404": entity_not_found_404,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
 
-get_user_by_email = {
+get_professional_by_username = {
     **tags, "summary":
-    "Load a user email",
+    "Load a professional using username",
     "description":
-    "load user by email",
+    "load professional by username",
     "opeartionId":
-    "get_user_by_email",
+    "get_professional_by_username",
     "security": [{
         "BearerAuth": []
     }],
     "parameters": [{
-        "name": "user_email",
+        "name": "professional_username",
         "in": "path",
         "description": "must be without mask",
         "required": False,
@@ -205,25 +223,52 @@ get_user_by_email = {
         }
     }],
     "responses": {
-        "200": unique_entity_200("User"),
+        "200": unique_entity_200("Professional"),
         "404": entity_not_found_404,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
 
-update_user = {
+get_professional_by_email = {
     **tags, "summary":
-    "Update user",
+    "Load a professional email",
     "description":
-    "update a user using id",
+    "load professional by email",
     "opeartionId":
-    "put_user",
+    "get_professional_by_email",
     "security": [{
         "BearerAuth": []
     }],
     "parameters": [{
-        "name": "user_id",
+        "name": "professional_email",
+        "in": "path",
+        "description": "must be without mask",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
+    }],
+    "responses": {
+        "200": unique_entity_200("Professional"),
+        "404": entity_not_found_404,
+        "401": unauthenticated_401,
+        "403": not_authorized_403,
+    }
+}
+
+update_professional = {
+    **tags, "summary":
+    "Update professional",
+    "description":
+    "update a professional using id",
+    "opeartionId":
+    "put_professional",
+    "security": [{
+        "BearerAuth": []
+    }],
+    "parameters": [{
+        "name": "professional_id",
         "in": "path",
         "required": False,
         "schema": {
@@ -234,30 +279,30 @@ update_user = {
         "description": "Any description about body request",
         "content": {
             "application/json": {
-                "schema": user_minimal
+                "schema": professional_minimal
             }
         }
     },
     "responses": {
-        "200": updated_200("User"),
+        "200": updated_200("Professional"),
         "400": validation_response_400,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
 }
 
-delete_user = {
+delete_professional = {
     **tags, "summary":
-    "Delete user",
+    "Delete professional",
     "description":
-    "update a user using id",
+    "update a professional using id",
     "opeartionId":
-    "delete_user",
+    "delete_professional",
     "security": [{
         "BearerAuth": []
     }],
     "parameters": [{
-        "name": "user_id",
+        "name": "professional_id",
         "in": "path",
         "required": False,
         "schema": {
