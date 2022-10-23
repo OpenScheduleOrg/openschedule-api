@@ -78,8 +78,10 @@ delete = db.delete
 insert = db.insert
 update = db.update
 
-from .patient import Patient
 from .clinic import Clinic
+from .patient import Patient
 from .horario import Horario
 from .consulta import Consulta
 from .user import User
+
+from .init_data import set_up_data

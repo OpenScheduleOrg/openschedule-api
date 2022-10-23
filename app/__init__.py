@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flasgger import Swagger
 
-from app.models import db, ClinicType
+from app.models import db, ClinicType, set_up_data
 from app.docs import swagger_template, swagger_config
 
 from config import app_configs
@@ -41,6 +41,7 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
 
     db.init_app(app)
     db.create_all(app=app)
+    set_up_data(db, app)
 
     from app.routes import bp_api, bp_auth
 
