@@ -7,7 +7,7 @@ from sqlalchemy import or_
 from flasgger import swag_from
 
 from . import bp_auth
-from ..models import session, select, User
+from ..models import session, select, User, Professional
 from ..helpers.auth import get_header_token, decode_token
 
 from ..docs import auth_specs
@@ -23,27 +23,35 @@ def signin():
     body = request.get_json() if request.data else None
     header_auth = request.authorization
 
-    username = (header_auth and header_auth.username) or (body
-                                                          and body["username"])
+    login = (header_auth and header_auth.username) or (body and body["login"])
     password = (header_auth and header_auth.password) or (body
                                                           and body["password"])
 
-    if not username or not password:
+    if not login or not password:
         return jsonify({"message": "credentials required"}), 401
 
+    admin = True
     user = session.execute(
-        select(User).where(
-            or_(User.username == username, User.email == username))).scalar()
+        select(User.id, User.name, User.password).where(
+            or_(User.username == login, User.email == login))).first()
 
-    if user and pbkdf2_sha256.verify(password, user.password):
+    if user is None:
+        admin = False
+        user = session.execute(
+            select(Professional.id, Professional.name,
+                   Professional.password).where(
+                       or_(Professional.username == login,
+                           Professional.email == login))).first()
+
+    if user and pbkdf2_sha256.verify(password, user["password"]):
         access_token = jwt.encode(
             {
                 'user_id':
-                user.id,
+                user["id"],
                 'name':
-                user.name,
+                user["name"],
                 'admin':
-                True,
+                admin,
                 'exp':
                 datetime.datetime.utcnow() + datetime.timedelta(
                     seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
@@ -52,11 +60,11 @@ def signin():
             session_token = jwt.encode(
                 {
                     'user_id':
-                    user.id,
+                    user["id"],
                     'name':
-                    user.name,
+                    user["name"],
                     'admin':
-                    True,
+                    admin,
                     'exp':
                     datetime.datetime.utcnow() + datetime.timedelta(
                         seconds=current_app.config["SESSION_TOKEN_EXPIRE"])

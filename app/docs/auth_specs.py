@@ -3,13 +3,13 @@ from .responses import auth_200, unauthenticated_401, auth_only_access_token_200
 credentials = {
     "type": "object",
     "properties": {
-        "username": {
+        "login": {
             "type": "string",
-            "example": "health10111"
+            "example": "admin"
         },
         "password": {
             "type": "string",
-            "example": "*********"
+            "example": "admin"
         },
     }
 }
