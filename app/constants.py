@@ -2,6 +2,10 @@ class ResponseMessages:
     UNEXPECTED_ERROR = "unexpected error ocurred"
     ENTITY_NOT_FOUND = "{} not found"
 
+    ONLY_ADMIN = "only admin can performs this operation"
+    NOT_AUHORIZED_ACCESS = "not authorized to access this data"
+    NOT_AUHORIZED_OPERATION = "not authorized to perform this operation"
+
 
 class ValidationMessages:
     PARAMETERS_USELESS = "Request have useless parameters"

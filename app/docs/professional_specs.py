@@ -32,6 +32,32 @@ professional_minimal = {
     }
 }
 
+professional_update = {
+    "type": "object",
+    "properties": {
+        "name": {
+            "type": "string",
+            "example": "Professional Foo Bar"
+        },
+        "phone": {
+            "type": "string",
+            "example": "(99) 99999-9999"
+        },
+        "reg_number": {
+            "type": "string",
+            "example": "9999"
+        },
+        "username": {
+            "type": "string",
+            "example": "profoobar23"
+        },
+        "email": {
+            "type": "string",
+            "example": "foo@bar.prof",
+        }
+    }
+}
+
 professional_model = {
     "type": "object",
     "properties": {
@@ -279,7 +305,7 @@ update_professional = {
         "description": "Any description about body request",
         "content": {
             "application/json": {
-                "schema": professional_minimal
+                "schema": professional_update
             }
         }
     },
