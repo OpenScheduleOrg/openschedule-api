@@ -3,6 +3,7 @@ from .patient_specs import patient_model
 from .user_specs import user_model
 from .professional_specs import professional_model
 from .specialty_specs import specialty_model
+from .acting_specs import acting_model
 
 swagger_template = {
     "openapi": "3.0.2",
@@ -30,6 +31,7 @@ swagger_template = {
             "User": user_model,
             "Professional": professional_model,
             "Specialty": specialty_model,
+            "Acting": acting_model,
             "ValidationResponse": {
                 "type": "object",
                 "properties": {

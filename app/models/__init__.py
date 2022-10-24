@@ -81,6 +81,7 @@ update = db.update
 from .clinic import Clinic
 from .specialty import Specialty
 from .professional import Professional
+from .acting import Acting
 from .patient import Patient
 from .horario import Horario
 from .consulta import Consulta
