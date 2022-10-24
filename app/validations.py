@@ -3,41 +3,9 @@ from enum import Enum
 from datetime import date
 from dateutil.parser import isoparse
 
-from .exceptions import APIException, ValidationException
+from .exceptions import ValidationException
 from .constants import ValidationMessages
 from .utils import remove_mask
-
-
-def validate_dates(**kw):
-    """
-    This method verify if the date parameters are valids.
-    """
-    detail = {}
-    converted = []
-    keys = []
-
-    for key, value in kw.items():
-        keys.append(key)
-        try:
-            converted.append(isoparse(value))
-        except (ValueError, TypeError):
-            detail[key] = "invalid"
-        except Exception as error:
-            raise error
-
-    if detail:
-        raise APIException("Date and time are not in iso format",
-                           detail=detail)
-
-    if ((isinstance(converted[0], date) and isinstance(converted[1], date))
-            and converted[0] > converted[1]):
-        raise APIException("Invalid datetime values date_start < date_end",
-                           detail={
-                               keys[0]: "invalid",
-                               keys[1]: "invalid"
-                           })
-
-    return converted
 
 
 def validate_cpf(field: str, body: dict) -> str or None:

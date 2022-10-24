@@ -83,8 +83,6 @@ from .specialty import Specialty
 from .professional import Professional
 from .acting import Acting
 from .patient import Patient
-from .horario import Horario
-from .consulta import Consulta
 from .user import User
 
 from .init_data import set_up_data
