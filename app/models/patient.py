@@ -14,8 +14,6 @@ class Patient(TimestampMixin, db.Model):
     address = Column(String(255), default=None)
     birthdate = Column(Date, default=None)
 
-    consultas = relationship("Consulta", back_populates="patient")
-
     validators = {
         "name": Validator("name").required().length(2, 255),
         "cpf": Validator("cpf").required().cpf(),
