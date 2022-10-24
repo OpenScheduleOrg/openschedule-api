@@ -146,6 +146,23 @@ def validate_required(field: str, body: dict):
         field) if field not in body or body[field] is None else None
 
 
+def validate_number(field: str, body: dict):
+    """
+    Validate if field is a number
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+        returns:
+            validation message if invalid or none if valid
+    """
+    if not isinstance(body[field], date):
+        try:
+            body[field] = int(body[field])
+        except ValueError:
+            return ValidationMessages.NOT_A_NUMBER.format(field)
+    return None
+
+
 def validate_date(field: str, body: dict):
     """
     Validate if field is a date
@@ -160,6 +177,23 @@ def validate_date(field: str, body: dict):
             body[field] = isoparse(body[field]).date()
         except ValueError:
             return ValidationMessages.INVALID_DATE.format(field)
+    return None
+
+
+def validate_range(field: str, body: dict, min_value: int, max_value: int):
+    """
+    Validate if field is in range
+        parameters:
+            field (str): field to validate
+            body (dict): object with field to validate
+            min_value (int): minimum value in range inclusive
+            max_value (int): maximum value in range inclusive
+        returns:
+            validation message if invalid or none if valid
+    """
+    value = body[field]
+    if value < min_value or value > max_value:
+        return ValidationMessages.OUT_OF_RANGE.format(min_value, max_value)
     return None
 
 
@@ -250,6 +284,13 @@ class Validator:
         self.validators.append(validate_email)
         return self
 
+    def number(self):
+        """
+        Add validate number to validators
+        """
+        self.validators.append(validate_number)
+        return self
+
     def date(self):
         """
         Add validate date to validators
@@ -257,9 +298,17 @@ class Validator:
         self.validators.append(validate_date)
         return self
 
+    def range(self, min_value, max_value):
+        """
+        Add validate range to validators
+        """
+        self.validators.append(
+            lambda f, b: validate_range(f, b, min_value, max_value))
+        return self
+
     def length(self, min_len=None, max_len=None):
         """
-        Add validate cnpj to validators
+        Add validate length to validators
         """
         self.validators.append(
             lambda f, b: validate_length(f, b, min_len, max_len))

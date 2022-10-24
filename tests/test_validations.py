@@ -3,11 +3,65 @@ from datetime import date
 from faker import Faker
 
 from app.validations import validate_cpf, validate_phone, validate_required, validate_date, \
-    validate_length, validate_cnpj, validate_enum, validate_email
+    validate_length, validate_cnpj, validate_enum, validate_email, validate_number, validate_range
 from app.constants import ValidationMessages
 from app.models import ClinicType
 
 fake = Faker(["pt_BR"])
+
+
+def test_validate_number_when_valid_payload_should_return_none():
+    """
+    Must be return none if payload has a number
+    """
+    field = "number_field"
+    result = validate_number(field, {field: "42"})
+    assert not result
+
+
+def test_validate_number_when_not_number_in_payload_should_return_validation_result(
+):
+    """
+    Must be return validation result if payload has not a number
+    """
+    field = "number_field"
+    result = validate_number(field, {field: "not a number"})
+    assert result == ValidationMessages.NOT_A_NUMBER.format(field)
+
+
+def test_validate_range_when_in_range_payload_should_return_none():
+    """
+    Must be return none if number in payload is in range
+    """
+    field = "number_field"
+    min_max = (
+        10,
+        45,
+    )
+    result = validate_range(field, {field: 42}, *min_max)
+    assert not result
+    result = validate_range(field, {field: 10}, *min_max)
+    assert not result
+    result = validate_range(field, {field: 45}, *min_max)
+    assert not result
+
+
+def test_validate_range_when_out_range_payload_should_return_validation_result(
+):
+    """
+    Must be return validation result if number in payload is out of range
+    """
+    field = "number_field"
+    min_max = (
+        10,
+        45,
+    )
+    result = validate_range(field, {field: 70}, 10, 45)
+    assert result == ValidationMessages.OUT_OF_RANGE.format(*min_max)
+    result = validate_range(field, {field: 9}, 10, 45)
+    assert result == ValidationMessages.OUT_OF_RANGE.format(*min_max)
+    result = validate_range(field, {field: 46}, 10, 45)
+    assert result == ValidationMessages.OUT_OF_RANGE.format(*min_max)
 
 
 def test_validate_cpf_when_valid_cpf_should_return_none():
