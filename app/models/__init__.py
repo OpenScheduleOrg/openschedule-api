@@ -79,6 +79,7 @@ insert = db.insert
 update = db.update
 
 from .clinic import Clinic
+from .specialty import Specialty
 from .professional import Professional
 from .patient import Patient
 from .horario import Horario

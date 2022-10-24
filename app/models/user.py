@@ -1,5 +1,4 @@
 from sqlalchemy import Column, String, CHAR, Integer, ForeignKey
-from sqlalchemy.orm import relationship
 
 from . import db, TimestampMixin
 from ..validations import Validator
