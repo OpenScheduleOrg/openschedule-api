@@ -79,11 +79,12 @@ insert = db.insert
 update = db.update
 
 from .clinic import Clinic
-from .specialty import Specialty
+from .user import User
 from .professional import Professional
+from .specialty import Specialty
 from .acting import Acting
 from .schedule import Schedule
 from .patient import Patient
-from .user import User
+from .appointment import Appointment
 
 from .init_data import set_up_data
