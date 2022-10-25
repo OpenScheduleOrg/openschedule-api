@@ -82,6 +82,7 @@ from .clinic import Clinic
 from .specialty import Specialty
 from .professional import Professional
 from .acting import Acting
+from .schedule import Schedule
 from .patient import Patient
 from .user import User
 
