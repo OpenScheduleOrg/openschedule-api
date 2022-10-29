@@ -19,7 +19,7 @@ def token_required(f):
                                current_app.config["JWT_SECRET_KEY"], "HS256")
         return f(
             {
-                "id": payload["user_id"],
+                "id": payload["id"],
                 "name": payload["name"],
                 "admin": payload["admin"]
             }, *args, **kwargs)

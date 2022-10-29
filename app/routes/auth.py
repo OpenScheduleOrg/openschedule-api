@@ -33,24 +33,30 @@ def signin():
 
     admin = True
     user = session.execute(
-        select(User.id, User.name, User.password).where(
-            or_(User.username == username, User.email == username))).first()
+        select(User.id, User.name, User.password, User.username,
+               User.email).where(
+                   or_(User.username == username,
+                       User.email == username))).first()
 
     if user is None:
         admin = False
         user = session.execute(
-            select(Professional.id, Professional.name,
-                   Professional.password).where(
+            select(Professional.id, Professional.name, Professional.password,
+                   Professional.username, Professional.email).where(
                        or_(Professional.username == username,
                            Professional.email == username))).first()
 
     if user and pbkdf2_sha256.verify(password, user["password"]):
         access_token = jwt.encode(
             {
-                'user_id':
+                'id':
                 user["id"],
                 'name':
                 user["name"],
+                'username':
+                user["username"],
+                'email':
+                user["email"],
                 'admin':
                 admin,
                 'exp':
@@ -60,10 +66,14 @@ def signin():
         if remember_me and remember_me != "false":
             session_token = jwt.encode(
                 {
-                    'user_id':
+                    'id':
                     user["id"],
                     'name':
                     user["name"],
+                    'username':
+                    user["username"],
+                    'email':
+                    user["email"],
                     'admin':
                     admin,
                     'exp':
