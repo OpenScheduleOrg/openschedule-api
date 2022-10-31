@@ -107,4 +107,4 @@ def validation_exception_handler(e: ValidationException):
     """
     Handle api exception
     """
-    return jsonify(e.errors), 400
+    return jsonify(e.errors), 422

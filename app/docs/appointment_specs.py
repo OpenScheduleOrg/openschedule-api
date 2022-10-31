@@ -1,5 +1,5 @@
 from .responses import created_201, updated_200, \
-    validation_response_400, unauthenticated_401, not_authorized_403, \
+    validation_response_422, unauthenticated_401, not_authorized_403, \
     list_response_200, unique_entity_200, entity_not_found_404, not_content_success_204
 
 appointment_minimal = {
@@ -80,7 +80,7 @@ post_appointment = {
     },
     "responses": {
         "201": created_201("Appointment"),
-        "400": validation_response_400,
+        "422": validation_response_422,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
@@ -188,7 +188,7 @@ update_appointment = {
     },
     "responses": {
         "200": updated_200("Appointment"),
-        "400": validation_response_400,
+        "422": validation_response_422,
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }

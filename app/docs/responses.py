@@ -90,7 +90,7 @@ def auth_only_access_token_200():
     }
 
 
-validation_response_400 = {
+validation_response_422 = {
     "description": "inconsistent request",
     "content": {
         "application/json": {
