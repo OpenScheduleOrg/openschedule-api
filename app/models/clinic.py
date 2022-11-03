@@ -19,6 +19,6 @@ class Clinic(TimestampMixin, db.Model):
         "name": Validator("name").required().length(2, 255),
         "phone": Validator("phone").required().phone(),
         "cnpj": Validator("cnpj").required().cnpj(),
-        "type": Validator("type").required().enum(ClinicType),
+        "type": Validator("type").enum(ClinicType),
         "address": Validator("address").required(),
     }
