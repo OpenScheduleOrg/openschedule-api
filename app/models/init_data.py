@@ -9,7 +9,7 @@ def set_up_data(db, app: Flask):
     Set up data with necessary initial data
     """
     with app.app_context():
-        clinic_id = db.session.query(Clinic.id).scalar()
+        clinic_id = db.session.query(Clinic.id).first()
 
         if clinic_id is None:
             clinic = Clinic(name="Clinic Name",
@@ -21,7 +21,7 @@ def set_up_data(db, app: Flask):
             db.session.refresh(clinic)
             clinic_id = clinic.id
 
-        user_id = db.session.query(User.id).scalar()
+        user_id = db.session.query(User.id).first()
         if user_id is None:
             user = User(name="Admin",
                         username="admin",
