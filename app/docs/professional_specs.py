@@ -2,6 +2,32 @@ from .responses import created_201, updated_200, \
     validation_response_422, unauthenticated_401, not_authorized_403, \
     list_response_200, unique_entity_200, entity_not_found_404, not_content_success_204
 
+professional_acting = {
+    "type": "object",
+    "properties": {
+        "id": {
+            "type": "number",
+            "example": "69"
+        },
+        "clinic_id": {
+            "type": "number",
+            "example": "80"
+        },
+        "clinic_name": {
+            "type": "string",
+            "example": "Clinic name"
+        },
+        "specialty_id": {
+            "type": "number",
+            "example": "90"
+        },
+        "specialty_description": {
+            "type": "string",
+            "example": "Clinic name"
+        },
+    }
+}
+
 professional_minimal = {
     "type": "object",
     "properties": {
@@ -74,6 +100,12 @@ professional_model = {
             "type": "string",
             "format": "date-time",
             "example": "2022-09-22 18:38:23"
+        },
+        "actuations": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/ProfessionalActing"
+            }
         }
     }
 }
@@ -242,7 +274,6 @@ get_professional_by_username = {
     "parameters": [{
         "name": "professional_username",
         "in": "path",
-        "description": "must be without mask",
         "required": False,
         "schema": {
             "type": "string",
@@ -269,7 +300,6 @@ get_professional_by_email = {
     "parameters": [{
         "name": "professional_email",
         "in": "path",
-        "description": "must be without mask",
         "required": False,
         "schema": {
             "type": "string",

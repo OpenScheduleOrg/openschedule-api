@@ -4,7 +4,7 @@ from passlib.hash import pbkdf2_sha256
 from flasgger import swag_from
 
 from . import bp_api
-from ..models import Professional, session, select, delete, update
+from ..models import Professional, Acting, Specialty, Clinic, session, select, delete, update
 from ..exceptions import APIException, ValidationException, AuthorizationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
@@ -27,6 +27,12 @@ PARAMETERS_FOR_PUT_PROFESSIONAL = [
 ]
 
 # POST professional #
+query_actuations = select(
+    Acting.id, Acting.professional_id, Acting.clinic_id,
+    Clinic.name.label("clinic_name"), Acting.specialty_id,
+    Specialty.description.label("specialty_description")).join(
+        Clinic, Acting.clinic_id == Clinic.id).join(
+            Specialty, Acting.specialty_id == Specialty.id)
 
 
 @bp_api.route("/professionals", methods=["POST"])
@@ -73,6 +79,7 @@ def get_professionals(_):
     """
     Get professionals
     """
+
     params = request.args
     useless_params(params.keys(), PARAMETERS_FOR_GET_PROFESSIONAL)
 
@@ -103,9 +110,18 @@ def get_professionals(_):
     if email is not None:
         stmt = stmt.filter(Professional.email.like("%" + email + "%"))
 
-    professionals = [p.as_json() for p in session.execute(stmt).scalars()]
+    professionals = {}
 
-    return jsonify(professionals), 200
+    for p in session.execute(stmt).scalars():
+        professionals[p.id] = {**p.as_json(), "actuations": []}
+
+    for act in session.execute(
+            query_actuations.filter(
+                Acting.professional_id.in_(professionals.keys())).order_by(
+                    Acting.professional_id)).all():
+        professionals[act.professional_id]["actuations"].append(act._asdict())
+
+    return jsonify(list(professionals.values())), 200
 
 
 @bp_api.route("/professionals/<int:professional_id>", methods=["GET"])
@@ -125,7 +141,14 @@ def get_professional_by_id(current_user, professional_id):
             ResponseMessages.ENTITY_NOT_FOUND.format("Professional"),
             status_code=404)
 
-    return jsonify(professional.as_json())
+    professional = professional.as_json()
+    professional["actuations"] = [
+        a._asdict() for a in session.execute(
+            query_actuations.where(
+                Acting.professional_id == professional_id)).all()
+    ]
+
+    return jsonify(professional), 200
 
 
 @bp_api.route("/professionals/<string:professional_username>/username",
@@ -146,7 +169,14 @@ def get_professional_by_username(_, professional_username):
             ResponseMessages.ENTITY_NOT_FOUND.format("Professional"),
             status_code=404)
 
-    return jsonify(professional.as_json())
+    professional = professional.as_json()
+    professional["actuations"] = [
+        a._asdict() for a in session.execute(
+            query_actuations.where(
+                Acting.professional_id == professional["id"])).all()
+    ]
+
+    return jsonify(professional), 200
 
 
 @bp_api.route("/professionals/<string:professional_email>/email",
@@ -166,7 +196,14 @@ def get_professional_by_email(_, professional_email):
             ResponseMessages.ENTITY_NOT_FOUND.format("Professional"),
             status_code=404)
 
-    return jsonify(professional.as_json())
+    professional = professional.as_json()
+    professional["actuations"] = [
+        a._asdict() for a in session.execute(
+            query_actuations.where(
+                Acting.professional_id == professional["id"])).all()
+    ]
+
+    return jsonify(professional), 200
 
 
 @bp_api.route("/professionals/<string:professional_phone>/phone",
@@ -186,7 +223,14 @@ def get_professional_by_phone(_, professional_phone):
             ResponseMessages.ENTITY_NOT_FOUND.format("Professional"),
             status_code=404)
 
-    return jsonify(professional.as_json())
+    professional = professional.as_json()
+    professional["actuations"] = [
+        a._asdict() for a in session.execute(
+            query_actuations.where(
+                Acting.professional_id == professional["id"])).all()
+    ]
+
+    return jsonify(professional), 200
 
 
 # END GET professionals #
