@@ -17,7 +17,7 @@ class Professional(TimestampMixin, db.Model):
     validators = {
         "name": Validator("name").required().length(2, 255),
         "phone": Validator("phone").required().phone(),
-        "reg_number": Validator("reg_number").length(4, 40),
+        "reg_number": Validator("reg_number"),
         "username": Validator("username").required().length(5, 45),
         "email": Validator("email").required().email(),
         "password": Validator("password").required().length(6, 255),
