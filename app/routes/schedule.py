@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from sqlalchemy import desc, inspect
+from sqlalchemy import inspect
 from flasgger import swag_from
 
 from . import bp_api
@@ -17,7 +17,10 @@ PARAMETERS_FOR_POST_SCHEDULE = [
     "week_day", "acting_id"
 ]
 
-PARAMETERS_FOR_GET_SCHEDULE = ["acting_id", "limit", "page", "order_by"]
+PARAMETERS_FOR_GET_SCHEDULE = [
+    "acting_id", "limit", "page", "order_by", "professional_id", "clinic_id",
+    "specialty_id"
+]
 
 PARAMETERS_FOR_PUT_SCHEDULE = [
     "start_date", "end_date", "start_time", "end_time", "max_visits",
@@ -93,20 +96,29 @@ def get_schedules(current_user):
     page = int(params.get("page") or 1)
     limit = int(params.get("limit") or 20)
     acting_id = params.get("acting_id")
+    clinic_id = params.get("clinic_id")
+    professional_id = params.get("professional_id")
+    specialty_id = params.get("specialty_id")
 
     stmt = base_query.limit(limit).offset(
-        (page - 1) * limit).order_by(desc(Schedule.created_at))
+        (page - 1) * limit).order_by(Schedule.week_day, Schedule.start_time)
 
     if not current_user["admin"]:
         acting = session.query(Acting.id).filter(
             Acting.id == acting_id,
             Acting.professional_id == current_user["id"]).first()
 
-        if acting is None:
+        if acting is None or professional_id != current_user["id"]:
             raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
     if acting_id is not None:
         stmt = stmt.filter(Schedule.acting_id == acting_id)
+    if clinic_id is not None:
+        stmt = stmt.filter(Clinic.id == professional_id)
+    if professional_id is not None:
+        stmt = stmt.filter(Professional.id == professional_id)
+    if specialty_id is not None:
+        stmt = stmt.filter(Specialty.id == specialty_id)
 
     schedules = [p._asdict() for p in session.execute(stmt).all()]
 

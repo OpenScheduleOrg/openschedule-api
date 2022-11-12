@@ -144,6 +144,27 @@ get_schedules = {
         "schema": {
             "type": "integer",
         }
+    }, {
+        "name": "clinic_id",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "professional_id",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "specialty_id",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
     }],
     "responses": {
         "200": list_response_200("Schedule"),
