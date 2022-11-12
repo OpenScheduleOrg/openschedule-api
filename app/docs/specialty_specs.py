@@ -7,7 +7,7 @@ specialty_minimal = {
     "properties": {
         "description": {
             "type": "string",
-            "example": "Foo Bar"
+            "example": "Foolist"
         }
     }
 }

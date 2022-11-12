@@ -45,6 +45,30 @@ schedule_model = {
             "type": "integer",
             "example": 10
         },
+        "clinic_id": {
+            "type": "integer",
+            "example": 3
+        },
+        "clinic_name": {
+            "type": "string",
+            "example": "Institution health"
+        },
+        "professional_id": {
+            "type": "integer",
+            "example": 9
+        },
+        "professional_name": {
+            "type": "string",
+            "example": "Foo Bar"
+        },
+        "specialty_id": {
+            "type": "integer",
+            "example": 9
+        },
+        "specialty_description": {
+            "type": "string",
+            "example": "Foolist"
+        },
         **schedule_minimal["properties"], "created_at": {
             "type": "string",
             "format": "date-time",

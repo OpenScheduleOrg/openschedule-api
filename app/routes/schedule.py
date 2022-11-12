@@ -1,9 +1,9 @@
 from flask import request, jsonify
-from sqlalchemy import desc
+from sqlalchemy import desc, inspect
 from flasgger import swag_from
 
 from . import bp_api
-from ..models import Schedule, Acting, session, select, delete, update
+from ..models import Schedule, Acting, Clinic, Professional, Specialty, session, select, delete, update
 from ..exceptions import APIException, ValidationException, AuthorizationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
@@ -25,6 +25,18 @@ PARAMETERS_FOR_PUT_SCHEDULE = [
 ]
 
 # POST schedule #
+clinic_cols = (Clinic.id.label("clinic_id"), Clinic.name.label("clinic_name"))
+professional_cols = (Professional.id.label("professional_id"),
+                     Professional.name.label("professional_name"))
+specialty_cols = (Specialty.id.label("specialty_id"),
+                  Specialty.description.label("specialty_description"))
+
+base_query = select(
+    *inspect(Schedule).attrs, *clinic_cols, *professional_cols,
+    *specialty_cols).join(Acting, Schedule.acting_id == Acting.id).join(
+        Clinic, Acting.clinic_id == Clinic.id).join(
+            Professional, Acting.professional_id == Professional.id).join(
+                Specialty, Acting.specialty_id == Specialty.id)
 
 
 @bp_api.route("/schedules", methods=["POST"])
@@ -57,9 +69,10 @@ def create_schedule(current_user):
     schedule = Schedule(**body)
     session.add(schedule)
     session.commit()
-    session.refresh(schedule)
 
-    return jsonify(schedule.as_json()), 201
+    stmt = base_query.filter(Schedule.id == schedule.id)
+    schedule = session.execute(stmt).first()
+    return jsonify(schedule._asdict()), 201
 
 
 # END POST schedule #
@@ -81,7 +94,7 @@ def get_schedules(current_user):
     limit = int(params.get("limit") or 20)
     acting_id = params.get("acting_id")
 
-    stmt = select(Schedule).limit(limit).offset(
+    stmt = base_query.limit(limit).offset(
         (page - 1) * limit).order_by(desc(Schedule.created_at))
 
     if not current_user["admin"]:
@@ -95,7 +108,7 @@ def get_schedules(current_user):
     if acting_id is not None:
         stmt = stmt.filter(Schedule.acting_id == acting_id)
 
-    schedules = [p.as_json() for p in session.execute(stmt).scalars()]
+    schedules = [p._asdict() for p in session.execute(stmt).all()]
 
     return jsonify(schedules), 200
 
@@ -107,22 +120,19 @@ def get_schedule_by_id(current_user, schedule_id):
     """
     Get schedule by id
     """
-    if not current_user["admin"]:
-        has_permission = session.query(Schedule.id).join(Acting).filter(
-            Schedule.id == schedule_id,
-            Acting.professional_id == current_user["id"]).first()
-
-        if not has_permission:
-            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
-
-    schedule = session.get(Schedule, schedule_id)
+    stmt = base_query.filter(Schedule.id == schedule_id)
+    schedule = session.execute(stmt).first()
 
     if schedule is None:
         raise APIException(
             ResponseMessages.ENTITY_NOT_FOUND.format("Schedule"),
             status_code=404)
 
-    return jsonify(schedule.as_json())
+    if not current_user["admin"]:
+        if not schedule["professional_id"] == current_user["id"]:
+            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
+
+    return jsonify(schedule._asdict())
 
 
 # END GET schedules #
@@ -171,9 +181,10 @@ def update_schedule(current_user, schedule_id):
     if not rowcount:
         raise APIException("Schedule no found", status_code=404)
 
-    schedule = session.get(Schedule, schedule_id)
+    stmt = base_query.filter(Schedule.id == schedule_id)
+    schedule = session.execute(stmt).first()
 
-    return jsonify(schedule.as_json()), 200
+    return jsonify(schedule._asdict()), 200
 
 
 # END PUT schedule #
