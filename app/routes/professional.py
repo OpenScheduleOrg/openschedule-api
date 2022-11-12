@@ -23,7 +23,7 @@ PARAMETERS_FOR_GET_PROFESSIONAL = [
 ]
 
 PARAMETERS_FOR_PUT_PROFESSIONAL = [
-    "name", "phone", "reg_number", "username", "email"
+    "name", "phone", "reg_number", "username", "email", "password"
 ]
 
 # POST professional #
@@ -251,7 +251,7 @@ def update_professional(current_user, professional_id):
         raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_OPERATION)
 
     useless_params(body.keys(), PARAMETERS_FOR_PUT_PROFESSIONAL)
-    validate_payload(body, Professional.validators,
+    validate_payload(body, Professional.validators_update,
                      PARAMETERS_FOR_PUT_PROFESSIONAL)
 
     if session.query(Professional.id).filter(
@@ -264,6 +264,9 @@ def update_professional(current_user, professional_id):
             Professional.id != professional_id).first() is not None:
         raise ValidationException(
             {"email": ValidationMessages.EMAIL_REGISTERED})
+
+    if "password" in body:
+        body["password"] = pbkdf2_sha256.hash(body["password"])
 
     stmt = update(Professional).where(
         Professional.id == professional_id).values(**body)

@@ -22,3 +22,8 @@ class Professional(TimestampMixin, db.Model):
         "email": Validator("email").required().email(),
         "password": Validator("password").required().length(6, 255),
     }
+
+    validators_update = {
+        **validators,
+        "password": Validator("password").length(6, 255),
+    }

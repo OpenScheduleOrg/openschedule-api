@@ -28,28 +28,6 @@ user_minimal = {
     }
 }
 
-user_update = {
-    "type": "object",
-    "properties": {
-        "name": {
-            "type": "string",
-            "example": "Foo Bar"
-        },
-        "username": {
-            "type": "string",
-            "example": "foobar23"
-        },
-        "email": {
-            "type": "string",
-            "example": "foo@bar.yz",
-        },
-        "clinic_id": {
-            "type": "integer",
-            "example": 1
-        }
-    }
-}
-
 user_model = {
     "type": "object",
     "properties": {
@@ -256,7 +234,7 @@ update_user = {
         "description": "Any description about body request",
         "content": {
             "application/json": {
-                "schema": user_update
+                "schema": user_minimal
             }
         }
     },
