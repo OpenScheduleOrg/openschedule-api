@@ -1,9 +1,9 @@
 from flask import request, jsonify
-from sqlalchemy import desc
+from sqlalchemy import inspect
 from flasgger import swag_from
 
 from . import bp_api
-from ..models import Appointment, Acting, Patient, session, select, delete, update
+from ..models import Appointment, Acting, Patient, Clinic, Specialty, Professional, session, select, delete, update
 from ..exceptions import APIException, ValidationException, AuthorizationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
@@ -18,7 +18,8 @@ PARAMETERS_FOR_POST_APPOINTMENT = [
 ]
 
 PARAMETERS_FOR_GET_APPOINTMENT = [
-    "acting_id", "patient_id", "limit", "page", "order_by"
+    "acting_id", "patient_id", "limit", "page", "order_by", "professional_id",
+    "clinic_id", "specialty_id"
 ]
 
 PARAMETERS_FOR_PUT_APPOINTMENT = [
@@ -27,6 +28,18 @@ PARAMETERS_FOR_PUT_APPOINTMENT = [
 ]
 
 # POST appointment #
+clinic_cols = (Clinic.id.label("clinic_id"), Clinic.name.label("clinic_name"))
+professional_cols = (Professional.id.label("professional_id"),
+                     Professional.name.label("professional_name"))
+specialty_cols = (Specialty.id.label("specialty_id"),
+                  Specialty.description.label("specialty_description"))
+
+base_query = select(
+    *inspect(Appointment).attrs, *clinic_cols, *professional_cols,
+    *specialty_cols).join(Acting, Appointment.acting_id == Acting.id).join(
+        Clinic, Acting.clinic_id == Clinic.id).join(
+            Professional, Acting.professional_id == Professional.id).join(
+                Specialty, Acting.specialty_id == Specialty.id)
 
 
 @bp_api.route("/appointments", methods=["POST"])
@@ -67,9 +80,10 @@ def create_appointment(current_user):
     appointment = Appointment(**body)
     session.add(appointment)
     session.commit()
-    session.refresh(appointment)
 
-    return jsonify(appointment.as_json()), 201
+    stmt = base_query.filter(Appointment.id == appointment.id)
+    appointment = session.execute(stmt).first()
+    return jsonify(appointment._asdict()), 201
 
 
 # END POST appointment #
@@ -91,25 +105,35 @@ def get_appointments(current_user):
     limit = int(params.get("limit") or 20)
     acting_id = params.get("acting_id")
     patient_id = params.get("patient_id")
+    clinic_id = params.get("clinic_id")
+    professional_id = params.get("professional_id")
+    specialty_id = params.get("specialty_id")
 
-    stmt = select(Appointment).limit(limit).offset(
-        (page - 1) * limit).order_by(desc(Appointment.created_at))
+    stmt = base_query.limit(limit).offset(
+        (page - 1) * limit).order_by(Appointment.scheduled_day,
+                                     Appointment.start_time,
+                                     Appointment.end_time)
 
     if not current_user["admin"]:
         acting = session.query(Acting.id).filter(
             Acting.id == acting_id,
             Acting.professional_id == current_user["id"]).first()
 
-        if acting is None:
+        if acting is None or professional_id != current_user["id"]:
             raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
     if acting_id is not None:
         stmt = stmt.filter(Appointment.acting_id == acting_id)
     if patient_id is not None:
         stmt = stmt.filter(Appointment.patient_id == patient_id)
+    if clinic_id is not None:
+        stmt = stmt.filter(Clinic.id == professional_id)
+    if professional_id is not None:
+        stmt = stmt.filter(Professional.id == professional_id)
+    if specialty_id is not None:
+        stmt = stmt.filter(Specialty.id == specialty_id)
 
-    appointments = [p.as_json() for p in session.execute(stmt).scalars()]
-
+    appointments = [p._asdict() for p in session.execute(stmt).all()]
     return jsonify(appointments), 200
 
 
@@ -120,20 +144,17 @@ def get_appointment_by_id(current_user, appointment_id):
     """
     Get appointment by id
     """
-    if not current_user["admin"]:
-        has_permission = session.query(Appointment.id).join(Acting).filter(
-            Appointment.id == appointment_id,
-            Acting.professional_id == current_user["id"]).first()
-
-        if not has_permission:
-            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
-
-    appointment = session.get(Appointment, appointment_id)
+    stmt = base_query.filter(Appointment.id == appointment_id)
+    appointment = session.execute(stmt).first()
 
     if appointment is None:
         raise APIException(
             ResponseMessages.ENTITY_NOT_FOUND.format("Appointment"),
             status_code=404)
+
+    if not current_user["admin"]:
+        if not appointment["professional_id"] == current_user["id"]:
+            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
     return jsonify(appointment.as_json())
 
@@ -193,9 +214,9 @@ def update_appointment(current_user, appointment_id):
     if not rowcount:
         raise APIException("Appointment no found", status_code=404)
 
-    appointment = session.get(Appointment, appointment_id)
-
-    return jsonify(appointment.as_json()), 200
+    stmt = base_query.filter(Appointment.id == appointment_id)
+    schedule = session.execute(stmt).first()
+    return jsonify(schedule._asdict()), 200
 
 
 # END PUT appointment #

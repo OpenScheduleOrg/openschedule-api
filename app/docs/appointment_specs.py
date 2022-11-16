@@ -44,6 +44,30 @@ appointment_model = {
             "type": "integer",
             "example": 10
         },
+        "clinic_id": {
+            "type": "integer",
+            "example": 3
+        },
+        "clinic_name": {
+            "type": "string",
+            "example": "Institution health"
+        },
+        "professional_id": {
+            "type": "integer",
+            "example": 9
+        },
+        "professional_name": {
+            "type": "string",
+            "example": "Foo Bar"
+        },
+        "specialty_id": {
+            "type": "integer",
+            "example": 9
+        },
+        "specialty_description": {
+            "type": "string",
+            "example": "Foolist"
+        },
         **appointment_minimal["properties"], "created_at": {
             "type": "string",
             "format": "date-time",
@@ -121,6 +145,27 @@ get_appointments = {
         }
     }, {
         "name": "patient_id",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "clinic_id",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "professional_id",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "specialty_id",
         "in": "query",
         "required": False,
         "schema": {

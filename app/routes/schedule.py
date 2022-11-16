@@ -121,7 +121,6 @@ def get_schedules(current_user):
         stmt = stmt.filter(Specialty.id == specialty_id)
 
     schedules = [p._asdict() for p in session.execute(stmt).all()]
-
     return jsonify(schedules), 200
 
 
@@ -195,7 +194,6 @@ def update_schedule(current_user, schedule_id):
 
     stmt = base_query.filter(Schedule.id == schedule_id)
     schedule = session.execute(stmt).first()
-
     return jsonify(schedule._asdict()), 200
 
 
