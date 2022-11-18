@@ -1,5 +1,6 @@
 import os
 import decimal
+from datetime import date
 
 from flask import Flask, request
 from flask.json import JSONEncoder
@@ -24,6 +25,8 @@ class JsonEncoder(JSONEncoder):
             return str(o)
         if isinstance(o, ClinicType):
             return int(o.value)
+        if isinstance(o, date):
+            return o.isoformat()
 
         return JSONEncoder.default(self, o)
 
