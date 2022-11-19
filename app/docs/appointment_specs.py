@@ -44,6 +44,10 @@ appointment_model = {
             "type": "integer",
             "example": 10
         },
+        "patient_name": {
+            "type": "string",
+            "example": "Foo Bar Jr"
+        },
         "clinic_id": {
             "type": "integer",
             "example": 3

@@ -34,12 +34,16 @@ professional_cols = (Professional.id.label("professional_id"),
 specialty_cols = (Specialty.id.label("specialty_id"),
                   Specialty.description.label("specialty_description"))
 
+patient_cols = (Patient.name.label("patient_name"), )
+
 base_query = select(
-    *inspect(Appointment).attrs, *clinic_cols, *professional_cols,
-    *specialty_cols).join(Acting, Appointment.acting_id == Acting.id).join(
-        Clinic, Acting.clinic_id == Clinic.id).join(
-            Professional, Acting.professional_id == Professional.id).join(
-                Specialty, Acting.specialty_id == Specialty.id)
+    *inspect(Appointment).attrs, *patient_cols, *clinic_cols,
+    *professional_cols,
+    *specialty_cols).join(Patient, Appointment.patient_id == Patient.id).join(
+        Acting, Appointment.acting_id == Acting.id).join(
+            Clinic, Acting.clinic_id == Clinic.id).join(
+                Professional, Acting.professional_id == Professional.id).join(
+                    Specialty, Acting.specialty_id == Specialty.id)
 
 
 @bp_api.route("/appointments", methods=["POST"])
@@ -156,7 +160,7 @@ def get_appointment_by_id(current_user, appointment_id):
         if not appointment["professional_id"] == current_user["id"]:
             raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
-    return jsonify(appointment.as_json())
+    return jsonify(appointment._asdict())
 
 
 # END GET appointments #
