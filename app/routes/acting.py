@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from sqlalchemy import desc
+from sqlalchemy import desc, inspect
 from flasgger import swag_from
 
 from . import bp_api
@@ -20,6 +20,16 @@ PARAMETERS_FOR_GET_ACTING = [
 PARAMETERS_FOR_PUT_ACTING = ["professional_id", "clinic_id", "specialty_id"]
 
 # POST acting #
+clinic_cols = (Clinic.name.label("clinic_name"), )
+professional_cols = (Professional.name.label("professional_name"), )
+specialty_cols = (Specialty.description.label("specialty_description"), )
+
+base_query = select(*inspect(Acting).attrs, *clinic_cols,
+                    *professional_cols, *specialty_cols).join(
+                        Clinic, Acting.clinic_id == Clinic.id).join(
+                            Professional,
+                            Acting.professional_id == Professional.id).join(
+                                Specialty, Acting.specialty_id == Specialty.id)
 
 
 @bp_api.route("/actuations", methods=["POST"])
@@ -61,9 +71,10 @@ def create_acting(_):
     acting = Acting(**body)
     session.add(acting)
     session.commit()
-    session.refresh(acting)
 
-    return jsonify(acting.as_json()), 201
+    stmt = base_query.filter(Acting.id == acting.id)
+    acting = session.execute(stmt).first()
+    return jsonify(acting._asdict()), 201
 
 
 # END POST acting #
@@ -74,7 +85,7 @@ def create_acting(_):
 @bp_api.route("/actuations", methods=["GET"])
 @swag_from(acting_specs.get_actuations)
 @token_required
-def get_actuations(current_user):
+def get_actuations(_):
     """
     Get actuations
     """
@@ -87,12 +98,8 @@ def get_actuations(current_user):
     clinic_id = params.get("clinic_id")
     specialty_id = params.get("specialty_id")
 
-    stmt = select(Acting).limit(limit).offset(
+    stmt = base_query.limit(limit).offset(
         (page - 1) * limit).order_by(desc(Acting.created_at))
-
-    if not current_user["admin"] and str(
-            current_user["id"]) != professional_id:
-        raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
     if professional_id is not None:
         stmt = stmt.filter(Acting.professional_id == professional_id)
@@ -101,29 +108,25 @@ def get_actuations(current_user):
     elif specialty_id is not None:
         stmt = stmt.filter(Acting.specialty_id == specialty_id)
 
-    actuations = [p.as_json() for p in session.execute(stmt).scalars()]
-
+    actuations = [p._asdict() for p in session.execute(stmt).all()]
     return jsonify(actuations), 200
 
 
 @bp_api.route("/actuations/<int:acting_id>", methods=["GET"])
 @swag_from(acting_specs.get_acting_by_id)
 @token_required
-def get_acting_by_id(current_user, acting_id):
+def get_acting_by_id(_, acting_id):
     """
     Get acting by id
     """
-    acting = session.get(Acting, acting_id)
+    stmt = base_query.filter(Acting.id == acting_id)
+    acting = session.execute(stmt).first()
 
     if acting is None:
         raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("Acting"),
                            status_code=404)
 
-    if not current_user[
-            "admin"] and current_user["id"] != acting.professional_id:
-        raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
-
-    return jsonify(acting.as_json())
+    return jsonify(acting._asdict())
 
 
 # END GET actuations #
@@ -177,9 +180,9 @@ def update_acting(current_user, acting_id):
     if not rowcount:
         raise APIException("Acting no found", status_code=404)
 
-    acting = session.get(Acting, acting_id)
-
-    return jsonify(acting.as_json()), 200
+    stmt = base_query.filter(Acting.id == acting_id)
+    acting = session.execute(stmt).first()
+    return jsonify(acting._asdict()), 200
 
 
 # END PUT acting #
