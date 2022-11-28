@@ -118,14 +118,6 @@ def get_appointments(current_user):
                                      Appointment.start_time,
                                      Appointment.end_time)
 
-    if not current_user["admin"]:
-        acting = session.query(Acting.id).filter(
-            Acting.id == acting_id,
-            Acting.professional_id == current_user["id"]).first()
-
-        if acting is None or professional_id != current_user["id"]:
-            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
-
     if acting_id is not None:
         stmt = stmt.filter(Appointment.acting_id == acting_id)
     if patient_id is not None:
@@ -155,10 +147,6 @@ def get_appointment_by_id(current_user, appointment_id):
         raise APIException(
             ResponseMessages.ENTITY_NOT_FOUND.format("Appointment"),
             status_code=404)
-
-    if not current_user["admin"]:
-        if not appointment["professional_id"] == current_user["id"]:
-            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
     return jsonify(appointment._asdict())
 
