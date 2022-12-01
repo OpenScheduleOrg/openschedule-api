@@ -103,14 +103,6 @@ def get_schedules(current_user):
     stmt = base_query.limit(limit).offset(
         (page - 1) * limit).order_by(Schedule.week_day, Schedule.start_time)
 
-    if not current_user["admin"]:
-        acting = session.query(Acting.id).filter(
-            Acting.id == acting_id,
-            Acting.professional_id == current_user["id"]).first()
-
-        if acting is None or professional_id != current_user["id"]:
-            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
-
     if acting_id is not None:
         stmt = stmt.filter(Schedule.acting_id == acting_id)
     if clinic_id is not None:
@@ -120,7 +112,14 @@ def get_schedules(current_user):
     if specialty_id is not None:
         stmt = stmt.filter(Specialty.id == specialty_id)
 
-    schedules = [p._asdict() for p in session.execute(stmt).all()]
+    schedules = []
+
+    for sc in session.execute(stmt).all():
+        schedules.append(sc._asdict())
+        if not current_user[
+                "id"] and sc["professional_id"] != current_user["id"]:
+            raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
+
     return jsonify(schedules), 200
 
 

@@ -74,7 +74,6 @@ def create_professional(_):
 @bp_api.route("/professionals", methods=["GET"])
 @swag_from(professional_specs.get_professionals)
 @token_required
-@only_admin
 def get_professionals(_):
     """
     Get professionals
