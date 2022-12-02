@@ -39,7 +39,8 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
     app = Flask(__name__)
     CORS(app, origins=app_config.CORS_ORIGINS, supports_credentials=True)
     app.config.from_object(app_config)
-    Swagger(app, template=swagger_template, config=swagger_config)
+    if(app_config.FLASK_ENV != "production"):
+        Swagger(app, template=swagger_template, config=swagger_config)
     app.json_encoder = JsonEncoder
 
     db.init_app(app)

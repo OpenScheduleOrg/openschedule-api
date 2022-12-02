@@ -8,6 +8,7 @@ import os
 
 
 class Config():
+    FLASK_ENV = os.environ.get("FLASK_ENV")
     APP_URI = os.environ.get("APP_URI")
 
     SECRET_KEY = os.environ.get("SECRET_KEY")
