@@ -11,7 +11,7 @@ from flasgger import Swagger
 from app.models import db, ClinicType, set_up_data
 from app.docs import swagger_template, swagger_config
 
-from config import app_configs
+from .config import app_configs
 from .exceptions import resource_not_found, internal_server_error, \
     APIException, api_exception_handler, ValidationException, validation_exception_handler, \
     AuthenticationException, authentication_exception_handler, \

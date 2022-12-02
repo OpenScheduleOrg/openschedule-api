@@ -2,7 +2,7 @@ import pytest
 
 from db import set_up_db
 from app import create_app
-from config import app_configs
+from app.config import app_configs
 
 
 @pytest.fixture(name="app")
