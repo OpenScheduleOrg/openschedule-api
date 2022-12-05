@@ -94,7 +94,7 @@ tags = {
 post_appointment = {
     **tags, "summary": "Create appointment",
     "description": "Create a new appointment",
-    "opeartionId": "post_appointment",
+    "operationId": "post_appointment",
     "security": [{
         "BearerAuth": []
     }],
@@ -119,7 +119,7 @@ get_appointments = {
     "Load appointments",
     "description":
     "Filter and load appointments with pagination",
-    "opeartionId":
+    "operationId":
     "get_appointments",
     "security": [{
         "BearerAuth": []
@@ -188,7 +188,7 @@ get_appointment_by_id = {
     "Load a appointment",
     "description":
     "load appointment by id",
-    "opeartionId":
+    "operationId":
     "get_appointment_by_id",
     "security": [{
         "BearerAuth": []
@@ -214,7 +214,7 @@ update_appointment = {
     "Update appointment",
     "description":
     "update a appointment using id",
-    "opeartionId":
+    "operationId":
     "put_appointment",
     "security": [{
         "BearerAuth": []
@@ -248,7 +248,7 @@ delete_appointment = {
     "Delete appointment",
     "description":
     "update a appointment using id",
-    "opeartionId":
+    "operationId":
     "delete_appointment",
     "security": [{
         "BearerAuth": []

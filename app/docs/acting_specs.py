@@ -73,7 +73,7 @@ tags = {
 post_acting = {
     **tags, "summary": "Create acting",
     "description": "Create a new acting",
-    "opeartionId": "post_acting",
+    "operationId": "post_acting",
     "security": [{
         "BearerAuth": []
     }],
@@ -98,7 +98,7 @@ get_actuations = {
     "Load actuations",
     "description":
     "Filter and load actuations with pagination",
-    "opeartionId":
+    "operationId":
     "get_actuations",
     "security": [{
         "BearerAuth": []
@@ -153,7 +153,7 @@ get_acting_by_id = {
     "Load a acting",
     "description":
     "load acting by id",
-    "opeartionId":
+    "operationId":
     "get_acting_by_id",
     "security": [{
         "BearerAuth": []
@@ -179,7 +179,7 @@ update_acting = {
     "Update acting",
     "description":
     "update a acting using id",
-    "opeartionId":
+    "operationId":
     "put_acting",
     "security": [{
         "BearerAuth": []
@@ -213,7 +213,7 @@ delete_acting = {
     "Delete acting",
     "description":
     "update a acting using id",
-    "opeartionId":
+    "operationId":
     "delete_acting",
     "security": [{
         "BearerAuth": []

@@ -93,7 +93,7 @@ tags = {
 post_professional = {
     **tags, "summary": "Create professional",
     "description": "Create a new professional",
-    "opeartionId": "post_professional",
+    "operationId": "post_professional",
     "security": [{
         "BearerAuth": []
     }],
@@ -118,7 +118,7 @@ get_professionals = {
     "Load professionals",
     "description":
     "Filter and load professionals with pagination",
-    "opeartionId":
+    "operationId":
     "get_professionals",
     "security": [{
         "BearerAuth": []
@@ -187,7 +187,7 @@ get_professional_by_id = {
     "Load a professional",
     "description":
     "load professional by id",
-    "opeartionId":
+    "operationId":
     "get_professional_by_id",
     "security": [{
         "BearerAuth": []
@@ -213,7 +213,7 @@ get_professional_by_phone = {
     "Load a professional using phone",
     "description":
     "load professional by phone",
-    "opeartionId":
+    "operationId":
     "get_professional_by_phone",
     "security": [{
         "BearerAuth": []
@@ -240,7 +240,7 @@ get_professional_by_username = {
     "Load a professional using username",
     "description":
     "load professional by username",
-    "opeartionId":
+    "operationId":
     "get_professional_by_username",
     "security": [{
         "BearerAuth": []
@@ -266,7 +266,7 @@ get_professional_by_email = {
     "Load a professional email",
     "description":
     "load professional by email",
-    "opeartionId":
+    "operationId":
     "get_professional_by_email",
     "security": [{
         "BearerAuth": []
@@ -292,7 +292,7 @@ update_professional = {
     "Update professional",
     "description":
     "update a professional using id",
-    "opeartionId":
+    "operationId":
     "put_professional",
     "security": [{
         "BearerAuth": []
@@ -326,7 +326,7 @@ delete_professional = {
     "Delete professional",
     "description":
     "update a professional using id",
-    "opeartionId":
+    "operationId":
     "delete_professional",
     "security": [{
         "BearerAuth": []

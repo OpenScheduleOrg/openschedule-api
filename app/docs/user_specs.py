@@ -57,7 +57,7 @@ tags = {
 post_user = {
     **tags, "summary": "Create user",
     "description": "Create a new user",
-    "opeartionId": "post_user",
+    "operationId": "post_user",
     "security": [{
         "BearerAuth": []
     }],
@@ -82,7 +82,7 @@ get_users = {
     "Load users",
     "description":
     "Filter and load users with pagination",
-    "opeartionId":
+    "operationId":
     "get_users",
     "security": [{
         "BearerAuth": []
@@ -137,7 +137,7 @@ get_user_by_id = {
     "Load a user",
     "description":
     "load user by id",
-    "opeartionId":
+    "operationId":
     "get_user_by_id",
     "security": [{
         "BearerAuth": []
@@ -163,7 +163,7 @@ get_user_by_username = {
     "Load a user using username",
     "description":
     "load user by username",
-    "opeartionId":
+    "operationId":
     "get_user_by_username",
     "security": [{
         "BearerAuth": []
@@ -190,7 +190,7 @@ get_user_by_email = {
     "Load a user email",
     "description":
     "load user by email",
-    "opeartionId":
+    "operationId":
     "get_user_by_email",
     "security": [{
         "BearerAuth": []
@@ -217,7 +217,7 @@ update_user = {
     "Update user",
     "description":
     "update a user using id",
-    "opeartionId":
+    "operationId":
     "put_user",
     "security": [{
         "BearerAuth": []
@@ -251,7 +251,7 @@ delete_user = {
     "Delete user",
     "description":
     "update a user using id",
-    "opeartionId":
+    "operationId":
     "delete_user",
     "security": [{
         "BearerAuth": []

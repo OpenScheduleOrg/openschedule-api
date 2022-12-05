@@ -11,7 +11,7 @@ get_specialties_availables = {
     "Obtain clinic specialties with available schedules",
     "description":
     "Obtain clinic specialties with available schedules",
-    "opeartionId":
+    "operationId":
     "get_specialty_availables",
     "security": [{
         "BearerAuth": []

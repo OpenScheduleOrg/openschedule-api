@@ -58,7 +58,7 @@ tags = {
 post_patient = {
     **tags, "summary": "Create patient",
     "description": "Create a new patient",
-    "opeartionId": "post_patient",
+    "operationId": "post_patient",
     "security": [{
         "BearerAuth": []
     }],
@@ -83,7 +83,7 @@ get_patients = {
     "Load patients",
     "description":
     "Filter and load patients with pagination",
-    "opeartionId":
+    "operationId":
     "get_clinics",
     "security": [{
         "BearerAuth": []
@@ -138,7 +138,7 @@ get_patient_by_id = {
     "Load a patient",
     "description":
     "load patient by id",
-    "opeartionId":
+    "operationId":
     "get_patient_by_id",
     "security": [{
         "BearerAuth": []
@@ -164,7 +164,7 @@ get_patient_by_cpf = {
     "Load a patient using cpf",
     "description":
     "load patient by cpf",
-    "opeartionId":
+    "operationId":
     "get_patient_by_cpf",
     "security": [{
         "BearerAuth": []
@@ -191,7 +191,7 @@ get_patient_by_phone = {
     "Load a patient phone",
     "description":
     "load patient by phone",
-    "opeartionId":
+    "operationId":
     "get_patient_by_phone",
     "security": [{
         "BearerAuth": []
@@ -218,7 +218,7 @@ update_patient = {
     "Update patient",
     "description":
     "update a patient using id",
-    "opeartionId":
+    "operationId":
     "put_patient",
     "security": [{
         "BearerAuth": []
@@ -252,7 +252,7 @@ delete_patient = {
     "Delete patient",
     "description":
     "update a patient using id",
-    "opeartionId":
+    "operationId":
     "delete_patient",
     "security": [{
         "BearerAuth": []

@@ -66,7 +66,7 @@ tags = {
 post_clinic = {
     **tags, "summary": "Create clinic",
     "description": "Any description about post clinic",
-    "opeartionId": "post_clinic",
+    "operationId": "post_clinic",
     "security": [{
         "BearerAuth": []
     }],
@@ -91,7 +91,7 @@ get_clinics = {
     "Load clinics",
     "description":
     "Filter and load clinics with pagination",
-    "opeartionId":
+    "operationId":
     "get_clinics",
     "security": [{
         "BearerAuth": []
@@ -153,7 +153,7 @@ get_clinic_by_id = {
     "Load a clinic",
     "description":
     "load clinic by id",
-    "opeartionId":
+    "operationId":
     "get_clinic_by_id",
     "security": [{
         "BearerAuth": []
@@ -179,7 +179,7 @@ get_clinic_by_cnpj = {
     "Load a clinic using cnpj",
     "description":
     "load clinic by cnpj",
-    "opeartionId":
+    "operationId":
     "get_clinic_by_cnpj",
     "security": [{
         "BearerAuth": []
@@ -206,7 +206,7 @@ get_clinic_by_phone = {
     "Load a clinic phone",
     "description":
     "load clinic by phone",
-    "opeartionId":
+    "operationId":
     "get_clinic_by_phone",
     "security": [{
         "BearerAuth": []
@@ -233,7 +233,7 @@ update_clinic = {
     "Update clinic",
     "description":
     "update a clinic using id",
-    "opeartionId":
+    "operationId":
     "put_clinic",
     "security": [{
         "BearerAuth": []
@@ -267,7 +267,7 @@ delete_clinic = {
     "Delete clinic",
     "description":
     "delete clinic using id",
-    "opeartionId":
+    "operationId":
     "delete_clinic",
     "security": [{
         "BearerAuth": []

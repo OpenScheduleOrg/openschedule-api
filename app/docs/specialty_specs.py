@@ -41,7 +41,7 @@ tags = {
 post_specialty = {
     **tags, "summary": "Create specialty",
     "description": "Create a new specialty",
-    "opeartionId": "post_specialty",
+    "operationId": "post_specialty",
     "security": [{
         "BearerAuth": []
     }],
@@ -66,7 +66,7 @@ get_specialties = {
     "Load specialties",
     "description":
     "Filter and load specialties with pagination",
-    "opeartionId":
+    "operationId":
     "get_specialties",
     "security": [{
         "BearerAuth": []
@@ -107,7 +107,7 @@ get_specialty_by_id = {
     "Load a specialty",
     "description":
     "load specialty by id",
-    "opeartionId":
+    "operationId":
     "get_specialty_by_id",
     "security": [{
         "BearerAuth": []
@@ -133,7 +133,7 @@ update_specialty = {
     "Update specialty",
     "description":
     "update a specialty using id",
-    "opeartionId":
+    "operationId":
     "put_specialty",
     "security": [{
         "BearerAuth": []
@@ -167,7 +167,7 @@ delete_specialty = {
     "Delete specialty",
     "description":
     "update a specialty using id",
-    "opeartionId":
+    "operationId":
     "delete_specialty",
     "security": [{
         "BearerAuth": []

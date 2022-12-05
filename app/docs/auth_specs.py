@@ -25,7 +25,7 @@ signin = {
     "Perform login",
     "description":
     "User login",
-    "opeartionId":
+    "operationId":
     "auth_signin",
     "parameters": [{
         "name": "remember_me",
@@ -53,7 +53,7 @@ signin = {
 refresh_token = {
     **tags, "summary": "Refresh token",
     "description": "refresh token that go expire",
-    "opeartionId": "refresh_token",
+    "operationId": "refresh_token",
     "security": [{
         "BearerAuth": []
     }],
@@ -66,7 +66,7 @@ refresh_token = {
 restore_session = {
     **tags, "summary": "Restore session",
     "description": "Restore session with session token",
-    "opeartionId": "restore_session",
+    "operationId": "restore_session",
     "security": [{
         "BearerAuthSession": []
     }],

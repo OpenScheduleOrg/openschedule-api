@@ -91,7 +91,7 @@ tags = {
 post_schedule = {
     **tags, "summary": "Create schedule",
     "description": "Create a new schedule",
-    "opeartionId": "post_schedule",
+    "operationId": "post_schedule",
     "security": [{
         "BearerAuth": []
     }],
@@ -116,7 +116,7 @@ get_schedules = {
     "Load schedules",
     "description":
     "Filter and load schedules with pagination",
-    "opeartionId":
+    "operationId":
     "get_schedules",
     "security": [{
         "BearerAuth": []
@@ -178,7 +178,7 @@ get_schedule_by_id = {
     "Load a schedule",
     "description":
     "load schedule by id",
-    "opeartionId":
+    "operationId":
     "get_schedule_by_id",
     "security": [{
         "BearerAuth": []
@@ -204,7 +204,7 @@ update_schedule = {
     "Update schedule",
     "description":
     "update a schedule using id",
-    "opeartionId":
+    "operationId":
     "put_schedule",
     "security": [{
         "BearerAuth": []
@@ -238,7 +238,7 @@ delete_schedule = {
     "Delete schedule",
     "description":
     "update a schedule using id",
-    "opeartionId":
+    "operationId":
     "delete_schedule",
     "security": [{
         "BearerAuth": []
