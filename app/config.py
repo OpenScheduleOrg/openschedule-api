@@ -27,9 +27,11 @@ class Config():
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+
 class DevelopmentConfig(Config):
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get("DATABASE_URI")
+    SQLALCHEMY_ECHO = True
 
 
 class TestingConfig(Config):
