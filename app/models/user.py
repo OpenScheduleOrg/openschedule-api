@@ -19,9 +19,13 @@ class User(TimestampMixin, db.Model):
         "username": Validator("username").required().length(5, 45),
         "email": Validator("email").required().email(),
         "password": Validator("password").required().length(6, 255),
+        "clinic_id": Validator("clinic_id").required().number(),
     }
 
     validators_update = {
-        **validators,
+        "name": Validator("name").length(2, 255),
+        "username": Validator("username").length(5, 45),
+        "email": Validator("email").email(),
         "password": Validator("password").length(6, 255),
+        "clinic_id": Validator("clinic_id").number(),
     }

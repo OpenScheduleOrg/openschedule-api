@@ -174,18 +174,20 @@ def update_user(_, user_id):
     body: dict[str, str] = request.get_json()
 
     useless_params(body.keys(), PARAMETERS_FOR_PUT_USER)
-    validate_payload(body, User.validators_update, PARAMETERS_FOR_PUT_USER)
+    validate_payload(body, User.validators_update)
 
-    if session.query(User.id).filter(User.username == body["username"],
-                                     User.id != user_id).first() is not None:
+    if "username" in body and session.query(User.id).filter(
+            User.username == body["username"],
+            User.id != user_id).first() is not None:
         raise ValidationException(
             {"username": ValidationMessages.USERNAME_REGISTERED})
-    if session.query(User.id).filter(User.email == body["email"],
-                                     User.id != user_id).first() is not None:
+    if "email" in body and session.query(User.id).filter(
+            User.email == body["email"],
+            User.id != user_id).first() is not None:
         raise ValidationException(
             {"email": ValidationMessages.EMAIL_REGISTERED})
 
-    if session.query(
+    if "clinic_id" in body and session.query(
             Clinic.id).filter(Clinic.id == body["clinic_id"]).first() is None:
         raise ValidationException({
             "clinic_id":

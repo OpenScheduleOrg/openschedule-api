@@ -104,7 +104,7 @@ def get_free_days(_):
             num_days -= 1
 
     current_date = start_date
-    while num_days > 0:
+    while week_days and num_days > 0:
         current_date = current_date + timedelta(days=1)
         if current_date.weekday() not in week_days:
             continue
