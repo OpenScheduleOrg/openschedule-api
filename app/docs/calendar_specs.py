@@ -76,7 +76,7 @@ get_free_days = {
         "in": "query",
         "required": False,
         "schema": {
-            "type": "date",
+            "type": "integer",
         }
     }],
     "responses": {
@@ -110,6 +110,46 @@ get_free_days = {
                 }
             }
         },
+        "401": unauthenticated_401,
+        "403": not_authorized_403,
+    }
+}
+
+get_available_schedules = {
+    **tags, "summary":
+    "Return availables schedules in day",
+    "description":
+    "Return availables schedules in day",
+    "operationId":
+    "get_available_schedules",
+    "security": [{
+        "BearerAuth": []
+    }],
+    "parameters": [{
+        "name": "clinic_id",
+        "in": "query",
+        "required": True,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "specialty_id",
+        "in": "query",
+        "required": True,
+        "schema": {
+            "type": "integer",
+        }
+    }, {
+        "name": "day",
+        "in": "query",
+        "required": True,
+        "schema": {
+            "type": "string",
+            "format": "day",
+        }
+    }],
+    "responses": {
+        "200": list_response_200("Schedule"),
         "401": unauthenticated_401,
         "403": not_authorized_403,
     }
