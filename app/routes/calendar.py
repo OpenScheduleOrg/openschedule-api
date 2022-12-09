@@ -24,6 +24,8 @@ validators = {
 
 #  END Validators  #
 
+# QUERIES #
+
 SPECIALTY_FIELDS = inspect(Specialty).attrs
 
 SCHEDULE_FIELDS = (
@@ -34,14 +36,12 @@ SCHEDULE_FIELDS = (
     Specialty.description.label("specialty_description"),
 )
 
-# QUERIES #
-
 COUNT_APPOINTMENTS = select(func.count(Appointment.id)).where(
     Appointment.start_time >= Schedule.start_time,
     Appointment.start_time < Schedule.end_time,
     Appointment.acting_id == Acting.id)
 
-# QUERIES #
+# END QUERIES #
 
 
 @bp_api.route("/calendar/specialties", methods=["GET"])
@@ -138,14 +138,14 @@ def get_available_schedules(_):
     day = params.get("day")
 
     stmt = select(SCHEDULE_FIELDS).distinct().join(
-        Acting, Acting.id == Schedule.acting_id).join(
-            Professional, Acting.professional_id == Professional.id).join(
-                Specialty, Acting.specialty_id == Specialty.id).where(
-                    Acting.clinic_id == clinic_id,
-                    Acting.specialty_id == specialty_id,
-                    Schedule.week_day == day.weekday(),
-                    Schedule.max_visits > COUNT_APPOINTMENTS.where(
-                        Appointment.scheduled_day == day).scalar_subquery())
+        Acting, Acting.id == Schedule.acting_id
+    ).join(Professional, Acting.professional_id == Professional.id).join(
+        Specialty, Acting.specialty_id == Specialty.id).where(
+            Acting.clinic_id == clinic_id, Acting.specialty_id == specialty_id,
+            Schedule.week_day == day.weekday(),
+            Schedule.max_visits > COUNT_APPOINTMENTS.where(
+                Appointment.scheduled_day == day).scalar_subquery()).order_by(
+                    Schedule.start_time)
 
     free_schedules = [sc._asdict() for sc in session.execute(stmt).all()]
 

@@ -1,5 +1,5 @@
 from flask import request, jsonify
-from sqlalchemy import inspect
+from sqlalchemy import inspect, and_, or_
 from flasgger import swag_from
 
 from . import bp_api
@@ -7,7 +7,7 @@ from ..models import Appointment, Acting, Patient, Clinic, Specialty, Profession
 from ..exceptions import APIException, ValidationException, AuthorizationException
 from ..utils import useless_params
 from ..constants import ResponseMessages, ValidationMessages
-from ..validations import validate_payload
+from ..validations import validate_payload, Validator
 from ..middlewares import token_required
 
 from ..docs import appointment_specs
@@ -19,7 +19,7 @@ PARAMETERS_FOR_POST_APPOINTMENT = [
 
 PARAMETERS_FOR_GET_APPOINTMENT = [
     "acting_id", "patient_id", "limit", "page", "order_by", "professional_id",
-    "clinic_id", "specialty_id"
+    "clinic_id", "specialty_id", "start_date", "end_date", "start_time"
 ]
 
 PARAMETERS_FOR_PUT_APPOINTMENT = [
@@ -27,7 +27,22 @@ PARAMETERS_FOR_PUT_APPOINTMENT = [
     "patient_id", "acting_id"
 ]
 
-# POST appointment #
+#  Validators  #
+
+get_validators = {
+    "clinic_id": Validator("clinic_id").number(),
+    "patient_id": Validator("patient_id").number(),
+    "specialty_id": Validator("specialty_id").number(),
+    "professional_id": Validator("professional_id").number(),
+    "start_date": Validator("start_date").date(),
+    "end_date": Validator("end_date").date(),
+    "start_time": Validator("start_time").number()
+}
+
+#  END Validators  #
+
+# QUERIES #
+
 clinic_cols = (Clinic.id.label("clinic_id"), Clinic.name.label("clinic_name"))
 professional_cols = (Professional.id.label("professional_id"),
                      Professional.name.label("professional_name"))
@@ -44,6 +59,10 @@ base_query = select(
             Clinic, Acting.clinic_id == Clinic.id).join(
                 Professional, Acting.professional_id == Professional.id).join(
                     Specialty, Acting.specialty_id == Specialty.id)
+
+# END QUERIES #
+
+# POST appointment #
 
 
 @bp_api.route("/appointments", methods=["POST"])
@@ -98,15 +117,19 @@ def create_appointment(current_user):
 @bp_api.route("/appointments", methods=["GET"])
 @swag_from(appointment_specs.get_appointments)
 @token_required
-def get_appointments(current_user):
+def get_appointments(_):
     """
     Get appointments
     """
-    params = request.args
+    params = {**request.args}
     useless_params(params.keys(), PARAMETERS_FOR_GET_APPOINTMENT)
+    validate_payload(params, get_validators)
 
     page = int(params.get("page") or 1)
     limit = int(params.get("limit") or 20)
+    start_date = params.get("start_date")
+    end_date = params.get("end_date")
+    start_time = params.get("start_time")
     acting_id = params.get("acting_id")
     patient_id = params.get("patient_id")
     clinic_id = params.get("clinic_id")
@@ -118,12 +141,22 @@ def get_appointments(current_user):
                                      Appointment.start_time,
                                      Appointment.end_time)
 
+    if start_date is not None:
+        stmt = stmt.filter(Appointment.scheduled_day >= start_date)
+    if end_date is not None:
+        stmt = stmt.filter(Appointment.scheduled_day < end_date)
+    if start_time is not None:
+        stmt = stmt.filter(
+            or_(
+                and_(Appointment.scheduled_day == start_date,
+                     Appointment.start_time >= start_time),
+                Appointment.scheduled_day != start_date))
     if acting_id is not None:
         stmt = stmt.filter(Appointment.acting_id == acting_id)
     if patient_id is not None:
         stmt = stmt.filter(Appointment.patient_id == patient_id)
     if clinic_id is not None:
-        stmt = stmt.filter(Clinic.id == professional_id)
+        stmt = stmt.filter(Clinic.id == clinic_id)
     if professional_id is not None:
         stmt = stmt.filter(Professional.id == professional_id)
     if specialty_id is not None:
@@ -136,7 +169,7 @@ def get_appointments(current_user):
 @bp_api.route("/appointments/<int:appointment_id>", methods=["GET"])
 @swag_from(appointment_specs.get_appointment_by_id)
 @token_required
-def get_appointment_by_id(current_user, appointment_id):
+def get_appointment_by_id(_, appointment_id):
     """
     Get appointment by id
     """

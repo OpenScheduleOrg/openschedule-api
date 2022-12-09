@@ -175,6 +175,29 @@ get_appointments = {
         "schema": {
             "type": "integer",
         }
+    }, {
+        "name": "start_date",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+            "format": "date",
+        }
+    }, {
+        "name": "end_date",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+            "format": "date",
+        }
+    }, {
+        "name": "start_time",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "integer",
+        }
     }],
     "responses": {
         "200": list_response_200("Appointment"),
