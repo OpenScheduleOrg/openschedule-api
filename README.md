@@ -1,1 +1,1 @@
-# consuchat-api
+# Open Schedule API

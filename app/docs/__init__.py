@@ -10,16 +10,16 @@ from .appointment_specs import appointment_model
 swagger_template = {
     "openapi": "3.0.2",
     "info": {
-        "title": "Consuchat API",
+        "title": "Open Schedule API",
         "description": "",
         "contact": {
             "email": "azurique10111@gmail.com",
         },
         "license": {
-            "name": "Apache 2.0",
-            "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+            "name": "BSD 3-Clause",
+            "url": "https://opensource.org/licenses/BSD-3-Clause"
         },
-        "termsOfService": "http://consuchat.com/terms",
+        "termsOfService": "http://openshedule.org/terms",
         "version": "0.5.0"
     },
     "servers": [{
