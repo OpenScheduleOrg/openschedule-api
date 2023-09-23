@@ -1,11 +1,12 @@
 from datetime import datetime, date, time, timedelta
 
-from flask_sqlalchemy import Model, SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Column, Integer, DateTime
+from sqlalchemy.orm import DeclarativeBase
 from .enums import ClinicType
 
 
-class DefaultModel(Model):
+class DefaultModel(DeclarativeBase):
 
     id = Column(Integer, primary_key=True)
 
