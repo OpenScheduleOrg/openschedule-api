@@ -46,38 +46,26 @@ def signin():
                        or_(Professional.username == username,
                            Professional.email == username))).first()
 
-    if user and pbkdf2_sha256.verify(password, user["password"]):
+    if user and pbkdf2_sha256.verify(password, user.password):
         access_token = jwt.encode(
             {
-                'id':
-                user["id"],
-                'name':
-                user["name"],
-                'username':
-                user["username"],
-                'email':
-                user["email"],
-                'admin':
-                admin,
-                'exp':
-                datetime.datetime.utcnow() + datetime.timedelta(
+                'id': user.id,
+                'name': user.name,
+                'username': user.username,
+                'email': user.email,
+                'admin': admin,
+                'exp': datetime.datetime.utcnow() + datetime.timedelta(
                     seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
             }, current_app.config["JWT_SECRET_KEY"], "HS256")
         if remember_me and remember_me != "false":
             session_token = jwt.encode(
                 {
-                    'id':
-                    user["id"],
-                    'name':
-                    user["name"],
-                    'username':
-                    user["username"],
-                    'email':
-                    user["email"],
-                    'admin':
-                    admin,
-                    'exp':
-                    datetime.datetime.utcnow() + datetime.timedelta(
+                    'id': user.id,
+                    'name': user.name,
+                    'username': user.username,
+                    'email': user.email,
+                    'admin': admin,
+                    'exp': datetime.datetime.utcnow() + datetime.timedelta(
                         seconds=current_app.config["SESSION_TOKEN_EXPIRE"])
                 }, current_app.config["JWT_SECRET_KEY"], "HS512")
 

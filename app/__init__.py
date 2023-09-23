@@ -1,9 +1,9 @@
 import os
 import decimal
 from datetime import date
+import json
 
 from flask import Flask, request
-from flask.json import JSONEncoder
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flasgger import Swagger
@@ -18,9 +18,10 @@ from .exceptions import resource_not_found, internal_server_error, \
     AuthorizationException, authorization_exception_handler
 
 
-class JsonEncoder(JSONEncoder):
+class JsonEncoder(json.JSONEncoder):
 
     def default(self, o):
+        print(o)
         if isinstance(o, decimal.Decimal):
             return str(o)
         if isinstance(o, ClinicType):
@@ -28,7 +29,7 @@ class JsonEncoder(JSONEncoder):
         if isinstance(o, date):
             return o.isoformat()
 
-        return JSONEncoder.default(self, o)
+        return json.JSONEncoder.default(self, o)
 
 
 def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
@@ -41,11 +42,13 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
     app.config.from_object(app_config)
     if(app_config.FLASK_ENV != "production"):
         Swagger(app, template=swagger_template, config=swagger_config)
+
     app.json_encoder = JsonEncoder
 
     db.init_app(app)
-    db.create_all(app=app)
-    set_up_data(db, app)
+    with app.app_context():
+        db.create_all()
+        set_up_data(db)
 
     from app.routes import bp_api, bp_auth
 
