@@ -56,7 +56,7 @@ def get_specialties_availables(_):
 
     clinic_id = params.get("clinic_id")
 
-    stmt = select(SPECIALTY_FIELDS).distinct().join(
+    stmt = select(*SPECIALTY_FIELDS).distinct().join(
         Acting, Acting.specialty_id == Specialty.id).join(
             Schedule, Acting.id == Schedule.acting_id).where(
                 Acting.clinic_id == clinic_id,
@@ -137,7 +137,7 @@ def get_available_schedules(_):
     specialty_id = params.get("specialty_id")
     day = params.get("day")
 
-    stmt = select(SCHEDULE_FIELDS).distinct().join(
+    stmt = select(*SCHEDULE_FIELDS).distinct().join(
         Acting, Acting.id == Schedule.acting_id
     ).join(Professional, Acting.professional_id == Professional.id).join(
         Specialty, Acting.specialty_id == Specialty.id).where(
