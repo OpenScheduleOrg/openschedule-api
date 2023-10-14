@@ -75,22 +75,21 @@ def test_should_return_201_and_the_clinic_whether_request_valid(app, client):
     assert_clinic(res_json, new_clinic)
 
 
-def test_should_return_400_whether_request_payload_is_invalid(client):
+def test_should_return_422_whether_request_payload_is_invalid(client):
     """
-    Should return status 400 whether request payload is invalid
+    Should return status 422 whether request payload is invalid
     """
     new_clinic = {}
 
     res = client.post("/api/clinics", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
-    assert len(res_json) == 5
+    assert len(res_json) == 4
     assert "name" in res_json
     assert "cnpj" in res_json
     assert "phone" in res_json
-    assert "type" in res_json
 
     new_clinic = ClinicBuilder().with_name(fake.pystr(
         min_chars=1, max_chars=1)).with_cnpj("not a cnpj").with_phone(
@@ -98,7 +97,7 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
 
     res = client.post("/api/clinics", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 4
@@ -112,17 +111,17 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
 
     res = client.post("/api/clinics", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 1
     assert "name" in res_json
 
 
-def test_should_return_400_whether_payload_have_cnpj_that_is_already_in_use(
+def test_should_return_422_whether_payload_have_cnpj_that_is_already_in_use(
         app, client):
     """
-    Should return 400 if payload have cnpj that is already in use
+    Should return 422 if payload have cnpj that is already in use
     """
     with app.app_context():
         clinics = populate_clinics()
@@ -131,16 +130,16 @@ def test_should_return_400_whether_payload_have_cnpj_that_is_already_in_use(
 
     res = client.post("/api/clinics", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "cnpj" in res_json
     assert "registered" in res_json["cnpj"]
 
 
-def test_should_return_400_whether_payload_have_phone_that_is_already_in_use(
+def test_should_return_422_whether_payload_have_phone_that_is_already_in_use(
         app, client):
     """
-    Should return 400 if payload have phone that is already in use
+    Should return 422 if payload have phone that is already in use
     """
     with app.app_context():
         clinics = populate_clinics()
@@ -149,7 +148,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use(
 
     res = client.post("/api/clinics", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "phone" in res_json
     assert "registered" in res_json["phone"]
@@ -416,23 +415,22 @@ def test_should_return_404_if_clinic_to_update_not_exists(app, client):
     assert "message" in res_json
 
 
-def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
+def test_should_return_422_whether_request_payload_is_invalid_on_update_patient(
         client):
     """
-    Should return status 400 whether request payload is invalid on update patient
+    Should return status 422 whether request payload is invalid on update patient
     """
     new_clinic = {}
 
     res = client.put("/api/clinics/0", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
-    assert len(res_json) == 5
+    assert len(res_json) == 4
     assert "name" in res_json
     assert "cnpj" in res_json
     assert "phone" in res_json
-    assert "type" in res_json
 
     new_clinic = ClinicBuilder().with_name(fake.pystr(
         min_chars=1, max_chars=1)).with_cnpj("not a cnpj").with_phone(
@@ -440,7 +438,7 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
 
     res = client.put("/api/clinics/0", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 4
@@ -454,17 +452,17 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
 
     res = client.put("/api/clinics/0", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 1
     assert "name" in res_json
 
 
-def test_should_return_400_whether_payload_have_cnpj_that_is_already_in_use_on_update_clinic(
+def test_should_return_422_whether_payload_have_cnpj_that_is_already_in_use_on_update_clinic(
         app, client):
     """
-    Should return 400 if payload have cnpj that is already in use on update clinic
+    Should return 422 if payload have cnpj that is already in use on update clinic
     """
     with app.app_context():
         clinics = populate_clinics()
@@ -474,16 +472,16 @@ def test_should_return_400_whether_payload_have_cnpj_that_is_already_in_use_on_u
 
     res = client.put(f"/api/clinics/{clinic_id}", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "cnpj" in res_json
     assert "registered" in res_json["cnpj"]
 
 
-def test_should_return_400_whether_payload_have_phone_that_is_already_in_use_on_update_clinic(
+def test_should_return_422_whether_payload_have_phone_that_is_already_in_use_on_update_clinic(
         app, client):
     """
-    Should return 400 if payload have phone that is already in use
+    Should return 422 if payload have phone that is already in use
     """
     with app.app_context():
         clinics = populate_clinics()
@@ -493,7 +491,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use_on_
 
     res = client.put(f"/api/clinics/{clinic_id}", json=new_clinic)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "phone" in res_json
     assert "registered" in res_json["phone"]

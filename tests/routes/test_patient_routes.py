@@ -71,15 +71,15 @@ def test_should_return_201_and_the_patient_whether_request_valid(app, client):
     assert_patient(res_json, new_patient)
 
 
-def test_should_return_400_whether_request_payload_is_invalid(client):
+def test_should_return_422_whether_request_payload_is_invalid(client):
     """
-    Should return status 400 whether request payload is invalid
+    Should return status 422 whether request payload is invalid
     """
     new_patient = {}
 
     res = client.post("/api/patients", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 3
@@ -93,7 +93,7 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
 
     res = client.post("/api/patients", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 4
@@ -107,17 +107,17 @@ def test_should_return_400_whether_request_payload_is_invalid(client):
 
     res = client.post("/api/patients", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 1
     assert "name" in res_json
 
 
-def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use(
+def test_should_return_422_whether_payload_have_cpf_that_is_already_in_use(
         app, client):
     """
-    Should return 400 if payload have cpf that is already in use
+    Should return 422 if payload have cpf that is already in use
     """
     with app.app_context():
         patients = populate_patients()
@@ -126,16 +126,16 @@ def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use(
 
     res = client.post("/api/patients", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "cpf" in res_json
     assert "registered" in res_json["cpf"]
 
 
-def test_should_return_400_whether_payload_have_phone_that_is_already_in_use(
+def test_should_return_422_whether_payload_have_phone_that_is_already_in_use(
         app, client):
     """
-    Should return 400 if payload have phone that is already in use
+    Should return 422 if payload have phone that is already in use
     """
     with app.app_context():
         patients = populate_patients()
@@ -144,7 +144,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use(
 
     res = client.post("/api/patients", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "phone" in res_json
     assert "registered" in res_json["phone"]
@@ -378,16 +378,16 @@ def test_should_return_404_if_patient_to_update_not_exists(app, client):
     assert "message" in res_json
 
 
-def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
+def test_should_return_422_whether_request_payload_is_invalid_on_update_patient(
         client):
     """
-    Should return status 400 whether request payload is invalid on update patient
+    Should return status 422 whether request payload is invalid on update patient
     """
     new_patient = {}
 
     res = client.put("/api/patients/0", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 3
@@ -401,7 +401,7 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
 
     res = client.put("/api/patients/0", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 4
@@ -415,17 +415,17 @@ def test_should_return_400_whether_request_payload_is_invalid_on_update_patient(
 
     res = client.put("/api/patients/0", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
 
     assert len(res_json) == 1
     assert "name" in res_json
 
 
-def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use_on_update_patient(
+def test_should_return_422_whether_payload_have_cpf_that_is_already_in_use_on_update_patient(
         app, client):
     """
-    Should return 400 if payload have cpf that is already in use on update patient
+    Should return 422 if payload have cpf that is already in use on update patient
     """
     with app.app_context():
         patients = populate_patients()
@@ -435,16 +435,16 @@ def test_should_return_400_whether_payload_have_cpf_that_is_already_in_use_on_up
 
     res = client.put(f"/api/patients/{patient_id}", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "cpf" in res_json
     assert "registered" in res_json["cpf"]
 
 
-def test_should_return_400_whether_payload_have_phone_that_is_already_in_use_on_update_patient(
+def test_should_return_422_whether_payload_have_phone_that_is_already_in_use_on_update_patient(
         app, client):
     """
-    Should return 400 if payload have phone that is already in use
+    Should return 422 if payload have phone that is already in use
     """
     with app.app_context():
         patients = populate_patients()
@@ -454,7 +454,7 @@ def test_should_return_400_whether_payload_have_phone_that_is_already_in_use_on_
 
     res = client.put(f"/api/patients/{patient_id}", json=new_patient)
 
-    assert res.status_code == 400
+    assert res.status_code == 422
     res_json = res.get_json()
     assert "phone" in res_json
     assert "registered" in res_json["phone"]

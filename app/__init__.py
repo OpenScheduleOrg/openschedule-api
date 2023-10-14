@@ -11,7 +11,7 @@ from app.models import db, set_up_data
 from app.docs import swagger_template, swagger_config
 from app.json import CustomJSONProvider
 
-from .config import app_configs
+from .config import app_configs, TestingConfig
 from .exceptions import resource_not_found, internal_server_error, \
     APIException, api_exception_handler, ValidationException, validation_exception_handler, \
     AuthenticationException, authentication_exception_handler, \
@@ -34,7 +34,8 @@ def create_app(app_config=app_configs[os.environ.get("APP_CONFIG")
     db.init_app(app)
     with app.app_context():
         db.create_all()
-        set_up_data(db)
+        if app_config != TestingConfig:
+            set_up_data(db)
 
     from app.routes import bp_api, bp_auth
 
