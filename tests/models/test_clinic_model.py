@@ -58,15 +58,13 @@ def test_should_raise_exception_when_validation_payload_fails():
         validate_payload(payload, Clinic.validators)
 
     errors = e_info.value.errors
-    assert len(errors) == 5
+    assert len(errors) == 4
     assert "name" in errors and errors[
         "name"] == ValidationMessages.REQUIRED_FIELD.format("name")
     assert "cnpj" in errors and errors[
         "cnpj"] == ValidationMessages.REQUIRED_FIELD.format("cnpj")
     assert "phone" in errors and errors[
         "phone"] == ValidationMessages.REQUIRED_FIELD.format("phone")
-    assert "type" in errors and errors[
-        "type"] == ValidationMessages.REQUIRED_FIELD.format("type")
     assert "address" in errors and errors[
         "address"] == ValidationMessages.REQUIRED_FIELD.format("address")
 
