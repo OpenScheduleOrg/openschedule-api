@@ -60,25 +60,24 @@ def test_should_raise_exception_when_validation_payload_fails():
         validate_payload(payload, Patient.validators)
 
     errors = e_info.value.errors
-    assert len(errors) == 3
+    assert len(errors) == 2
     assert "name" in errors and errors[
         "name"] == ValidationMessages.REQUIRED_FIELD.format("name")
-    assert "cpf" in errors and errors[
-        "cpf"] == ValidationMessages.REQUIRED_FIELD.format("cpf")
     assert "phone" in errors and errors[
         "phone"] == ValidationMessages.REQUIRED_FIELD.format("phone")
 
     payload = PatientBuilder().with_name(fake.pystr(
-        min_chars=1, max_chars=1)).with_cpf("not a cpf").with_phone(
-            "not a phone number").with_birthdate("not a date").build()
+        min_chars=1, max_chars=1)).with_cpf("not a cpf").with_phone("not a phone number").with_birthdate(
+            "not a date").with_registration(fake.pystr(min_chars=21, max_chars=22)).build()
 
     with pytest.raises(ValidationException) as e_info:
         validate_payload(payload, Patient.validators)
 
     errors = e_info.value.errors
-    assert len(errors) == 4
+    assert len(errors) == 5
     assert "name" in errors and "name" in errors["name"] and "least" in errors[
         "name"] and "2" in errors["name"]
+    assert "registration" in errors and "most 20" in errors["registration"]
     assert "cpf" in errors and errors[
         "cpf"] == ValidationMessages.INVALID_CPF.format("cpf")
     assert "phone" in errors and errors[

@@ -13,6 +13,7 @@ class PatientBuilder():
         self.patient = {
             "name": fake.company(),
             "cpf": fake.ssn(),
+            "registration": fake.pystr_format("####?2???####"),
             "phone": fake.msisdn()[-10:],
         }
 
@@ -35,6 +36,13 @@ class PatientBuilder():
         Set a cpf to build
         """
         self.patient["cpf"] = value
+        return self
+
+    def with_registration(self, value: str):
+        """
+        Set a cpf to build
+        """
+        self.patient["registration"] = value
         return self
 
     def with_address(self, value: str):
