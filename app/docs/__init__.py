@@ -22,9 +22,7 @@ swagger_template = {
         "termsOfService": "http://openshedule.org/terms",
         "version": "0.5.0"
     },
-    "servers": [{
-        "url": "http://localhost:5000/"
-    }],
+    "servers": [],
     "basePath": "/",
     "components": {
         "schemas": {
