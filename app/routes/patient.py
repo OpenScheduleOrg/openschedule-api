@@ -12,13 +12,13 @@ from ..middlewares import token_required
 
 from ..docs import patient_specs
 
-PARAMETERS_FOR_POST_PATIENT = ["name", "cpf", "phone", "birthdate", "address"]
+PARAMETERS_FOR_POST_PATIENT = ["name", "cpf", "phone", "birthdate", "address", "registration"]
 
 PARAMETERS_FOR_GET_PATIENT = [
-    "name", "cpf", "phone", "limit", "page", "order_by"
+    "name", "cpf", "phone", "limit", "page", "order_by", "registration"
 ]
 
-PARAMETERS_FOR_PUT_PATIENT = ["name", "cpf", "phone", "birthdate"]
+PARAMETERS_FOR_PUT_PATIENT = ["name", "cpf", "phone", "birthdate", "registration"]
 
 # POST patient #
 
@@ -35,9 +35,12 @@ def create_patient(_):
     useless_params(body.keys(), PARAMETERS_FOR_POST_PATIENT)
     validate_payload(body, Patient.validators)
 
-    if session.query(
+    if "cpf" in body and session.query(
             Patient.id).filter(Patient.cpf == body["cpf"]).first() is not None:
         raise ValidationException({"cpf": ValidationMessages.CPF_REGISTERED})
+    if "registration" in body and session.query(
+            Patient.id).filter(Patient.registration == body["registration"]).first() is not None:
+        raise ValidationException({"registration": ValidationMessages.REGISTRATION_REGISTERED})
     if session.query(Patient.id).filter(
             Patient.phone == body["phone"]).first() is not None:
         raise ValidationException(
@@ -69,6 +72,7 @@ def get_patients(_):
     limit = int(params.get("limit") or 20)
     name = params.get("name")
     cpf = params.get("cpf")
+    registration = params.get("registration")
     phone = params.get("phone")
 
     stmt = select(Patient).limit(limit).offset(
@@ -79,6 +83,9 @@ def get_patients(_):
 
     if cpf is not None:
         stmt = stmt.filter(Patient.cpf.like("%" + cpf + "%"))
+
+    if registration is not None:
+        stmt = stmt.filter(Patient.registration.like("%" + registration + "%"))
 
     if phone is not None:
         stmt = stmt.filter(Patient.phone.like("%" + phone + "%"))
@@ -121,6 +128,23 @@ def get_patient_by_cpf(_, patient_cpf):
     return jsonify(patient.as_json())
 
 
+@bp_api.route("/patients/<string:patient_registration>/registration", methods=["GET"])
+@swag_from(patient_specs.get_patient_by_registration)
+@token_required
+def get_patient_by_registration(_, patient_registration):
+    """
+    Get patient by registration
+    """
+    patient = session.execute(
+        select(Patient).filter_by(registration=patient_registration)).scalar()
+
+    if patient is None:
+        raise APIException(ResponseMessages.ENTITY_NOT_FOUND.format("Patient"),
+                           status_code=404)
+
+    return jsonify(patient.as_json())
+
+
 @bp_api.route("/patients/<string:patient_phone>/phone", methods=["GET"])
 @swag_from(patient_specs.get_patient_by_phone)
 @token_required
@@ -155,10 +179,13 @@ def update_patient(_, patient_id):
     useless_params(body.keys(), PARAMETERS_FOR_POST_PATIENT)
     validate_payload(body, Patient.validators)
 
-    if session.query(
+    if "cpf" in body and session.query(
             Patient.id).filter(Patient.cpf == body["cpf"],
                                Patient.id != patient_id).first() is not None:
         raise ValidationException({"cpf": ValidationMessages.CPF_REGISTERED})
+    if "registration" in body and session.query(
+            Patient.id).filter(Patient.registration == body["registration"]).first() is not None:
+        raise ValidationException({"registration": ValidationMessages.REGISTRATION_REGISTERED})
     if session.query(
             Patient.id).filter(Patient.phone == body["phone"],
                                Patient.id != patient_id).first() is not None:

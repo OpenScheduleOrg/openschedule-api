@@ -13,6 +13,10 @@ patient_minimal = {
             "type": "string",
             "example": "325.553.790-88"
         },
+        "registration": {
+            "type": "string",
+            "example": "20201P2ADS0188"
+        },
         "phone": {
             "type": "string",
             "example": "(69) 93657-4513"
@@ -119,6 +123,13 @@ get_patients = {
             "type": "string",
         }
     }, {
+        "name": "registration",
+        "in": "query",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
+    }, {
         "name": "phone",
         "in": "query",
         "required": False,
@@ -173,6 +184,32 @@ get_patient_by_cpf = {
         "name": "patient_cpf",
         "in": "path",
         "description": "must be without mask",
+        "required": False,
+        "schema": {
+            "type": "string",
+        }
+    }],
+    "responses": {
+        "200": unique_entity_200("Patient"),
+        "404": entity_not_found_404,
+        "401": unauthenticated_401,
+        "403": not_authorized_403,
+    }
+}
+
+get_patient_by_registration = {
+    **tags, "summary":
+    "Load a patient using registration",
+    "description":
+    "load patient by registration",
+    "operationId":
+    "get_patient_by_registration",
+    "security": [{
+        "BearerAuth": []
+    }],
+    "parameters": [{
+        "name": "patient_registration",
+        "in": "path",
         "required": False,
         "schema": {
             "type": "string",
