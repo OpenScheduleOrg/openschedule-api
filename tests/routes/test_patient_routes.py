@@ -15,6 +15,7 @@ def assert_patient(result, expected, complete=True):
     assert result["name"] == expected["name"]
     assert result["cpf"] == expected["cpf"]
     assert result["phone"] == expected["phone"]
+    assert result["registration"] == expected["registration"]
 
     if complete:
         assert result["address"] == expected["address"]
@@ -82,23 +83,24 @@ def test_should_return_422_whether_request_payload_is_invalid(client):
     assert res.status_code == 422
     res_json = res.get_json()
 
-    assert len(res_json) == 3
+    assert len(res_json) == 2
     assert "name" in res_json
-    assert "cpf" in res_json
     assert "phone" in res_json
 
     new_patient = PatientBuilder().with_name(
         fake.pystr(min_chars=1, max_chars=1)).with_cpf("not a cpf").with_phone(
-            "not a phone").with_birthdate("not a date").build()
+            "not a phone").with_birthdate(
+                "not a date").with_registration(fake.pystr(min_chars=21, max_chars=22)).build()
 
     res = client.post("/api/patients", json=new_patient)
 
     assert res.status_code == 422
     res_json = res.get_json()
 
-    assert len(res_json) == 4
+    assert len(res_json) == 5
     assert "name" in res_json
     assert "cpf" in res_json
+    assert "registration" in res_json
     assert "phone" in res_json
     assert "birthdate" in res_json
 
@@ -130,6 +132,24 @@ def test_should_return_422_whether_payload_have_cpf_that_is_already_in_use(
     res_json = res.get_json()
     assert "cpf" in res_json
     assert "registered" in res_json["cpf"]
+
+
+def test_should_return_422_whether_payload_have_registration_that_is_already_in_use(
+        app, client):
+    """
+    Should return 422 if payload have registration that is already in use
+    """
+    with app.app_context():
+        patients = populate_patients()
+
+    new_patient = PatientBuilder().with_registration(patients[0]["registration"]).build()
+
+    res = client.post("/api/patients", json=new_patient)
+
+    assert res.status_code == 422
+    res_json = res.get_json()
+    assert "registration" in res_json
+    assert "registered" in res_json["registration"]
 
 
 def test_should_return_422_whether_payload_have_phone_that_is_already_in_use(
@@ -353,8 +373,7 @@ def test_should_return_200_when_patient_is_updated_with_valid_data(
                 & (Patient.phone == update_patient["phone"])
                 & (Patient.name == update_patient["name"])
                 & (Patient.address == update_patient["address"])
-                &
-                (Patient.birthdate == update_patient["birthdate"]))).scalar()
+                & (Patient.birthdate == update_patient["birthdate"]))).scalar()
     assert persited_patient
 
     assert res.status_code == 200
@@ -390,23 +409,24 @@ def test_should_return_422_whether_request_payload_is_invalid_on_update_patient(
     assert res.status_code == 422
     res_json = res.get_json()
 
-    assert len(res_json) == 3
+    assert len(res_json) == 2
     assert "name" in res_json
-    assert "cpf" in res_json
     assert "phone" in res_json
 
     new_patient = PatientBuilder().with_name(
         fake.pystr(min_chars=1, max_chars=1)).with_cpf("not a cpf").with_phone(
-            "not a phone").with_birthdate("not a date").build()
+            "not a phone").with_birthdate(
+                "not a date").with_registration(fake.pystr(min_chars=21, max_chars=21)).build()
 
     res = client.put("/api/patients/0", json=new_patient)
 
     assert res.status_code == 422
     res_json = res.get_json()
 
-    assert len(res_json) == 4
+    assert len(res_json) == 5
     assert "name" in res_json
     assert "cpf" in res_json
+    assert "registration" in res_json
     assert "phone" in res_json
     assert "birthdate" in res_json
 
@@ -439,6 +459,25 @@ def test_should_return_422_whether_payload_have_cpf_that_is_already_in_use_on_up
     res_json = res.get_json()
     assert "cpf" in res_json
     assert "registered" in res_json["cpf"]
+
+
+def test_should_return_422_whether_payload_have_registation_that_is_already_in_use_on_update_patient(
+        app, client):
+    """
+    Should return 422 if payload have registation that is already in use on update patient
+    """
+    with app.app_context():
+        patients = populate_patients()
+
+    patient_id = patients[0]["id"]
+    new_patient = PatientBuilder().with_registration(patients[1]["registration"]).build()
+
+    res = client.put(f"/api/patients/{patient_id}", json=new_patient)
+
+    assert res.status_code == 422
+    res_json = res.get_json()
+    assert "registration" in res_json
+    assert "registered" in res_json["registration"]
 
 
 def test_should_return_422_whether_payload_have_phone_that_is_already_in_use_on_update_patient(

@@ -19,6 +19,7 @@ class ValidationMessages:
     INVALID_DATE = "field {} is not a date"
 
     CPF_REGISTERED = "CPF has already been registered"
+    REGISTRATION_REGISTERED = "registration has already been registered"
     CNPJ_REGISTERED = "CNPJ has already been registered"
     PHONE_REGISTERED = "phone number has already been registered"
     USERNAME_REGISTERED = "username has already been registered"
