@@ -54,9 +54,7 @@ def create_schedule(current_user):
     useless_params(body.keys(), PARAMETERS_FOR_POST_SCHEDULE)
     validate_payload(body, Schedule.validators)
 
-    acting = session.query(
-        Acting.id,
-        Acting.professional_id).filter(Acting.id == body["acting_id"]).first()
+    acting = session.query(Acting.id, Acting.professional_id).filter(Acting.id == body["acting_id"]).first()
 
     if acting is None:
         raise ValidationException({
@@ -65,8 +63,7 @@ def create_schedule(current_user):
                 "acting", body["acting_id"])
         })
 
-    if not current_user[
-            "admin"] and acting["professional_id"] != current_user["id"]:
+    if not current_user["admin"] and acting.professional_id != current_user["id"]:
         raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_OPERATION)
 
     schedule = Schedule(**body)
@@ -139,7 +136,7 @@ def get_schedule_by_id(current_user, schedule_id):
             status_code=404)
 
     if not current_user["admin"]:
-        if not schedule["professional_id"] == current_user["id"]:
+        if not schedule.professional_id == current_user["id"]:
             raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_ACCESS)
 
     return jsonify(schedule._asdict())
@@ -162,9 +159,7 @@ def update_schedule(current_user, schedule_id):
     useless_params(body.keys(), PARAMETERS_FOR_POST_SCHEDULE)
     validate_payload(body, Schedule.validators)
 
-    acting = session.query(
-        Acting.id,
-        Acting.professional_id).filter(Acting.id == body["acting_id"]).first()
+    acting = session.query(Acting.id, Acting.professional_id).filter(Acting.id == body["acting_id"]).first()
 
     if acting is None:
         raise ValidationException({
@@ -174,7 +169,7 @@ def update_schedule(current_user, schedule_id):
         })
 
     if not current_user["admin"]:
-        has_permission = acting["professional_id"] == current_user["id"]
+        has_permission = acting.professional_id == current_user["id"]
         if has_permission:
             has_permission = session.query(Schedule.id).join(Acting).filter(
                 Schedule.id == schedule_id,
