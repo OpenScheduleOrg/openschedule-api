@@ -172,7 +172,7 @@ def get_professional_by_username(_, professional_username):
     professional["actuations"] = [
         a._asdict() for a in session.execute(
             query_actuations.where(
-                Acting.professional_id == professional["id"])).all()
+                Acting.professional_id == professional.id)).all()
     ]
 
     return jsonify(professional), 200
@@ -199,7 +199,7 @@ def get_professional_by_email(_, professional_email):
     professional["actuations"] = [
         a._asdict() for a in session.execute(
             query_actuations.where(
-                Acting.professional_id == professional["id"])).all()
+                Acting.professional_id == professional.id)).all()
     ]
 
     return jsonify(professional), 200
@@ -226,7 +226,7 @@ def get_professional_by_phone(_, professional_phone):
     professional["actuations"] = [
         a._asdict() for a in session.execute(
             query_actuations.where(
-                Acting.professional_id == professional["id"])).all()
+                Acting.professional_id == professional.id)).all()
     ]
 
     return jsonify(professional), 200

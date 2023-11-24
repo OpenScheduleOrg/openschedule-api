@@ -97,7 +97,7 @@ def create_appointment(current_user):
         })
 
     if not current_user[
-            "admin"] and acting["professional_id"] != current_user["id"]:
+            "admin"] and acting.professional_id != current_user["id"]:
         raise AuthorizationException(ResponseMessages.NOT_AUHORIZED_OPERATION)
 
     appointment = Appointment(**body)
@@ -221,7 +221,7 @@ def update_appointment(current_user, appointment_id):
         })
 
     if not current_user["admin"]:
-        has_permission = acting["professional_id"] == current_user["id"]
+        has_permission = acting.professional_id == current_user["id"]
         if has_permission:
             has_permission = session.query(Appointment.id).join(Acting).filter(
                 Appointment.id == appointment_id,
