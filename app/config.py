@@ -26,6 +26,9 @@ class Config():
 
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
+    GOOGLE_OAUTH_CLIENTID = os.environ.get("GOOGLE_OAUTH_CLIENTID")
+    GOOGLE_OAUTH_SECRET_KEY = os.environ.get("GOOGLE_OAUTH_SECRET_KEY")
+
 
 class DevelopmentConfig(Config):
     DEBUG = True
