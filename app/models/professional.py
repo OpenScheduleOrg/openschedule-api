@@ -13,6 +13,7 @@ class Professional(TimestampMixin, db.Model):
     username = Column(String(45), nullable=False)
     email = Column(String(255), nullable=False)
     password = Column(CHAR(87))
+    picture = Column(String(255))
 
     validators = {
         "name": Validator("name").required().length(2, 255),

@@ -11,6 +11,7 @@ class User(TimestampMixin, db.Model):
     username = Column(String(45), nullable=False)
     email = Column(String(255), nullable=False)
     password = Column(CHAR(87))
+    picture = Column(String(255))
 
     clinic_id = Column(Integer, ForeignKey('clinics.id'), nullable=False)
 
