@@ -6,8 +6,11 @@ from passlib.hash import pbkdf2_sha256
 from sqlalchemy import or_
 from flasgger import swag_from
 
+from google.oauth2 import id_token
+from google.auth.transport import requests
+
 from . import bp_auth
-from ..models import session, select, User, Professional
+from ..models import session, select, update, User, Professional
 from ..helpers.auth import get_header_token, decode_token
 
 from ..docs import auth_specs
@@ -32,47 +35,18 @@ def signin():
         return jsonify({"message": "credentials required"}), 401
 
     admin = True
-    user = session.execute(
-        select(User.id, User.name, User.password, User.username,
-               User.email).where(
-                   or_(User.username == username,
-                       User.email == username))).first()
+    user = session.execute(select(User).where(or_(User.username == username, User.email == username))).scalar()
 
     if user is None:
         admin = False
-        user = session.execute(
-            select(Professional.id, Professional.name, Professional.password,
-                   Professional.username, Professional.email).where(
-                       or_(Professional.username == username,
-                           Professional.email == username))).first()
+        user = session.execute(select(Professional).where(
+            or_(Professional.username == username, Professional.email == username))).scalar()
 
     if user and pbkdf2_sha256.verify(password, user.password):
-        access_token = jwt.encode(
-            {
-                'id': user.id,
-                'name': user.name,
-                'username': user.username,
-                'email': user.email,
-                'admin': admin,
-                'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                    seconds=current_app.config["ACCESS_TOKEN_EXPIRE"])
-            }, current_app.config["JWT_SECRET_KEY"], "HS256")
+        access_token = get_jwt_token(user, admin, current_app.config["ACCESS_TOKEN_EXPIRE"], "HS256")
         if remember_me and remember_me != "false":
-            session_token = jwt.encode(
-                {
-                    'id': user.id,
-                    'name': user.name,
-                    'username': user.username,
-                    'email': user.email,
-                    'admin': admin,
-                    'exp': datetime.datetime.utcnow() + datetime.timedelta(
-                        seconds=current_app.config["SESSION_TOKEN_EXPIRE"])
-                }, current_app.config["JWT_SECRET_KEY"], "HS512")
-
-            return jsonify({
-                "access_token": access_token,
-                "session_token": session_token
-            }), 200
+            session_token = get_jwt_token(user, admin, current_app.config["SESSION_TOKEN_EXPIRE"], "HS512")
+            return jsonify({"access_token": access_token, "session_token": session_token}), 200
 
         return jsonify({"access_token": access_token}), 200
 
@@ -115,3 +89,61 @@ def restore_session():
     access_token = jwt.encode(payload, current_app.config["JWT_SECRET_KEY"],
                               "HS256")
     return jsonify({"access_token": access_token}), 200
+
+
+@bp_auth.route("/signin/google", methods=["POST"])
+@swag_from(auth_specs.signin_google)
+def signin_google():
+    """
+    Performs login with google sso
+    """
+    body = request.get_json()
+
+    remember_me = body.get("remember_me")
+    token = body.get("token")
+
+    if not token:
+        return jsonify({"message": "credentials required"}), 401
+
+    try:
+        user_google_info = id_token.verify_oauth2_token(token, requests.Request(),
+                                                        current_app.config["GOOGLE_OAUTH_CLIENTID"])
+
+        admin = True
+        user = session.execute(select(User).where(User.email == user_google_info["email"])).scalar()
+
+        if user is None:
+            admin = False
+            user = session.execute(select(Professional).where(Professional.email == user_google_info["email"])).scalar()
+
+        if user and not user.picture:
+            user.picture = user_google_info["picture"]
+            session.execute(update(user.__class__).where(user.__class__.id == user.id).values(picture=user.picture))
+            session.commit()
+
+        if user:
+            access_token = get_jwt_token(user, admin, current_app.config["ACCESS_TOKEN_EXPIRE"], "HS256")
+            if remember_me and remember_me != "false":
+                session_token = get_jwt_token(user, admin, current_app.config["SESSION_TOKEN_EXPIRE"], "HS512")
+                return jsonify({"access_token": access_token, "session_token": session_token}), 200
+
+            return jsonify({"access_token": access_token}), 200
+    except ValueError:
+        pass
+
+    return jsonify({"message": "not authorized user"}), 401
+
+
+def get_jwt_token(user: User, admin: bool, expire, algorithm):
+    '''
+    Get access token
+    '''
+    return jwt.encode({
+        'id': user.id,
+        'name': user.name,
+        'username': user.username,
+        'email': user.email,
+        'picture': user.picture,
+        'admin': admin,
+        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=expire)
+    }, current_app.config["JWT_SECRET_KEY"], algorithm)
