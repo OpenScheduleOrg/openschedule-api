@@ -12,7 +12,7 @@ class Professional(TimestampMixin, db.Model):
     reg_number = Column(String(40))
     username = Column(String(45), nullable=False)
     email = Column(String(255), nullable=False)
-    password = Column(CHAR(87), nullable=False)
+    password = Column(CHAR(87))
 
     validators = {
         "name": Validator("name").required().length(2, 255),
@@ -20,7 +20,7 @@ class Professional(TimestampMixin, db.Model):
         "reg_number": Validator("reg_number"),
         "username": Validator("username").required().length(5, 45),
         "email": Validator("email").required().email(),
-        "password": Validator("password").required().length(6, 255),
+        "password": Validator("password").length(6, 255),
     }
 
     validators_update = {
