@@ -57,7 +57,8 @@ def create_professional(_):
         raise ValidationException(
             {"email": ValidationMessages.EMAIL_REGISTERED})
 
-    body["password"] = pbkdf2_sha256.hash(body["password"])
+    if "password" in body:
+        body["password"] = pbkdf2_sha256.hash(body["password"])
 
     professional = Professional(**body)
     session.add(professional)

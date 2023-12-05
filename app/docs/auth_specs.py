@@ -75,3 +75,33 @@ restore_session = {
         "401": unauthenticated_401,
     }
 }
+
+signin_google = {
+    **tags, "summary": "Perform login with google",
+    "description": "User login with google",
+    "operationId": "auth_signin_google",
+    "requestBody": {
+        "description": "Google credential information",
+        "content": {
+            "application/json": {
+                "schema": {
+                    "type": "object",
+                    "properties": {
+                        "remember_me": {
+                            "type": "boolean",
+                            "example": False
+                        },
+                        "credential": {
+                            "type": "string",
+                            "example": "[jwt.token]"
+                        },
+                    }
+                }
+            }
+        }
+    },
+    "responses": {
+        "200": auth_200(),
+        "401": unauthenticated_401,
+    }
+}

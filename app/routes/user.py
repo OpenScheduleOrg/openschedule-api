@@ -14,15 +14,15 @@ from ..middlewares import token_required, only_admin
 from ..docs import user_specs
 
 PARAMETERS_FOR_POST_USER = [
-    "name", "username", "email", "password", "clinic_id"
+    "name", "username", "email", "password", "clinic_id", "active"
 ]
 
 PARAMETERS_FOR_GET_USER = [
-    "name", "username", "email", "limit", "page", "order_by"
+    "name", "username", "email", "limit", "page", "order_by", "active"
 ]
 
 PARAMETERS_FOR_PUT_USER = [
-    "name", "username", "email", "clinic_id", "password"
+    "name", "username", "email", "clinic_id", "password", "active"
 ]
 
 # POST user #
@@ -58,7 +58,8 @@ def create_user(_):
                 "clinic", body["clinic_id"])
         })
 
-    body["password"] = pbkdf2_sha256.hash(body["password"])
+    if "password" in body:
+        body["password"] = pbkdf2_sha256.hash(body["password"])
 
     user = User(**body)
     session.add(user)
