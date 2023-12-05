@@ -3,7 +3,7 @@ import datetime
 import jwt
 from flask import request, jsonify, current_app
 from passlib.hash import pbkdf2_sha256
-from sqlalchemy import or_
+from sqlalchemy import or_, and_
 from flasgger import swag_from
 
 from google.oauth2 import id_token
@@ -35,14 +35,15 @@ def signin():
         return jsonify({"message": "credentials required"}), 401
 
     admin = True
-    user = session.execute(select(User).where(or_(User.username == username, User.email == username))).scalar()
+    first_part_stmt = or_(User.username == username, User.email == username)
+    user = session.execute(select(User).where(and_(first_part_stmt, User.active))).scalar()
 
     if user is None:
         admin = False
         user = session.execute(select(Professional).where(
             or_(Professional.username == username, Professional.email == username))).scalar()
 
-    if user and pbkdf2_sha256.verify(password, user.password):
+    if user and user.password and pbkdf2_sha256.verify(password, user.password):
         access_token = get_jwt_token(user, admin, current_app.config["ACCESS_TOKEN_EXPIRE"], "HS256")
         if remember_me and remember_me != "false":
             session_token = get_jwt_token(user, admin, current_app.config["SESSION_TOKEN_EXPIRE"], "HS512")
@@ -110,13 +111,13 @@ def signin_google():
                                                         current_app.config["GOOGLE_OAUTH_CLIENTID"])
 
         admin = True
-        user = session.execute(select(User).where(User.email == user_google_info["email"])).scalar()
+        user = session.execute(select(User).where(and_(User.email == user_google_info["email"], User.active))).scalar()
 
         if user is None:
             admin = False
             user = session.execute(select(Professional).where(Professional.email == user_google_info["email"])).scalar()
 
-        if user and not user.picture:
+        if user and not user.picture and "picture" in user_google_info:
             user.picture = user_google_info["picture"]
             session.execute(update(user.__class__).where(user.__class__.id == user.id).values(picture=user.picture))
             session.commit()
