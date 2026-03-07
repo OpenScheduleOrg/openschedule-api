@@ -1,0 +1,8 @@
+venv
+.env
+__pycache__
+*.egg-info
+.tool-versions
+.vimspector.json
+build
+dist

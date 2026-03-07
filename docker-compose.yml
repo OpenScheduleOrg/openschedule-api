@@ -1,0 +1,47 @@
+services:
+  db:
+    image: mariadb:latest
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_PASSWORD: openschedulepassword
+      MARIADB_USER: openschedule
+      MARIADB_DATABASE: openschedule
+      MARIADB_ROOT_PASSWORD: rootpassword
+    healthcheck:
+      test: ["CMD", "mariadb-admin", "-u", "root", "-prootpassword", "ping"]
+      interval: 5s
+      timeout: 2s
+      retries: 5
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - openschedule-network
+  openschedule-api:
+    image: openschedule-api:latest
+    ports:
+      - "5000:5000"
+    environment:
+      APP_CONFIG: development
+      ALGO: HS512,HS256
+      BCRYPT_ROUNDS: 12
+      BCRYPT_PEPPER: secret
+      SECRET_KEY: secret
+      JWT_SECRET_KEY: secret
+      ACCESS_TOKEN_EXPIRE: 86400
+      SESSION_TOKEN_EXPIRE: 25926000
+      CORS_ORIGINS: "*"
+      DATABASE_URI: "mysql+pymysql://openschedule:openschedulepassword@db:3306/openschedule"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - openschedule-network
+networks:
+  openschedule-network:
+    driver: bridge
+volumes:
+  mariadb_data:
+
